@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Cuentas Claras</title>
 <meta name="description" content="Reparte gastos entre amigos y descubre quién debe a quién.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="../ui.css">
 <script src="../i18n.js"></script>
 <script src="../pro.js"></script>
+<script src="../tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../afiliados.js"></script>
 <style>
 :root{--hero:#0b3b3c;--hero-ink:#fff;--accent:#19c2b3;--accent-ink:#06292a;--soft:#dff6f3}
@@ -34,6 +37,13 @@
 .exp .meta{grid-column:1/2;font-size:13px;color:var(--muted)}
 .exp .v{font-weight:800;font-variant-numeric:tabular-nums}
 .gbar{display:grid;grid-template-columns:1fr auto;gap:10px}
+.txwrap{display:grid;gap:6px}
+.txbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.txbtns button{font:inherit;font-size:13px;font-weight:700;border-radius:10px;border:1.5px solid rgb(255 255 255 / .35);background:transparent;color:var(--hero-ink);padding:6px 10px;min-height:36px;cursor:pointer}
+.txbtns button.full{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.partial{display:flex;gap:6px}.partial input{background:rgb(255 255 255 / .1);color:var(--hero-ink);border-color:rgb(255 255 255 / .3);min-height:40px}
+.payrow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.payrow:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -54,6 +64,8 @@
 </section>
 
 <main class="wrap">
+  <section id="example"></section>
+
   <section class="card">
     <div class="gbar"><select id="groupSel" data-i18n-aria="group"></select><button class="btn small ghost" id="newGroup" data-i18n="newGroup">+ Nuevo grupo</button></div>
     <div class="row"><button class="btn small ghost" id="rename" data-i18n="rename">Renombrar</button><button class="btn small ghost" id="exportBtn" data-i18n="copySum">Copiar resumen</button></div>
@@ -61,7 +73,7 @@
     <div id="groupPro" aria-live="polite"></div>
   </section>
 
-  <section class="card result" aria-live="polite">
+  <section class="card result" id="settleCard" aria-live="polite">
     <span class="lbl" data-i18n="settleH">Para quedar en paz</span>
     <div id="settle" style="display:grid;gap:8px"></div>
     <div class="stats" id="totals"></div>
@@ -86,7 +98,20 @@
     </form>
   </section>
 
-  <section class="card"><h2 data-i18n="expH">Gastos</h2><div id="expenses"></div></section>
+  <section class="card" id="expCard"><h2 data-i18n="expH">Gastos</h2><div id="expenses"></div></section>
+
+  <section class="card" id="payCard">
+    <h2><span class="n">3</span><span data-i18n="payH">Pagos entre vosotros</span></h2>
+    <p class="help" data-i18n="payHelp"></p>
+    <form id="payForm" style="display:grid;gap:10px">
+      <div class="grid2"><label class="f"><span data-i18n="from">Quién paga</span><select id="payFrom"></select></label><label class="f"><span data-i18n="to">A quién</span><select id="payTo"></select></label></div>
+      <div class="inline"><input id="payAmt" type="number" step="0.01" min="0.01" inputmode="decimal" required data-i18n-aria="amount" data-i18n-ph="amount"><button class="btn" data-i18n="savePay">Guardar pago</button></div>
+      <div class="msg" id="payMsg" aria-live="polite"></div>
+    </form>
+    <div id="pays"></div>
+  </section>
+
+  <section id="exportBar"></section>
 
   <section class="card"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
   <section class="card" id="amz"></section>
@@ -137,6 +162,18 @@ const D={
  sumBy:['pagó','payé par','paid by','pagato da','pagou'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
  amzH:['Para tu próximo viaje en grupo','Pour votre prochain voyage entre amis','For your next group trip','Per il tuo prossimo viaggio di gruppo','Para a sua próxima viagem em grupo'],
+ payH:['Pagos entre vosotros','Remboursements','Paybacks','Rimborsi','Pagamentos entre vocês'],
+ payHelp:['Apunta lo que cada uno va devolviendo. La deuda se descuenta sola.','Notez ce que chacun rembourse. La dette diminue toute seule.','Log what each person pays back. The debt goes down automatically.','Segna quanto restituisce ognuno. Il debito si riduce da solo.','Registe o que cada um vai devolvendo. A dívida desconta-se sozinha.'],
+ from:['Quién paga','Qui paie','Who pays','Chi paga','Quem paga'],to:['A quién','À qui','To whom','A chi','A quem'],
+ savePay:['Guardar pago','Enregistrer le paiement','Save payment','Salva pagamento','Guardar pagamento'],
+ markPaid:['✓ Pagado todo','✓ Tout payé','✓ Paid in full','✓ Pagato tutto','✓ Pago tudo'],
+ partial:['Pago parcial','Paiement partiel','Part payment','Pagamento parziale','Pagamento parcial'],
+ noPay:['Aún no hay pagos.','Aucun remboursement pour l’instant.','No payments yet.','Ancora nessun pagamento.','Ainda não há pagamentos.'],
+ payLine:['{f} pagó {a} a {t}','{f} a remboursé {a} à {t}','{f} paid {a} to {t}','{f} ha dato {a} a {t}','{f} pagou {a} a {t}'],
+ paidTot:['Ya devuelto','Déjà remboursé','Already paid back','Già restituito','Já devolvido'],
+ samePerson:['Elige dos personas distintas.','Choisissez deux personnes différentes.','Pick two different people.','Scegli due persone diverse.','Escolha duas pessoas diferentes.'],
+ sumPays:['Pagos ya hechos:','Remboursements déjà faits :','Payments already made:','Pagamenti già fatti:','Pagamentos já feitos:'],
+ exStory:['<p><b>4 amigos</b> vuelven de un viaje a Lisboa.</p><ol><li>Añaden a las 4 personas.</li><li>Apuntan cada gasto: Ana pagó el apartamento (480 €), Luis la gasolina…</li><li>La app dice: <b>Luis paga 105 € a Ana</b>, Marta paga 96 €…</li><li>Luis le da 50 € hoy: pulsan <b>Pago parcial</b> y su deuda baja a 55 €.</li><li>Cuando paga el resto, pulsan <b>✓ Pagado todo</b>.</li></ol>','<p><b>4 amis</b> rentrent d’un voyage à Lisbonne.</p><ol><li>Ils ajoutent les 4 personnes.</li><li>Ils notent chaque dépense : Ana a payé l’appartement (480 €), Luis l’essence…</li><li>L’appli indique : <b>Luis paie 105 € à Ana</b>, Marta paie 96 €…</li><li>Luis donne 50 € aujourd’hui : ils touchent <b>Paiement partiel</b> et sa dette passe à 55 €.</li><li>Quand il paie le reste, ils touchent <b>✓ Tout payé</b>.</li></ol>','<p><b>4 friends</b> are back from a trip to Lisbon.</p><ol><li>They add the 4 people.</li><li>They log each expense: Ana paid the apartment (480 €), Luis the fuel…</li><li>The app says: <b>Luis pays Ana 105 €</b>, Marta pays 96 €…</li><li>Luis gives 50 € today: they tap <b>Part payment</b> and his debt drops to 55 €.</li><li>When he pays the rest, they tap <b>✓ Paid in full</b>.</li></ol>','<p><b>4 amici</b> tornano da un viaggio a Lisbona.</p><ol><li>Aggiungono le 4 persone.</li><li>Segnano ogni spesa: Ana ha pagato l’appartamento (480 €), Luis la benzina…</li><li>L’app dice: <b>Luis paga 105 € ad Ana</b>, Marta paga 96 €…</li><li>Luis dà 50 € oggi: toccano <b>Pagamento parziale</b> e il suo debito scende a 55 €.</li><li>Quando paga il resto, toccano <b>✓ Pagato tutto</b>.</li></ol>','<p><b>4 amigos</b> voltam de uma viagem a Lisboa.</p><ol><li>Adicionam as 4 pessoas.</li><li>Registam cada gasto: a Ana pagou o apartamento (480 €), o Luís a gasolina…</li><li>A app diz: <b>Luís paga 105 € à Ana</b>, Marta paga 96 €…</li><li>O Luís dá 50 € hoje: tocam em <b>Pagamento parcial</b> e a dívida baixa para 55 €.</li><li>Quando paga o resto, tocam em <b>✓ Pago tudo</b>.</li></ol>'],
  locked:['(Pro)','(Pro)','(Pro)','(Pro)','(Pro)']
 };
 const t=(k,v)=>T(D[k],v);
@@ -169,16 +206,27 @@ if(!G||!Array.isArray(G.groups)||!G.groups.length){
 if(!window.PRO)G.cur=0;
 let S=G.groups[G.cur]||G.groups[0];
 function save(){try{localStorage.setItem('cuentas-grupos',JSON.stringify(G))}catch(e){}}
-function balances(){const b={};S.people.forEach(p=>b[p]=0);S.exp.forEach(e=>{const sh=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});return b}
+function balances(){const b={};S.people.forEach(p=>b[p]=0);S.exp.forEach(e=>{const sh=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});(S.pay||[]).forEach(x=>{if(b[x.f]!==undefined)b[x.f]+=x.a;if(b[x.t]!==undefined)b[x.t]-=x.a});return b}
+function addPay(f,to,a){if(!(a>0)||f===to)return;S.pay=S.pay||[];S.pay.push({f,t:to,a:Math.round(a*100)/100});save();render()}
 function settle(b){const cr=[],db=[];Object.entries(b).forEach(([p,v])=>{v=Math.round(v*100)/100;if(v>.004)cr.push([p,v]);else if(v<-.004)db.push([p,-v])});
   cr.sort((a,b)=>b[1]-a[1]);db.sort((a,b)=>b[1]-a[1]);const out=[];let i=0,j=0;
   while(i<db.length&&j<cr.length){const m=Math.min(db[i][1],cr[j][1]);out.push([db[i][0],cr[j][0],m]);db[i][1]-=m;cr[j][1]-=m;if(db[i][1]<.005)i++;if(cr[j][1]<.005)j++}return out}
 function render(){
   const b=balances(),tr=settle(b),tot=S.exp.reduce((x,e)=>x+e.a,0);
-  document.getElementById('settle').innerHTML=tr.length?tr.map(([f,to,m])=>`<div class="tx"><span class="who">${esc(f)}</span><span class="arrow">${t('pays')} →<span class="amt">${fmtEUR(m)}</span></span><span class="who">${esc(to)}</span></div>`).join(''):`<p class="ok">${t('allOk')}</p>`;
-  document.getElementById('totals').innerHTML=`<div><span class="lbl">${t('total')}</span><b>${fmtEUR(tot)}</b></div><div><span class="lbl">${t('avg')}</span><b>${fmtEUR(S.people.length?tot/S.people.length:0)}</b></div><div><span class="lbl">${t('payments')}</span><b>${tr.length}</b></div>`;
+  document.getElementById('settle').innerHTML=tr.length?tr.map(([f,to,m],k)=>`<div class="txwrap"><div class="tx"><span class="who">${esc(f)}</span><span class="arrow">${t('pays')} →<span class="amt">${fmtEUR(m)}</span></span><span class="who">${esc(to)}</span></div>
+  <div class="txbtns no-export"><button class="full" data-k="${k}">${t('markPaid')}</button><button data-pk="${k}">${t('partial')}</button></div>
+  <form class="partial no-export" data-k="${k}" hidden><input type="number" step="0.01" min="0.01" max="${m.toFixed(2)}" inputmode="decimal" aria-label="${t('amount')}" placeholder="${t('amount')}"><button class="btn small">OK</button></form></div>`).join(''):`<p class="ok">${t('allOk')}</p>`;
+  document.querySelectorAll('#settle .full').forEach(b=>b.onclick=()=>{const x=tr[+b.dataset.k];addPay(x[0],x[1],x[2])});
+  document.querySelectorAll('#settle [data-pk]').forEach(b=>b.onclick=()=>{const f=document.querySelector(`#settle form[data-k="${b.dataset.pk}"]`);f.hidden=!f.hidden;if(!f.hidden)f.querySelector('input').focus()});
+  document.querySelectorAll('#settle form.partial').forEach(f=>f.onsubmit=e=>{e.preventDefault();const x=tr[+f.dataset.k],a=parseFloat(String(f.querySelector('input').value).replace(',','.'));addPay(x[0],x[1],Math.min(a,x[2]))});
+  const paidTot=(S.pay||[]).reduce((s,x)=>s+x.a,0);
+  document.getElementById('totals').innerHTML=`<div><span class="lbl">${t('total')}</span><b>${fmtEUR(tot)}</b></div><div><span class="lbl">${t('avg')}</span><b>${fmtEUR(S.people.length?tot/S.people.length:0)}</b></div><div><span class="lbl">${t('payments')}</span><b>${tr.length}</b></div><div><span class="lbl">${t('paidTot')}</span><b>${fmtEUR(paidTot)}</b></div>`;
+  const opt=S.people.map(p=>`<option>${esc(p)}</option>`).join('');const pf=document.getElementById('payFrom'),pt=document.getElementById('payTo'),vf=pf.value,vt=pt.value;
+  pf.innerHTML=opt;pt.innerHTML=opt;if(vf)pf.value=vf;if(vt)pt.value=vt;else if(S.people[1])pt.value=S.people[1];
+  document.getElementById('pays').innerHTML=(S.pay||[]).length?S.pay.map((x,i)=>`<div class="payrow"><span>💸 ${t('payLine',{f:'<b>'+esc(x.f)+'</b>',a:'<b>'+fmtEUR(x.a)+'</b>',t:'<b>'+esc(x.t)+'</b>'})}</span><button class="x" data-i="${i}" aria-label="${t('remove')}">×</button></div>`).reverse().join(''):`<p class="muted">${t('noPay')}</p>`;
+  document.querySelectorAll('#pays .x').forEach(x=>x.onclick=()=>{S.pay.splice(+x.dataset.i,1);save();render()});
   document.getElementById('people').innerHTML=S.people.length?S.people.map((p,i)=>{const v=b[p];return `<span class="pill">${esc(p)} <small class="${v>=0?'p':'m'}">${v>=0?'+':''}${fmtEUR(v)}</small><button class="x" data-i="${i}" aria-label="${t('remove')} ${esc(p)}">×</button></span>`}).join(''):`<span class="muted">${t('noPeople')}</span>`;
-  document.querySelectorAll('#people .x').forEach(x=>x.onclick=()=>{const p=S.people[x.dataset.i];S.people.splice(x.dataset.i,1);S.exp=S.exp.filter(e=>e.p!==p).map(e=>Object.assign({},e,{s:e.s.filter(y=>y!==p)})).filter(e=>e.s.length);save();render()});
+  document.querySelectorAll('#people .x').forEach(x=>x.onclick=()=>{const p=S.people[x.dataset.i];S.people.splice(x.dataset.i,1);S.exp=S.exp.filter(e=>e.p!==p).map(e=>Object.assign({},e,{s:e.s.filter(y=>y!==p)})).filter(e=>e.s.length);S.pay=(S.pay||[]).filter(x=>x.f!==p&&x.t!==p);save();render()});
   document.getElementById('expPayer').innerHTML=S.people.map(p=>`<option>${esc(p)}</option>`).join('');
   document.getElementById('expSplit').innerHTML=S.people.map((p,i)=>`<label><input type="checkbox" id="sp${i}" value="${esc(p)}" checked>${esc(p)}</label>`).join('');
   document.getElementById('expenses').innerHTML=S.exp.length?S.exp.map((e,i)=>`<div class="exp"><span class="d">${esc(e.d)}</span><span class="v">${fmtEUR(e.a)}</span><button class="x" data-i="${i}" aria-label="${t('remove')}">×</button><span class="meta">${t('meta',{p:esc(e.p),s:e.s.map(esc).join(', ')})}</span></div>`).reverse().join(''):`<p class="muted">${t('noExp')}</p>`;
@@ -193,13 +241,17 @@ document.getElementById('renameForm').onsubmit=e=>{e.preventDefault();const v=do
 document.getElementById('newGroup').onclick=()=>{if(!window.PRO){showPro('proGroups');return}G.groups.push({name:t('groupN',{n:G.groups.length+1}),people:[],exp:[]});G.cur=G.groups.length-1;S=G.groups[G.cur];save();render();document.getElementById('rename').click()};
 document.getElementById('exportBtn').onclick=async e=>{const btn=e.currentTarget;if(!window.PRO){showPro('proCopy');return}
   const b=balances(),tr=settle(b),tot=S.exp.reduce((x,y)=>x+y.a,0);
-  const txt=`💸 ${S.name}\n${t('total')}: ${fmtEUR(tot)}\n\n${t('sumTitle')}\n`+(tr.length?tr.map(([f,to,m])=>`• ${f} ${t('pays')} ${to}: ${fmtEUR(m)}`).join('\n'):t('allOk'))+`\n\n${t('sumExp')}\n`+S.exp.map(x=>`• ${x.d}: ${fmtEUR(x.a)} (${t('sumBy')} ${x.p})`).join('\n')+`\n\nCuentas Claras · gonza0297.github.io/microapps/cuentas-claras/`;
+  const txt=`💸 ${S.name}\n${t('total')}: ${fmtEUR(tot)}\n\n${t('sumTitle')}\n`+(tr.length?tr.map(([f,to,m])=>`• ${f} ${t('pays')} ${to}: ${fmtEUR(m)}`).join('\n'):t('allOk'))+((S.pay||[]).length?`\n\n${t('sumPays')}\n`+S.pay.map(x=>`• ${t('payLine',{f:x.f,a:fmtEUR(x.a),t:x.t})}`).join('\n'):'')+`\n\n${t('sumExp')}\n`+S.exp.map(x=>`• ${x.d}: ${fmtEUR(x.a)} (${t('sumBy')} ${x.p})`).join('\n')+`\n\nCuentas Claras · gonza0297.github.io/microapps/cuentas-claras/`;
   try{await navigator.clipboard.writeText(txt);btn.textContent=t('copied')}catch(err){btn.textContent=t('copyFail')}setTimeout(()=>btn.textContent=t('copySum'),2000)};
+document.getElementById('payForm').onsubmit=e=>{e.preventDefault();const f=document.getElementById('payFrom').value,to=document.getElementById('payTo').value,a=parseFloat(String(document.getElementById('payAmt').value).replace(',','.'));const m=document.getElementById('payMsg');if(f===to){m.textContent=t('samePerson');return}m.textContent='';addPay(f,to,a);document.getElementById('payAmt').value=''};
 document.getElementById('personForm').onsubmit=e=>{e.preventDefault();const n=document.getElementById('personName').value.trim();if(n&&!S.people.includes(n)){S.people.push(n);save();render()}document.getElementById('personName').value=''};
 document.getElementById('expForm').onsubmit=e=>{e.preventDefault();const s=[...document.querySelectorAll('#expSplit input:checked')].map(x=>x.value);const a=parseFloat(String(document.getElementById('expAmt').value).replace(',','.'));
   if(!s.length||!(a>0))return;S.exp.push({d:document.getElementById('expDesc').value.trim()||t('expense'),a,p:document.getElementById('expPayer').value,s});save();document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';render()};
 document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
 renderAmazon('amz',D.amzH,AMZ);
+
+exampleCard('example',D.exStory,()=>{const ex=example();S.name=ex.name;S.people=ex.people;S.exp=ex.exp;S.pay=[];save();render();document.getElementById('settleCard').scrollIntoView({behavior:'smooth'})},()=>{S.people=[];S.exp=[];S.pay=[];save();render()});
+exportBar('exportBar',()=>[document.getElementById('settleCard'),document.getElementById('expCard'),document.getElementById('payCard')],'Cuentas-Claras');
 render();
 </script>
 </body>

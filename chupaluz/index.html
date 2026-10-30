@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Chupaluz</title>
 <meta name="description" content="Descubre qué aparato se come tu factura de luz. Gratis.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="../ui.css">
 <script src="../i18n.js"></script>
 <script src="../pro.js"></script>
+<script src="../tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -49,7 +51,9 @@
 </section>
 
 <main class="wrap">
-  <section class="card result" aria-live="polite">
+  <section id="example"></section>
+
+  <section class="card result" id="resCard" aria-live="polite">
     <span class="lbl" data-i18n="monthLbl">Tu gasto estimado al mes</span>
     <div class="big" id="total">0 €</div>
     <div class="stats">
@@ -62,7 +66,7 @@
 
   <section class="tip" id="tip" aria-live="polite"></section>
 
-  <section class="card">
+  <section class="card" id="listCard">
     <h2><span class="n">1</span><span data-i18n="listH">Tus aparatos</span></h2>
     <p class="help" data-i18n="listHelp">Toca un número para cambiarlo.</p>
     <div id="list" style="display:grid;gap:10px"></div>
@@ -70,6 +74,8 @@
   </section>
 
   <section class="card" id="led"></section>
+
+  <section id="exportBar"></section>
 
   <section id="report"></section>
 
@@ -117,6 +123,7 @@ const D={
  pdfDone:['Informe descargado.','Rapport téléchargé.','Report downloaded.','Report scaricato.','Relatório descarregado.'],
  pdfErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ exStory:['<p><b>Ana</b> paga 120 € de luz al mes y no sabe por qué.</p><ol><li>Pone su precio del kWh (lo ve en la factura).</li><li>Añade sus aparatos: nevera, lavadora, secadora, radiador…</li><li>Ajusta las horas: el radiador 4 h al día, la secadora 3 veces por semana.</li><li>Chupaluz marca en rojo el <b>radiador</b>: es el 70% de su factura, y le dice cómo ahorrar 150 € al año.</li><li>Abajo calcula cuánto ahorra cambiando sus bombillas a LED.</li></ol>','<p><b>Ana</b> paie 120 € d’électricité par mois sans savoir pourquoi.</p><ol><li>Elle indique son prix du kWh (sur la facture).</li><li>Elle ajoute ses appareils : frigo, lave-linge, sèche-linge, radiateur…</li><li>Elle règle les heures : radiateur 4 h par jour, sèche-linge 3 fois par semaine.</li><li>Chupaluz affiche le <b>radiateur</b> en rouge : 70 % de sa facture, avec un conseil pour économiser 150 € par an.</li><li>En bas, elle calcule ses économies en passant aux LED.</li></ol>','<p><b>Ana</b> pays €120 a month for electricity and doesn’t know why.</p><ol><li>She enters her price per kWh (it’s on the bill).</li><li>She adds her appliances: fridge, washer, dryer, heater…</li><li>She sets the hours: heater 4 h a day, dryer 3 times a week.</li><li>Chupaluz marks the <b>heater</b> in red: 70% of her bill, with a tip to save €150 a year.</li><li>Further down she works out what LED bulbs would save her.</li></ol>','<p><b>Ana</b> paga 120 € di luce al mese e non sa perché.</p><ol><li>Inserisce il prezzo del kWh (è in bolletta).</li><li>Aggiunge gli apparecchi: frigo, lavatrice, asciugatrice, stufa…</li><li>Regola le ore: stufa 4 h al giorno, asciugatrice 3 volte a settimana.</li><li>Chupaluz segna in rosso la <b>stufa</b>: il 70% della bolletta, con un consiglio per risparmiare 150 € all’anno.</li><li>Più sotto calcola quanto risparmia con i LED.</li></ol>','<p>A <b>Ana</b> paga 120 € de luz por mês e não sabe porquê.</p><ol><li>Indica o preço do kWh (está na fatura).</li><li>Adiciona os aparelhos: frigorífico, máquina de lavar, de secar, aquecedor…</li><li>Ajusta as horas: aquecedor 4 h por dia, máquina de secar 3 vezes por semana.</li><li>O Chupaluz marca o <b>aquecedor</b> a vermelho: 70% da fatura, com uma dica para poupar 150 € por ano.</li><li>Mais abaixo calcula quanto poupa com LED.</li></ol>'],
  amzH:['Productos que te ayudan a pagar menos luz','Des produits pour payer moins d’électricité','Products that cut your electricity bill','Prodotti per pagare meno luce','Produtos que ajudam a pagar menos luz'],
  note:['Estimación orientativa: el consumo real depende del modelo y del uso.','Estimation indicative : la consommation réelle dépend du modèle et de l’usage.','Rough estimate: real consumption depends on the model and how you use it.','Stima indicativa: il consumo reale dipende dal modello e dall’uso.','Estimativa indicativa: o consumo real depende do modelo e do uso.'],
  pdfT:['CHUPALUZ · Informe de ahorro','CHUPALUZ · Rapport d’économies','CHUPALUZ · Savings report','CHUPALUZ · Report di risparmio','CHUPALUZ · Relatório de poupança'],
@@ -192,9 +199,9 @@ const AMZ=[
 
 applyI18n(D);
 const priceEl=document.getElementById('price');
-let items=null;
+var items=null;
 try{items=JSON.parse(localStorage.getItem('watios')||'null')}catch(e){}
-if(!Array.isArray(items)||!items.length) items=['fridge','washer','dryer','tv','heater','router'].map(id=>({id,w:APN[id][1],h:APN[id][2],d:APN[id][3]}));
+if(!Array.isArray(items)) items=['fridge','washer','dryer','tv','heater','router'].map(id=>({id,w:APN[id][1],h:APN[id][2],d:APN[id][3]}));
 try{priceEl.value=localStorage.getItem('watios-price')||'0.35'}catch(e){priceEl.value='0.35'}
 const nameOf=it=>it.n||(it.id&&APN[it.id]?T(APN[it.id][4]):T(D.myAp));
 const price=()=>parseFloat(String(priceEl.value).replace(',','.'))||0;
@@ -305,6 +312,8 @@ function makePdf(){
   d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,286);
   d.save('Chupaluz.pdf');msg.textContent=t('pdfDone');
 }
+exampleCard('example',D.exStory,()=>{items=['fridge','washer','dryer','tv','heater','router','oldbulb'].map(id=>({id,w:APN[id][1],h:APN[id][2],d:APN[id][3]}));priceEl.value='0.35';save();render();document.getElementById('resCard').scrollIntoView({behavior:'smooth'})},()=>{items=[];save();render()});
+exportBar('exportBar',()=>[document.getElementById('resCard'),document.getElementById('tip'),document.getElementById('listCard')],'Chupaluz');
 render();
 </script>
 </body>

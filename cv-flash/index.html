@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>CV Flash</title>
 <meta name="description" content="Crea tu currículum en minutos y descárgalo en PDF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="../ui.css">
 <script src="../i18n.js"></script>
 <script src="../pro.js"></script>
+<script src="../tools.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,8 +20,18 @@
 .wrap.cv{max-width:1180px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:1000px){.wrap.cv{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}.side{position:sticky;top:70px}.side .card{max-height:calc(100vh - 90px);overflow:auto}}
 .form{display:grid;gap:18px;min-width:0}
-.tpls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tpl{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer;min-height:50px}
+.tpls{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.tpl{font:inherit;font-weight:700;font-size:14px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:8px;cursor:pointer;display:grid;gap:6px;justify-items:center}
+.mini{display:block;width:56px;height:74px;border-radius:4px;background:#fff;border:1px solid #ddd;position:relative;overflow:hidden}
+.m-mod{background:linear-gradient(90deg,#2b4c7e 32%,#fff 32%)}
+.m-cre{background:linear-gradient(#5b3fa8 30%,#fff 30%)}.m-cre:after{content:"";position:absolute;left:18px;top:12px;width:20px;height:20px;border-radius:50%;background:#e6ddff;border:2px solid #fff}
+.m-eje{background:linear-gradient(#1b1b26 22%,#fff 22%,#fff 100%)}.m-eje:after{content:"";position:absolute;right:0;top:22%;bottom:0;width:30%;background:#eef1f6}
+.m-tim{background:#fff}.m-tim:after{content:"";position:absolute;left:12px;top:10px;bottom:8px;width:2px;background:#1f6b52;box-shadow:0 10px 0 2px #1f6b52 inset}
+.m-ele{background:#fffdf8}.m-ele:after{content:"";position:absolute;left:10px;right:10px;top:20px;height:1px;background:#a0522d;box-shadow:0 6px 0 #a0522d}
+.m-cla{background:#fff}.m-cla:after{content:"";position:absolute;left:8px;right:8px;top:16px;height:2px;background:#2b4c7e}
+.m-min{background:#fff}.m-min:after{content:"";position:absolute;left:8px;top:10px;width:28px;height:5px;background:#222}
+.photo-row{display:flex;gap:14px;align-items:center}
+.ph{width:84px;height:84px;border-radius:50%;background:var(--bg);border:2px dashed var(--line);display:grid;place-items:center;font-size:34px;overflow:hidden;flex:none;background-size:cover;background-position:center}
 .tpl[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
 .colors{display:flex;gap:10px;flex-wrap:wrap}
 .sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--surface);outline:2px solid var(--line);cursor:pointer;padding:0}
@@ -56,6 +67,35 @@
 .t-minimal .name{font-family:"Figtree","Inter",sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em}
 .t-minimal .grid{display:grid;grid-template-columns:130px 1fr;gap:0 24px}
 .t-minimal header{margin-bottom:32px}
+.page .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;display:block}
+.t-moderna .col1 .photo{width:150px;height:150px;margin:0 auto 22px;border:4px solid rgb(255 255 255 / .5)}
+.t-clasica header,.t-minimal header{display:flex;gap:22px;align-items:center}.t-clasica header .photo,.t-minimal header .photo{width:105px;height:105px}
+.t-creativa .band{background:var(--c);color:#fff;padding:44px 60px 70px;position:relative}
+.t-creativa .band .name{color:#fff;font-size:44px}.t-creativa .band .role{color:#fff;opacity:.9}
+.t-creativa .band .photo{position:absolute;right:60px;bottom:-60px;width:150px;height:150px;border:6px solid #fff}
+.t-creativa .cbar{display:flex;flex-wrap:wrap;gap:6px 18px;padding:18px 60px;color:#55556a;font-size:12px;border-bottom:1px solid #eee;padding-right:240px}
+.t-creativa .cbody{display:grid;grid-template-columns:1fr 220px;gap:36px;padding:30px 60px}
+.t-creativa .tags span{background:color-mix(in srgb,var(--c) 12%,#fff);border:none;color:#22222c}
+.t-ejecutiva .top{background:#1b1b26;color:#fff;padding:42px 56px;display:flex;gap:26px;align-items:center}
+.t-ejecutiva .top .name{color:#fff}.t-ejecutiva .top .role{color:var(--c);filter:brightness(1.6)}
+.t-ejecutiva .top .contact{color:#c9c9d6}
+.t-ejecutiva .top .photo{width:120px;height:120px;border-radius:12px}
+.t-ejecutiva .ebody{display:grid;grid-template-columns:1fr 230px}
+.t-ejecutiva .emain{padding:36px 40px 36px 56px}.t-ejecutiva .eside{background:#f2f4f8;padding:36px 28px;min-height:900px}
+.t-ejecutiva h2{border-bottom:2px solid var(--c);padding-bottom:6px}
+.t-timeline{padding:52px 60px}
+.t-timeline header{display:flex;gap:24px;align-items:center;margin-bottom:28px}
+.t-timeline .tl{border-left:3px solid var(--c);margin-left:8px;padding-left:24px}
+.t-timeline .tl .job{position:relative}
+.t-timeline .tl .job:before{content:"";position:absolute;left:-33px;top:3px;width:13px;height:13px;border-radius:50%;background:#fff;border:3px solid var(--c)}
+.t-timeline .two{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:10px}
+.t-elegante{padding:60px 70px;background:#fffdf8;text-align:left}
+.t-elegante header{text-align:center;display:grid;justify-items:center;gap:6px;border-bottom:1px solid var(--c);padding-bottom:22px;margin-bottom:26px}
+.t-elegante .name{font-size:46px;letter-spacing:.02em}
+.t-elegante .role{font-style:italic;font-weight:400;font-family:"DM Serif Display",serif;font-size:18px}
+.t-elegante .contact{justify-content:center}
+.t-elegante h2{text-align:center;letter-spacing:.3em;font-weight:600}
+.t-elegante .photo{width:110px;height:110px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -76,14 +116,32 @@
 </section>
 
 <main class="wrap cv">
+  <section id="example" style="grid-column:1/-1"></section>
   <div class="form">
     <section class="card">
       <h2><span class="n">1</span><span data-i18n="designH">Diseño</span></h2>
-      <div class="tpls" id="tpls"><button class="tpl" data-t="clasica" data-i18n="tClas">Clásica</button><button class="tpl" data-t="moderna" data-i18n="tMod">Moderna</button><button class="tpl" data-t="minimal" data-i18n="tMin">Minimal</button></div>
+      <div class="tpls" id="tpls">
+        <button class="tpl" data-t="moderna"><i class="mini m-mod"></i><span data-i18n="tMod">Moderna</span></button>
+        <button class="tpl" data-t="creativa"><i class="mini m-cre"></i><span data-i18n="tCre">Creativa</span></button>
+        <button class="tpl" data-t="ejecutiva"><i class="mini m-eje"></i><span data-i18n="tEje">Ejecutiva</span></button>
+        <button class="tpl" data-t="timeline"><i class="mini m-tim"></i><span data-i18n="tTim">Cronológica</span></button>
+        <button class="tpl" data-t="elegante"><i class="mini m-ele"></i><span data-i18n="tEle">Elegante</span></button>
+        <button class="tpl" data-t="clasica"><i class="mini m-cla"></i><span data-i18n="tClas">Clásica</span></button>
+        <button class="tpl" data-t="minimal"><i class="mini m-min"></i><span data-i18n="tMin">Minimal</span></button>
+      </div>
       <div class="colors" id="colors"></div>
     </section>
     <section class="card">
       <h2><span class="n">2</span><span data-i18n="dataH">Tus datos</span></h2>
+      <div class="photo-row">
+        <div class="ph" id="phPrev" aria-hidden="true">👤</div>
+        <div style="display:grid;gap:6px">
+          <label class="btn small ghost" for="photoIn" data-i18n="addPhoto">📷 Subir foto</label>
+          <input id="photoIn" type="file" accept="image/*" hidden>
+          <button class="btn small ghost" id="photoDel" type="button" hidden data-i18n="delPhoto">Quitar foto</button>
+          <small class="muted" data-i18n="photoHelp">Opcional. Se queda en tu móvil.</small>
+        </div>
+      </div>
       <div class="grid2"><label class="f"><span data-i18n="fName">Nombre completo</span><input id="f-name" autocomplete="name"></label><label class="f"><span data-i18n="fRole">Puesto</span><input id="f-role"></label></div>
       <div class="grid2"><label class="f"><span data-i18n="fEmail">Email</span><input id="f-email" type="email" autocomplete="email"></label><label class="f"><span data-i18n="fPhone">Teléfono</span><input id="f-phone" type="tel" autocomplete="tel"></label></div>
       <div class="grid2"><label class="f"><span data-i18n="fCity">Ciudad</span><input id="f-city"></label><label class="f"><span data-i18n="fWeb">LinkedIn / web</span><input id="f-web"></label></div>
@@ -100,7 +158,7 @@
     <section class="card">
       <h2 data-i18n="previewH">Vista previa</h2>
       <div class="stage" id="stage"><div class="scaler" id="scaler"><div class="page" id="page"></div></div></div>
-      <button class="btn" id="dl" data-i18n="dl">⬇ Descargar PDF</button>
+      <div class="grid2"><button class="btn" id="dl" data-i18n="dl">📄 PDF</button><button class="btn ghost" id="dlImg" data-i18n="dlImg">🖼 Imagen</button></div>
       <div class="msg" id="msg" aria-live="polite"></div>
       <div id="pro"></div>
     </section>
@@ -120,13 +178,19 @@ const D={
  fSkills:['Habilidades (separadas por comas)','Compétences (séparées par des virgules)','Skills (comma-separated)','Competenze (separate da virgole)','Competências (separadas por vírgulas)'],fLangs:['Idiomas (separados por comas)','Langues (séparées par des virgules)','Languages (comma-separated)','Lingue (separate da virgole)','Línguas (separadas por vírgulas)'],
  jobT:['Puesto','Poste','Job title','Ruolo','Cargo'],jobC:['Empresa','Entreprise','Company','Azienda','Empresa'],eduT:['Título','Diplôme','Degree','Titolo','Curso'],eduC:['Centro','Établissement','School','Istituto','Instituição'],dates:['Fechas','Dates','Dates','Date','Datas'],desc:['Descripción','Description','Description','Descrizione','Descrição'],
  addE:['+ Añadir','+ Ajouter','+ Add','+ Aggiungi','+ Adicionar'],remove:['Quitar','Retirer','Remove','Rimuovi','Remover'],
- previewH:['Vista previa','Aperçu','Preview','Anteprima','Pré-visualização'],dl:['⬇ Descargar PDF','⬇ Télécharger le PDF','⬇ Download PDF','⬇ Scarica PDF','⬇ Descarregar PDF'],
+ previewH:['Vista previa','Aperçu','Preview','Anteprima','Pré-visualização'],dl:['📄 PDF','📄 PDF','📄 PDF','📄 PDF','📄 PDF'],
  preparing:['Preparando tu PDF…','Préparation du PDF…','Preparing your PDF…','Preparazione del PDF…','A preparar o PDF…'],done:['PDF descargado.','PDF téléchargé.','PDF downloaded.','PDF scaricato.','PDF descarregado.'],doneMark:['PDF descargado (con marca de agua).','PDF téléchargé (avec filigrane).','PDF downloaded (with watermark).','PDF scaricato (con filigrana).','PDF descarregado (com marca de água).'],
  fail:['No se pudo generar el PDF. Inténtalo de nuevo.','Impossible de générer le PDF. Réessayez.','Couldn’t create the PDF. Try again.','Impossibile creare il PDF. Riprova.','Não foi possível criar o PDF. Tente de novo.'],libErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
  proTxt:['La descarga gratis lleva marca de agua. Con Pro, tu CV sale limpio.','Le téléchargement gratuit a un filigrane. Avec Pro, votre CV est propre.','The free download has a watermark. With Pro your CV is clean.','Il download gratuito ha una filigrana. Con Pro il CV è pulito.','A transferência grátis tem marca de água. Com Pro, o CV sai limpo.'],
  proOn:['<b>Pack Pro activado.</b> Tus PDF salen sin marca de agua.','<b>Pack Pro activé.</b> Vos PDF sont sans filigrane.','<b>Pro Pack active.</b> Your PDFs have no watermark.','<b>Pack Pro attivo.</b> I PDF sono senza filigrana.','<b>Pack Pro ativado.</b> Os PDF saem sem marca de água.'],
  mark:['CV FLASH · versión gratis','CV FLASH · version gratuite','CV FLASH · free version','CV FLASH · versione gratuita','CV FLASH · versão grátis'],
  cProfile:['Perfil','Profil','Profile','Profilo','Perfil'],cExp:['Experiencia','Expérience','Experience','Esperienza','Experiência'],cEdu:['Formación','Formation','Education','Formazione','Formação'],cSkills:['Habilidades','Compétences','Skills','Competenze','Competências'],cLangs:['Idiomas','Langues','Languages','Lingue','Línguas'],cContact:['Contacto','Contact','Contact','Contatti','Contacto'],
+ tCre:['Creativa','Créatif','Creative','Creativo','Criativo'],tEje:['Ejecutiva','Exécutif','Executive','Executive','Executivo'],tTim:['Cronológica','Chronologique','Timeline','Cronologico','Cronológico'],tEle:['Elegante','Élégant','Elegant','Elegante','Elegante'],
+ addPhoto:['📷 Subir foto','📷 Ajouter une photo','📷 Upload photo','📷 Carica foto','📷 Carregar foto'],delPhoto:['Quitar foto','Retirer la photo','Remove photo','Rimuovi foto','Remover foto'],
+ photoHelp:['Opcional. La foto se queda en tu móvil.','Facultatif. La photo reste sur votre téléphone.','Optional. The photo stays on your phone.','Facoltativa. La foto resta sul tuo telefono.','Opcional. A foto fica no seu telemóvel.'],
+ photoErr:['No se pudo leer la foto. Prueba con otra.','Impossible de lire la photo. Essayez-en une autre.','Couldn’t read that photo. Try another.','Impossibile leggere la foto. Provane un’altra.','Não foi possível ler a foto. Tente outra.'],
+ dlImg:['🖼 Imagen','🖼 Image','🖼 Image','🖼 Immagine','🖼 Imagem'],
+ exStory:['<p><b>Laura</b> busca trabajo y necesita su CV hoy.</p><ol><li>Elige el diseño <b>Creativa</b> y un color.</li><li>Sube su <b>foto</b> y escribe su nombre, puesto y contacto.</li><li>Añade sus 2 últimos trabajos y sus estudios.</li><li>Pulsa <b>📄 PDF</b> para enviarlo por email, o <b>🖼 Imagen</b> para mandarlo por WhatsApp.</li></ol>','<p><b>Laura</b> cherche un emploi et a besoin de son CV aujourd’hui.</p><ol><li>Elle choisit le modèle <b>Créatif</b> et une couleur.</li><li>Elle ajoute sa <b>photo</b>, son nom, son poste et ses coordonnées.</li><li>Elle ajoute ses 2 derniers emplois et sa formation.</li><li>Elle touche <b>📄 PDF</b> pour l’envoyer par e-mail, ou <b>🖼 Image</b> pour WhatsApp.</li></ol>','<p><b>Laura</b> is job hunting and needs her CV today.</p><ol><li>She picks the <b>Creative</b> design and a colour.</li><li>She uploads her <b>photo</b> and types her name, job title and contact details.</li><li>She adds her last 2 jobs and her education.</li><li>She taps <b>📄 PDF</b> to email it, or <b>🖼 Image</b> to send it on WhatsApp.</li></ol>','<p><b>Laura</b> cerca lavoro e le serve il CV oggi.</p><ol><li>Sceglie il modello <b>Creativo</b> e un colore.</li><li>Carica la sua <b>foto</b> e scrive nome, ruolo e contatti.</li><li>Aggiunge gli ultimi 2 lavori e gli studi.</li><li>Tocca <b>📄 PDF</b> per inviarlo via email, o <b>🖼 Immagine</b> per WhatsApp.</li></ol>','<p>A <b>Laura</b> procura emprego e precisa do CV hoje.</p><ol><li>Escolhe o modelo <b>Criativo</b> e uma cor.</li><li>Carrega a <b>foto</b> e escreve o nome, cargo e contactos.</li><li>Adiciona os 2 últimos empregos e a formação.</li><li>Toca em <b>📄 PDF</b> para enviar por e-mail, ou <b>🖼 Imagem</b> para o WhatsApp.</li></ol>'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
  amzH:['Para conseguir ese trabajo','Pour décrocher ce poste','To land that job','Per ottenere quel lavoro','Para conseguir esse emprego']
 };
@@ -157,7 +221,7 @@ const AMZ=[
 ];
 
 applyI18n(D);
-let S=null;
+var S=null;
 try{S=JSON.parse(localStorage.getItem('cv5')||'null')}catch(e){}
 if(!S||!S.exp){S={tpl:EX.tpl,color:EX.color,name:EX.name,role:T(EX.role),email:EX.email,phone:EX.phone,city:EX.city,web:EX.web,about:T(EX.about),
   exp:EX.exp.map(e=>({t:T(e.t),c:e.c,d:e.d,x:T(e.x)})),edu:EX.edu.map(e=>({t:T(e.t),c:e.c,d:e.d,x:''})),skills:EX.skills,langs:T(EX.langs)}}
@@ -181,38 +245,61 @@ const list=a=>a.filter(e=>e.t||e.c).map(e=>`<div class="job"><div class="t">${es
 const tags=s=>`<div class="tags">${String(s||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
 const contact=()=>`<div class="contact">${[S.email,S.phone,S.city,S.web].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
 const sec=(k,h)=>h?`<div class="sec"><h2>${t(k)}</h2>${h}</div>`:'';
+const photo=()=>S.photo?`<img class="photo" src="${S.photo}" alt="">`:'';
 function draw(){
   document.querySelectorAll('.tpl').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===S.tpl));
   document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===S.color));
   const p=document.getElementById('page');p.className='page t-'+S.tpl;p.style.setProperty('--c',S.color);
   const about=S.about?`<p style="margin:0">${esc(S.about)}</p>`:'';
-  if(S.tpl==='moderna')p.innerHTML=`<div class="col1"><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${sec('cContact',contact())}${sec('cSkills',S.skills?tags(S.skills):'')}${sec('cLangs',S.langs?tags(S.langs):'')}</div><div class="col2">${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}</div>`;
-  else if(S.tpl==='minimal'){const row=(k,h)=>h?`<h2>${t(k)}</h2><div class="sec">${h}</div>`:'';p.innerHTML=`<header><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</header><div class="grid">${row('cProfile',about)}${row('cExp',list(S.exp))}${row('cEdu',list(S.edu))}${row('cSkills',S.skills?tags(S.skills):'')}${row('cLangs',S.langs?tags(S.langs):'')}</div>`}
-  else p.innerHTML=`<header><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</header>${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}${sec('cSkills',S.skills?tags(S.skills):'')}${sec('cLangs',S.langs?tags(S.langs):'')}`;
+  const head=()=>`${photo()}<div><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</div>`;
+  const sk=S.skills?tags(S.skills):'',lg=S.langs?tags(S.langs):'';
+  if(S.tpl==='moderna')p.innerHTML=`<div class="col1">${photo()}<h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${sec('cContact',contact())}${sec('cSkills',sk)}${sec('cLangs',lg)}</div><div class="col2">${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}</div>`;
+  else if(S.tpl==='creativa')p.innerHTML=`<div class="band"><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${photo()}</div><div class="cbar">${[S.email,S.phone,S.city,S.web].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div><div class="cbody"><div>${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}</div><div>${sec('cSkills',sk)}${sec('cLangs',lg)}</div></div>`;
+  else if(S.tpl==='ejecutiva')p.innerHTML=`<div class="top">${head()}</div><div class="ebody"><div class="emain">${sec('cProfile',about)}${sec('cExp',list(S.exp))}</div><div class="eside">${sec('cEdu',list(S.edu))}${sec('cSkills',sk)}${sec('cLangs',lg)}</div></div>`;
+  else if(S.tpl==='timeline')p.innerHTML=`<header>${head()}</header>${sec('cProfile',about)}<div class="sec"><h2>${t('cExp')}</h2><div class="tl">${list(S.exp)}</div></div><div class="sec"><h2>${t('cEdu')}</h2><div class="tl">${list(S.edu)}</div></div><div class="two">${sec('cSkills',sk)}${sec('cLangs',lg)}</div>`;
+  else if(S.tpl==='elegante')p.innerHTML=`<header>${photo()}<h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</header>${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}${sec('cSkills',sk)}${sec('cLangs',lg)}`;
+  else if(S.tpl==='minimal'){const row=(k,h)=>h?`<h2>${t(k)}</h2><div class="sec">${h}</div>`:'';p.innerHTML=`<header>${head()}</header><div class="grid">${row('cProfile',about)}${row('cExp',list(S.exp))}${row('cEdu',list(S.edu))}${row('cSkills',sk)}${row('cLangs',lg)}</div>`}
+  else p.innerHTML=`<header>${head()}</header>${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}${sec('cSkills',sk)}${sec('cLangs',lg)}`;
+  const pv=document.getElementById('phPrev');pv.style.backgroundImage=S.photo?`url(${S.photo})`:'';pv.textContent=S.photo?'':'👤';document.getElementById('photoDel').hidden=!S.photo;
   fit();
 }
 function fit(){const st=document.getElementById('stage'),sc=document.getElementById('scaler'),pg=document.getElementById('page');const s=Math.min(1,st.clientWidth/794);sc.style.transform=`scale(${s})`;st.style.height=(pg.offsetHeight*s)+'px'}
 addEventListener('resize',fit);
 const PRO=!!window.PRO;
 document.getElementById('pro').innerHTML=PRO?`<p class="msg">${t('proOn')}</p>`:proBanner(t('proTxt'));
-document.getElementById('dl').onclick=async()=>{
-  const msg=document.getElementById('msg'),btn=document.getElementById('dl');
-  if(!window.html2canvas||!window.jspdf){msg.textContent=t('libErr');return}
-  btn.disabled=true;msg.textContent=t('preparing');
+async function renderCanvas(){
   const sc=document.getElementById('scaler'),prev=sc.style.transform;sc.style.transform='none';
+  try{await document.fonts.ready;return await html2canvas(document.getElementById('page'),{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false})}
+  finally{sc.style.transform=prev;fit()}
+}
+function stamp(ctx,w,h){if(PRO)return;ctx.save();ctx.translate(w/2,h*0.5);ctx.rotate(-0.6);ctx.fillStyle='rgba(150,150,165,.28)';ctx.font=`800 ${Math.round(w/14)}px Figtree, sans-serif`;ctx.textAlign='center';ctx.fillText(t('mark'),0,0);ctx.restore();
+  ctx.fillStyle='rgba(120,120,130,.9)';ctx.font=`600 ${Math.round(w/60)}px Figtree, sans-serif`;ctx.textAlign='center';ctx.fillText('CV Flash · gonza0297.github.io/microapps',w/2,h-24)}
+async function download(kind){
+  const msg=document.getElementById('msg'),b1=document.getElementById('dl'),b2=document.getElementById('dlImg');
+  if(!window.html2canvas||(kind==='pdf'&&!window.jspdf)){msg.textContent=t('libErr');return}
+  b1.disabled=b2.disabled=true;msg.textContent=t('preparing');
   try{
-    await document.fonts.ready;
-    const canvas=await html2canvas(document.getElementById('page'),{scale:2,backgroundColor:'#ffffff',useCORS:true});
-    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4'});
-    const w=210,h=canvas.height*w/canvas.width,img=canvas.toDataURL('image/jpeg',.95);
-    const mark=()=>{if(PRO)return;pdf.setTextColor(200,200,210);pdf.setFontSize(40);pdf.text(t('mark'),105,160,{align:'center',angle:35});pdf.setFontSize(9);pdf.setTextColor(140,140,150);pdf.text('CV Flash · gonza0297.github.io/microapps',105,292,{align:'center'})};
-    let y=0;pdf.addImage(img,'JPEG',0,0,w,h);mark();
-    while(h-(y+297)>1){y+=297;pdf.addPage();pdf.addImage(img,'JPEG',0,-y,w,h);mark()}
-    pdf.save('CV '+(S.name||'').trim()+'.pdf');msg.textContent=PRO?t('done'):t('doneMark');
-  }catch(e){msg.textContent=t('fail')}finally{sc.style.transform=prev;fit();btn.disabled=false}
-};
+    const c=await renderCanvas();stamp(c.getContext('2d'),c.width,c.height);
+    const name='CV '+(S.name||'').trim();
+    if(kind==='pdf'){const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4'}),w=210,h=c.height*w/c.width,img=c.toDataURL('image/jpeg',.95);
+      let y=0;pdf.addImage(img,'JPEG',0,0,w,h);while(h-(y+297)>1){y+=297;pdf.addPage();pdf.addImage(img,'JPEG',0,-y,w,h)}pdf.save(name+'.pdf')}
+    else{const url=c.toDataURL('image/png');const m=document.createElement('div');m.className='ex-modal';
+      m.innerHTML=`<div class="ex-sheet"><img alt="" src="${url}"><p class="msg">${T(['Si no se descarga, mantén pulsada la imagen y elige «Guardar».','Si rien ne se télécharge, appuyez longuement sur l’image et choisissez « Enregistrer ».','If it doesn’t download, press and hold the image and choose “Save”.','Se non si scarica, tieni premuta l’immagine e scegli «Salva».','Se não descarregar, mantenha a imagem premida e escolha «Guardar».'])}</p><div class="row"><a class="btn" href="${url}" download="${esc(name)}.png">⬇ PNG</a><button class="btn ghost">✕</button></div></div>`;
+      m.querySelector('button').onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m)}
+    msg.textContent=PRO?t('done'):t('doneMark');
+  }catch(e){msg.textContent=t('fail')}finally{b1.disabled=b2.disabled=false}
+}
+document.getElementById('dl').onclick=()=>download('pdf');
+document.getElementById('dlImg').onclick=()=>download('img');
+document.getElementById('photoIn').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{const im=new Image();im.onload=()=>{const sz=360,c=document.createElement('canvas');c.width=c.height=sz;const k=Math.max(sz/im.width,sz/im.height),w=im.width*k,h=im.height*k;
+    c.getContext('2d').drawImage(im,(sz-w)/2,(sz-h)/2,w,h);S.photo=c.toDataURL('image/jpeg',.85);save();draw()};im.onerror=()=>{document.getElementById('msg').textContent=t('photoErr')};im.src=r.result};
+  r.readAsDataURL(f);e.target.value=''};
+document.getElementById('photoDel').onclick=()=>{S.photo='';save();draw()};
 document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
 renderAmazon('amz',D.amzH,AMZ);
+exampleCard('example',D.exStory,()=>{const ph=S.photo;S={tpl:'creativa',color:'#5b3fa8',photo:ph||'',name:EX.name,role:T(EX.role),email:EX.email,phone:EX.phone,city:EX.city,web:EX.web,about:T(EX.about),exp:EX.exp.map(e=>({t:T(e.t),c:e.c,d:e.d,x:T(e.x)})),edu:EX.edu.map(e=>({t:T(e.t),c:e.c,d:e.d,x:''})),skills:EX.skills,langs:T(EX.langs)};save();location.reload()},
+ ()=>{S={tpl:S.tpl,color:S.color,photo:'',name:'',role:'',email:'',phone:'',city:'',web:'',about:'',exp:[{t:'',c:'',d:'',x:''}],edu:[{t:'',c:'',d:'',x:''}],skills:'',langs:''};save();location.reload()});
 draw();
 </script>
 </body>

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Fuga de Euros</title>
 <meta name="description" content="Calcula cuánto dinero se te escapa en pequeños gastos a lo largo de los años.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="../ui.css">
 <script src="../i18n.js"></script>
 <script src="../pro.js"></script>
+<script src="../tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -50,7 +52,9 @@ input[type=range]{accent-color:var(--accent);min-height:30px;padding:0;border:no
 </section>
 
 <main class="wrap">
-  <section class="card result" aria-live="polite">
+  <section id="example"></section>
+
+  <section class="card result" id="resCard" aria-live="polite">
     <span class="lbl" id="lead"></span>
     <div class="big" id="big">0 €</div>
     <div class="equiv" id="equiv"></div>
@@ -61,7 +65,7 @@ input[type=range]{accent-color:var(--accent);min-height:30px;padding:0;border:no
     <label class="switch"><input type="checkbox" id="inv"><span data-i18n="invest">¿Y si lo invirtieras al 5% anual?</span></label>
   </section>
 
-  <section class="card">
+  <section class="card" id="listCard">
     <h2><span class="n">1</span><span data-i18n="listH">Tus pequeños gastos</span></h2>
     <p class="help" data-i18n="listHelp">Precio y cada cuánto lo pagas.</p>
     <div id="habits" style="display:grid;gap:10px"></div>
@@ -73,6 +77,8 @@ input[type=range]{accent-color:var(--accent);min-height:30px;padding:0;border:no
     <p id="shareText"></p>
     <button class="btn small" id="copy" style="justify-self:start" data-i18n="copy">Copiar para compartir</button>
   </section>
+
+  <section id="exportBar"></section>
 
   <section id="plan"></section>
 
@@ -115,6 +121,7 @@ const D={
  pdfDone:['Plan descargado.','Plan téléchargé.','Plan downloaded.','Piano scaricato.','Plano descarregado.'],
  pdfErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ exStory:['<p><b>Marco</b> se toma un café para llevar cada día de trabajo y pide comida a domicilio cada viernes.</p><ol><li>Pulsa <b>+ Café para llevar</b> (2,50 € cada día laborable).</li><li>Pulsa <b>+ Comida a domicilio</b> (18 € a la semana).</li><li>Mueve la barra a <b>10 años</b>: ¡más de 15.000 €, un coche de segunda mano!</li><li>Activa <b>"¿Y si lo invirtieras?"</b> y ve cuánto tendría.</li><li>Copia el texto y lo comparte con sus amigos.</li></ol>','<p><b>Marco</b> prend un café à emporter chaque jour de travail et se fait livrer à manger chaque vendredi.</p><ol><li>Il touche <b>+ Café à emporter</b> (2,50 € chaque jour ouvrable).</li><li>Il touche <b>+ Livraison de repas</b> (18 € par semaine).</li><li>Il met la barre sur <b>10 ans</b> : plus de 15 000 €, une voiture d’occasion !</li><li>Il active <b>« Et si vous l’investissiez ? »</b> pour voir combien il aurait.</li><li>Il copie le texte et le partage avec ses amis.</li></ol>','<p><b>Marco</b> buys a takeaway coffee every workday and orders food every Friday.</p><ol><li>He taps <b>+ Takeaway coffee</b> (€2.50 every workday).</li><li>He taps <b>+ Food delivery</b> (€18 a week).</li><li>He moves the slider to <b>10 years</b>: over €15,000, a second-hand car!</li><li>He turns on <b>“What if you invested it?”</b> to see what he’d have.</li><li>He copies the text and shares it with friends.</li></ol>','<p><b>Marco</b> prende un caffè da asporto ogni giorno di lavoro e ordina cibo a domicilio ogni venerdì.</p><ol><li>Tocca <b>+ Caffè da asporto</b> (2,50 € ogni giorno lavorativo).</li><li>Tocca <b>+ Cibo a domicilio</b> (18 € a settimana).</li><li>Sposta la barra su <b>10 anni</b>: oltre 15.000 €, un’auto usata!</li><li>Attiva <b>«E se lo investissi?»</b> per vedere quanto avrebbe.</li><li>Copia il testo e lo condivide con gli amici.</li></ol>','<p>O <b>Marco</b> compra um café para levar todos os dias úteis e pede comida ao domicílio todas as sextas.</p><ol><li>Toca em <b>+ Café para levar</b> (2,50 € cada dia útil).</li><li>Toca em <b>+ Comida ao domicílio</b> (18 € por semana).</li><li>Põe a barra em <b>10 anos</b>: mais de 15.000 €, um carro em segunda mão!</li><li>Ativa <b>«E se o investisse?»</b> para ver quanto teria.</li><li>Copia o texto e partilha com os amigos.</li></ol>'],
  amzH:['Para tapar tu fuga','Pour colmater la fuite','To plug your leak','Per tappare la fuga','Para tapar a fuga'],
  note:['Cálculo orientativo, no es asesoramiento financiero.','Calcul indicatif, ce n’est pas un conseil financier.','Rough calculation, not financial advice.','Calcolo indicativo, non è consulenza finanziaria.','Cálculo indicativo, não é aconselhamento financeiro.'],
  pdfT:['FUGA DE EUROS · Plan de ahorro','FUGA DE EUROS · Plan d’épargne','FUGA DE EUROS · Savings plan','FUGA DE EUROS · Piano di risparmio','FUGA DE EUROS · Plano de poupança'],
@@ -166,9 +173,9 @@ const AMZ=[
 ];
 
 applyI18n(D);
-let habits=null;
+var habits=null;
 try{habits=JSON.parse(localStorage.getItem('goteo')||'null')}catch(e){}
-if(!Array.isArray(habits)||!habits.length)habits=[{id:'cafe',p:2.5,f:'laborable'},{id:'delivery',p:18,f:'semana'},{id:'stream',p:12.99,f:'mes'}];
+if(!Array.isArray(habits))habits=[{id:'cafe',p:2.5,f:'laborable'},{id:'delivery',p:18,f:'semana'},{id:'stream',p:12.99,f:'mes'}];
 const nameOf=h=>h.n||(h.id&&IDN[h.id]?T(IDN[h.id][3]):t('mine'));
 const yearly=h=>(parseFloat(String(h.p).replace(',','.'))||0)*(FREQ[h.f]||0);
 const ylbl=n=>n===1?t('y1'):t('yN',{n});
@@ -234,6 +241,8 @@ function makePlan(){
   d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,284);
   d.save('Fuga-de-Euros.pdf');msg.textContent=t('pdfDone');
 }
+exampleCard('example',D.exStory,()=>{habits=[{id:'cafe',p:2.5,f:'laborable'},{id:'delivery',p:18,f:'semana'}];document.getElementById('yrs').value=10;document.getElementById('inv').checked=false;save();render();document.getElementById('resCard').scrollIntoView({behavior:'smooth'})},()=>{habits=[];save();render()});
+exportBar('exportBar',()=>[document.getElementById('resCard'),document.getElementById('listCard')],'Fuga-de-Euros');
 render();
 </script>
 </body>

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>QuéComemos</title>
 <meta name="description" content="Planifica tus comidas de la semana y genera la lista de la compra.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="../ui.css">
 <script src="../i18n.js"></script>
 <script src="../pro.js"></script>
+<script src="../tools.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../afiliados.js"></script>
 <style>
 :root{--hero:#1f3a14;--hero-ink:#fff;--accent:#8ad13f;--accent-ink:#13250b;--soft:#eef8e2}
@@ -29,6 +32,15 @@
 .it.done span:not(.q){text-decoration:line-through;color:var(--muted)}
 .prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
 .prog i{display:block;height:100%;background:var(--accent)}
+.daychips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.daychips button{font:inherit;font-weight:700;font-size:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:42px;white-space:nowrap;cursor:pointer}
+.daychips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.meal{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--bg);display:grid;gap:6px}
+.meal .mt{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.meal b{font-family:var(--display);font-size:20px}
+.meal ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.meal li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:4px 0}
+.meal li span:last-child{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -49,7 +61,16 @@
 </section>
 
 <main class="wrap">
-  <section class="card">
+  <section id="example"></section>
+
+  <section class="card today-card" id="todayCard">
+    <h2>🍳 <span data-i18n="todayH">Hoy cocinas</span></h2>
+    <p class="help" data-i18n="todayHelp"></p>
+    <div class="daychips" id="daychips"></div>
+    <div id="todayBody" style="display:grid;gap:10px"></div>
+  </section>
+
+  <section class="card" id="weekCard">
     <h2><span class="n">1</span><span data-i18n="weekH">Tu menú de la semana</span></h2>
     <div class="row">
       <label class="f" style="width:140px"><span data-i18n="people">Personas</span><select id="ppl"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
@@ -59,12 +80,14 @@
     <div class="week" id="week"></div>
   </section>
 
-  <section class="card">
+  <section class="card" id="listCard">
     <h2><span class="n">2</span><span data-i18n="listH">Lista de la compra</span></h2>
     <div class="row" style="justify-content:space-between"><span class="muted" id="count"></span><button class="btn small ghost" id="copy" data-i18n="copy">Copiar lista</button></div>
     <div class="prog"><i id="progbar" style="width:0"></i></div>
     <div class="aisles" id="aisles"></div>
   </section>
+
+  <section id="exportBar"></section>
 
   <section id="pro"></section>
 
@@ -94,8 +117,15 @@ const D={
  copy:['Copiar lista','Copier la liste','Copy list','Copia lista','Copiar lista'],
  copied:['Copiada ✓','Copiée ✓','Copied ✓','Copiata ✓','Copiada ✓'],
  copyFail:['No se pudo copiar','Copie impossible','Couldn’t copy','Impossibile copiare','Não foi possível copiar'],
- pro:['Desbloquea <b>14 recetas más</b>: paella, curry, poke, lasaña, ramen… y "Sorpréndeme" las incluirá.','Débloquez <b>14 recettes de plus</b> : paella, curry, poke, lasagnes, ramen… et "Surprenez-moi" les utilisera.','Unlock <b>14 more recipes</b>: paella, curry, poke, lasagne, ramen… and "Surprise me" will use them.','Sblocca <b>14 ricette in più</b>: paella, curry, poke, lasagne, ramen… e "Sorprendimi" le userà.','Desbloqueie <b>mais 14 receitas</b>: paella, caril, poke, lasanha, ramen… e "Surpreenda-me" vai usá-las.'],
+ pro:['Desbloquea <b>14 recetas extra</b>: paella, curry, poke, lasaña, ramen… y "Sorpréndeme" las incluirá.','Débloquez <b>14 recettes de plus</b> : paella, curry, poke, lasagnes, ramen… et "Surprenez-moi" les utilisera.','Unlock <b>14 more recipes</b>: paella, curry, poke, lasagne, ramen… and "Surprise me" will use them.','Sblocca <b>14 ricette in più</b>: paella, curry, poke, lasagne, ramen… e "Sorprendimi" le userà.','Desbloqueie <b>mais 14 receitas</b>: paella, caril, poke, lasanha, ramen… e "Surpreenda-me" vai usá-las.'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ todayH:['Hoy cocinas','Aujourd’hui, vous cuisinez','Today you’re cooking','Oggi cucini','Hoje cozinha'],
+ todayHelp:['Toca un día para ver qué necesitas sacar de la nevera.','Touchez un jour pour voir ce qu’il faut sortir du frigo.','Tap a day to see what to take out of the fridge.','Tocca un giorno per vedere cosa tirare fuori dal frigo.','Toque num dia para ver o que tirar do frigorífico.'],
+ nothing:['Nada planeado. Elige un plato en el menú de abajo.','Rien de prévu. Choisissez un plat dans le menu ci-dessous.','Nothing planned. Pick a meal in the menu below.','Niente in programma. Scegli un piatto nel menu qui sotto.','Nada planeado. Escolha um prato no menu abaixo.'],
+ forN:['Para {n} personas','Pour {n} personnes','For {n} people','Per {n} persone','Para {n} pessoas'],
+ forOne:['Para 1 persona','Pour 1 personne','For 1 person','Per 1 persona','Para 1 pessoa'],
+ today:['Hoy','Aujourd’hui','Today','Oggi','Hoje'],
+ exStory:['<p><b>Ana y Luis</b> (2 personas) no saben qué cocinar esta semana.</p><ol><li>El domingo eligen <b>2 personas</b> y pulsan <b>🎲 Sorpréndeme</b>.</li><li>Cambian los platos que no les gustan.</li><li>Copian la <b>lista de la compra</b> y hacen una sola compra.</li><li>Cada día miran <b>Hoy cocinas</b> para saber qué sacar de la nevera.</li></ol>','<p><b>Ana et Luis</b> (2 personnes) ne savent pas quoi cuisiner cette semaine.</p><ol><li>Le dimanche, ils choisissent <b>2 personnes</b> et touchent <b>🎲 Surprenez-moi</b>.</li><li>Ils changent les plats qui ne leur plaisent pas.</li><li>Ils copient la <b>liste de courses</b> et font un seul passage au magasin.</li><li>Chaque jour, ils regardent <b>Aujourd’hui, vous cuisinez</b> pour savoir quoi sortir du frigo.</li></ol>','<p><b>Ana and Luis</b> (2 people) don’t know what to cook this week.</p><ol><li>On Sunday they choose <b>2 people</b> and tap <b>🎲 Surprise me</b>.</li><li>They swap any meals they don’t like.</li><li>They copy the <b>shopping list</b> and do one single shop.</li><li>Each day they check <b>Today you’re cooking</b> to know what to take out of the fridge.</li></ol>','<p><b>Ana e Luis</b> (2 persone) non sanno cosa cucinare questa settimana.</p><ol><li>La domenica scelgono <b>2 persone</b> e toccano <b>🎲 Sorprendimi</b>.</li><li>Cambiano i piatti che non piacciono.</li><li>Copiano la <b>lista della spesa</b> e fanno una sola spesa.</li><li>Ogni giorno guardano <b>Oggi cucini</b> per sapere cosa tirare fuori dal frigo.</li></ol>','<p><b>Ana e Luís</b> (2 pessoas) não sabem o que cozinhar esta semana.</p><ol><li>No domingo escolhem <b>2 pessoas</b> e tocam em <b>🎲 Surpreenda-me</b>.</li><li>Trocam os pratos de que não gostam.</li><li>Copiam a <b>lista de compras</b> e fazem uma só ida ao supermercado.</li><li>Todos os dias veem <b>Hoje cozinha</b> para saber o que tirar do frigorífico.</li></ol>'],
  amzH:['Para cocinar tu menú de la semana','Pour cuisiner votre menu de la semaine','To cook your weekly menu','Per cucinare il menu della settimana','Para cozinhar o menu da semana']
 };
 const t=(k,v)=>T(D[k],v);
@@ -117,6 +147,7 @@ const ING={
  curry:['de','Curry en polvo','Curry en poudre','Curry powder','Curry in polvere','Caril em pó'],aubergine:['fv','Berenjena','Aubergine','Aubergine','Melanzana','Beringela'],milk:['lh','Leche','Lait','Milk','Latte','Leite'],sourcream:['lh','Nata agria','Crème aigre','Sour cream','Panna acida','Natas ácidas'],lasagne:['de','Placas de lasaña','Feuilles de lasagne','Lasagne sheets','Sfoglie per lasagne','Folhas de lasanha'],
  courgette:['fv','Calabacín','Courgette','Courgette','Zucchina','Curgete'],cucumber:['fv','Pepino','Concombre','Cucumber','Cetriolo','Pepino'],crumbs:['de','Pan rallado','Chapelure','Breadcrumbs','Pangrattato','Pão ralado'],arborio:['de','Arroz arborio','Riz arborio','Arborio rice','Riso arborio','Arroz arbório'],mushrooms:['fv','Champiñones','Champignons','Mushrooms','Funghi champignon','Cogumelos'],
  vegstock:['de','Caldo de verduras','Bouillon de légumes','Vegetable stock','Brodo vegetale','Caldo de legumes'],pastry:['pa','Masa quebrada','Pâte brisée','Shortcrust pastry','Pasta brisée','Massa quebrada'],cod:['cp','Bacalao','Cabillaud','Cod','Merluzzo','Bacalhau'],blackbeans:['de','Alubias negras','Haricots noirs','Black beans','Fagioli neri','Feijão-preto'],corn:['de','Maíz dulce','Maïs doux','Sweetcorn','Mais dolce','Milho doce'],
+ bacon:['cp','Bacon','Lardons','Bacon','Pancetta','Bacon'],beef:['cp','Carne de ternera para guisar','Bœuf à mijoter','Stewing beef','Spezzatino di manzo','Carne de vaca para estufar'],feta:['lh','Queso feta','Feta','Feta cheese','Feta','Queijo feta'],sausages:['cp','Salchichas','Saucisses','Sausages','Salsicce','Salsichas'],
  pork:['cp','Solomillo de cerdo','Filet mignon de porc','Pork tenderloin','Filetto di maiale','Lombinho de porco'],ramen:['de','Fideos ramen','Nouilles ramen','Ramen noodles','Noodles ramen','Massa ramen'],chstock:['de','Caldo de pollo','Bouillon de volaille','Chicken stock','Brodo di pollo','Caldo de galinha'],spring:['fv','Cebolleta','Oignon nouveau','Spring onion','Cipollotto','Cebolinho']
 };
 // receta: [nombres, ingredientes [id,cantidad por persona,unidad], pro]
@@ -137,6 +168,22 @@ const R={
  toast:[['Tostadas con aguacate y huevo','Toasts avocat et œuf','Avocado & egg toast','Toast con avocado e uovo','Tostas de abacate e ovo'],[['bread',80,'g'],['avocado',.5,'ud'],['eggs',1,'ud']]],
  chickpeas:[['Garbanzos con espinacas','Pois chiches aux épinards','Chickpeas with spinach','Ceci con spinaci','Grão com espinafres'],[['chickpeas',200,'g'],['spinach',80,'g'],['garlic',1,'diente']]],
  tunapasta:[['Macarrones con atún','Macaronis au thon','Tuna pasta','Maccheroni al tonno','Massa com atum'],[['macaroni',100,'g'],['tuna',1,'lata'],['tomsauce',80,'g']]],
+ carbonara:[['Espaguetis carbonara','Spaghettis carbonara','Spaghetti carbonara','Spaghetti alla carbonara','Esparguete à carbonara'],[['spaghetti',100,'g'],['eggs',1,'ud'],['bacon',60,'g'],['parmesan',20,'g']]],
+ chcurry:[['Pollo al curry','Poulet au curry','Chicken curry','Pollo al curry','Frango de caril'],[['breast',130,'g'],['coconut',100,'ml'],['curry',5,'g'],['onion',.5,'ud'],['rice',70,'g']]],
+ vegsoup:[['Sopa de verduras','Soupe de légumes','Vegetable soup','Minestrone','Sopa de legumes'],[['carrot',1,'ud'],['potato',150,'g'],['courgette',.5,'ud'],['onion',.5,'ud'],['vegstock',350,'ml']]],
+ pastasalad:[['Ensalada de pasta','Salade de pâtes','Pasta salad','Insalata di pasta','Salada de massa'],[['macaroni',90,'g'],['tuna',1,'lata'],['tomato',1,'ud'],['corn',50,'g'],['cucumber',.5,'ud']]],
+ sandwich:[['Sándwich mixto','Croque-monsieur','Toasted ham & cheese','Toast prosciutto e formaggio','Tosta mista'],[['bread',100,'g'],['ham',50,'g'],['slices',2,'ud']]],
+ brokeneggs:[['Huevos rotos con jamón','Œufs cassés au jambon','Fried eggs with potatoes & ham','Uova con patate e prosciutto','Ovos rotos com fiambre'],[['potato',200,'g'],['eggs',2,'ud'],['ham',50,'g']]],
+ pisto:[['Pisto con huevo','Ratatouille à l’œuf','Ratatouille with egg','Ratatouille con uovo','Pisto com ovo'],[['courgette',.5,'ud'],['pepper',.5,'ud'],['tomsauce',100,'g'],['onion',.5,'ud'],['eggs',1,'ud']]],
+ chili:[['Chili con carne','Chili con carne','Chilli con carne','Chili con carne','Chili com carne'],[['mince',120,'g'],['blackbeans',120,'g'],['tomsauce',100,'g'],['onion',.5,'ud'],['rice',70,'g']]],
+ prawnrice:[['Arroz salteado con gambas','Riz sauté aux crevettes','Prawn fried rice','Riso saltato con gamberi','Arroz salteado com camarão'],[['rice',80,'g'],['prawns',100,'g'],['peas',50,'g'],['garlic',1,'diente'],['eggs',1,'ud']]],
+ stew:[['Estofado de ternera','Bœuf mijoté','Beef stew','Spezzatino di manzo','Estufado de vaca'],[['beef',160,'g'],['potato',150,'g'],['carrot',1,'ud'],['onion',.5,'ud']]],
+ quesadilla:[['Quesadillas','Quesadillas','Quesadillas','Quesadillas','Quesadillas'],[['wraps',2,'ud'],['cheese',50,'g'],['ham',40,'g'],['tomato',.5,'ud']]],
+ greek:[['Ensalada griega','Salade grecque','Greek salad','Insalata greca','Salada grega'],[['tomato',1.5,'ud'],['cucumber',.5,'ud'],['feta',60,'g'],['onion',.25,'ud'],['bread',50,'g']]],
+ cubana:[['Arroz a la cubana','Riz à la cubaine','Cuban-style rice with egg','Riso alla cubana','Arroz à cubana'],[['rice',90,'g'],['eggs',1,'ud'],['tomsauce',80,'g']]],
+ bakedfish:[['Pescado al horno con verduras','Poisson au four et légumes','Baked fish with vegetables','Pesce al forno con verdure','Peixe no forno com legumes'],[['hake',180,'g'],['potato',150,'g'],['pepper',.5,'ud'],['onion',.5,'ud']]],
+ sausages:[['Salchichas con puré','Saucisses purée','Sausages and mash','Salsicce con purè','Salsichas com puré'],[['sausages',2,'ud'],['potato',200,'g'],['milk',60,'ml']]],
+ mushegg:[['Revuelto de champiñones','Œufs brouillés aux champignons','Scrambled eggs with mushrooms','Uova strapazzate ai funghi','Ovos mexidos com cogumelos'],[['eggs',2,'ud'],['mushrooms',100,'g'],['bread',50,'g']]],
  paella:[['Paella de marisco','Paella aux fruits de mer','Seafood paella','Paella di mare','Paella de marisco'],[['bomba',90,'g'],['prawns',80,'g'],['mussels',100,'g'],['pepper',.5,'ud'],['tomato',.5,'ud'],['fishstock',250,'ml']],1],
  curry:[['Curry de garbanzos','Curry de pois chiches','Chickpea curry','Curry di ceci','Caril de grão'],[['chickpeas',200,'g'],['coconut',100,'ml'],['onion',.5,'ud'],['curry',5,'g'],['rice',70,'g']],1],
  moussaka:[['Moussaka','Moussaka','Moussaka','Moussaka','Moussaka'],[['aubergine',1,'ud'],['mince',120,'g'],['tomsauce',80,'g'],['milk',100,'ml'],['cheese',20,'g']],1],
@@ -171,7 +218,7 @@ const AMZ=[
 applyI18n(D);
 const FREE=Object.keys(R).filter(k=>!R[k][2]),PRO_R=Object.keys(R).filter(k=>R[k][2]);
 const usable=k=>R[k]&&(!R[k][2]||window.PRO);
-let plan=null,checked={};
+var plan=null,checked={};
 try{plan=JSON.parse(localStorage.getItem('qc-plan')||'null');checked=JSON.parse(localStorage.getItem('qc-check')||'{}')}catch(e){}
 if(!Array.isArray(plan)||plan.length!==14)plan=['bolo','pumpkin','chick','tortilla','lentils','caesar','salmon','toast','chickpeas','pizza','tacos','','wok',''];
 plan=plan.map(k=>usable(k)?k:'');
@@ -194,7 +241,7 @@ function fmtQ(q,u){
 function agg(){const ppl=+document.getElementById('ppl').value,a={};
   plan.filter(Boolean).forEach(r=>R[r][1].forEach(([id,q,u])=>{const k=id+'|'+u;a[k]=a[k]||{id,u,q:0};a[k].q+=q*ppl}));return a}
 const iname=id=>ING[id][1+LI]||ING[id][1];
-function renderList(){
+var renderList=function(){
   const a=agg(),by={};Object.entries(a).forEach(([k,x])=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push([k,x]));
   const total=Object.keys(a).length,done=Object.keys(a).filter(k=>checked[k]).length;
   document.getElementById('count').textContent=total?t('count',{d:done,t:total}):'';
@@ -211,6 +258,20 @@ document.getElementById('copy').onclick=async e=>{const b=e.currentTarget,a=agg(
 document.getElementById('pro').innerHTML=window.PRO?'':proBanner(t('pro'));
 document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
 renderAmazon('amz',D.amzH,AMZ);
+
+// ----- Hoy cocinas -----
+let selDay=(new Date().getDay()+6)%7;
+function renderToday(){
+  const today=(new Date().getDay()+6)%7,ppl=+document.getElementById('ppl').value;
+  document.getElementById('daychips').innerHTML=DAYS.map((d,i)=>`<button data-d="${i}" aria-pressed="${i===selDay}">${i===today?t('today'):T(d).slice(0,3)+'.'}</button>`).join('');
+  document.querySelectorAll('#daychips button').forEach(b=>b.onclick=()=>{selDay=+b.dataset.d;renderToday()});
+  const meals=[[t('lunch'),plan[selDay*2]],[t('dinner'),plan[selDay*2+1]]];
+  document.getElementById('todayBody').innerHTML=`<p class="muted" style="margin:0">${T(DAYS[selDay])} · ${ppl===1?t('forOne'):t('forN',{n:ppl})}</p>`+meals.map(([lbl,k])=>`<div class="meal"><span class="mt">${lbl}</span>${k&&R[k]?`<b>${esc(rn(k))}</b><ul>${R[k][1].map(([id,q,u])=>`<li><span>${esc(iname(id))}</span><span>${fmtQ(q*ppl,u)}</span></li>`).join('')}</ul>`:`<span class="muted">${t('nothing')}</span>`}</div>`).join('');
+}
+const _rl=renderList;renderList=function(){_rl();renderToday()};
+exampleCard('example',D.exStory,()=>{document.getElementById('ppl').value='2';const pool=Object.keys(R).filter(usable).sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList();document.getElementById('todayCard').scrollIntoView({behavior:'smooth'})},
+ ()=>{plan=Array(14).fill('');checked={};save();renderWeek();renderList()});
+exportBar('exportBar',()=>[document.getElementById('weekCard'),document.getElementById('listCard')],'QueComemos');
 renderWeek();renderList();
 </script>
 </body>
