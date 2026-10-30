@@ -2,7 +2,7 @@
 // 1) Pega aquí tu enlace de pago de Stripe (empieza por https://buy.stripe.com/...)
 // 2) En Stripe, "Después del pago" debe redirigir a:
 //    https://gonza0297.github.io/microapps/?gracias=pack-pro
-window.PAGO_URL = "";
+window.PAGO_URL = "https://buy.stripe.com/eVq7sLfOlgH95N9gUM7wA00";
 window.PRECIO_PRO = "5,99 €";
 
 (function () {
