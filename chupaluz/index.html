@@ -75,6 +75,10 @@ button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line
 .lamp i{font-style:normal;font-weight:700;font-size:13px;color:#c45500}
 .lamp .w{font-size:12px;font-weight:700;color:var(--accent)}
 @media (max-width:480px){.led .calc{grid-template-columns:1fr 1fr}}
+.uses h2{font-size:20px;margin:0 0 10px}
+.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
+.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
 footer{color:var(--muted);font-size:13px;text-align:center}
 @media (max-width:480px){.fields{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr}}
 </style>
@@ -115,6 +119,9 @@ footer{color:var(--muted);font-size:13px;text-align:center}
   <section class="report" id="report"></section>
 
   <section class="led" id="led"></section>
+
+
+  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">🧾</i><b>Entender tu factura</b><span>Descubre por qué pagas tanto y qué aparato tiene la culpa.</span></div><div class="u"><i aria-hidden="true">🏠</i><b>Antes de mudarte</b><span>Calcula cuánto gastarás de luz en tu nuevo piso con tus aparatos.</span></div><div class="u"><i aria-hidden="true">🛒</i><b>Antes de comprar un aparato</b><span>Compara lo que gasta una secadora, un radiador o un aire acondicionado antes de comprarlo.</span></div><div class="u"><i aria-hidden="true">💡</i><b>Cambiar a LED</b><span>Calcula cuánto ahorras cambiando tus bombillas y cuáles comprar.</span></div><div class="u"><i aria-hidden="true">👥</i><b>Piso compartido</b><span>Reparte la luz de forma justa: quien usa el radiador eléctrico gasta más.</span></div><div class="u"><i aria-hidden="true">🔌</i><b>Teletrabajo</b><span>Mira cuánto te cuesta trabajar desde casa con el ordenador y la calefacción.</span></div><div class="u"><i aria-hidden="true">🚗</i><b>Coche eléctrico</b><span>Calcula cuánto te cuesta cargarlo en casa al mes.</span></div><div class="u"><i aria-hidden="true">⏰</i><b>Cambiar de tarifa</b><span>Prueba distintos precios del kWh y comprueba si te conviene otra compañía.</span></div></div></section>
 
   <section id="amz"></section>
 
