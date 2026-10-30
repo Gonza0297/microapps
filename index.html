@@ -40,12 +40,12 @@ footer{color:var(--muted);font-size:14px;text-align:center}
     <a class="app" href="cv-flash/"><b>CV Flash</b><span>Tu currículum con diseño profesional, listo en PDF en 5 minutos.</span><i>Crear mi CV →</i></a>
   </div>
   <section id="pro" aria-live="polite"></section>
-  <footer>Creado por Gonzalo Leon</footer>
+  <footer>Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
 </div>
 <script>
 var box=document.getElementById('pro');
 if(window.PRO){
-  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>'+(window.PRO_JUST_UNLOCKED?'¡Gracias por tu compra! ':'')+'Pack Pro activado</b> en este navegador. Ya tienes desbloqueadas las 5 apps.</p></div>';
+  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>'+(window.PRO_JUST_UNLOCKED?'¡Gracias por tu compra! ':'')+'Pack Pro activado</b> en este navegador. Ya tienes desbloqueadas las 5 apps. ¿Algún problema con tu compra? Escribe a appsutiles8@gmail.com</p></div>';
 }else{
   box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>Pack Pro:</b> CV sin marca de agua · informe de ahorro de luz en PDF · plan de ahorro en PDF · varios grupos en Cuentas Claras · recetas extra en QuéComemos. Un solo pago de '+window.PRECIO_PRO+', para siempre.</p>'+(window.PAGO_URL?'<a class="pro-buy" href="'+window.PAGO_URL+'">Desbloquear Pack Pro</a>':'<span class="pro-soon">Disponible muy pronto</span>')+'</div>';
 }
