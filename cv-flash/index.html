@@ -282,10 +282,8 @@ async function download(kind){
     const c=await renderCanvas();stamp(c.getContext('2d'),c.width,c.height);
     const name='CV '+(S.name||'').trim();
     if(kind==='pdf'){const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4'}),w=210,h=c.height*w/c.width,img=c.toDataURL('image/jpeg',.95);
-      let y=0;pdf.addImage(img,'JPEG',0,0,w,h);while(h-(y+297)>1){y+=297;pdf.addPage();pdf.addImage(img,'JPEG',0,-y,w,h)}pdf.save(name+'.pdf')}
-    else{const url=c.toDataURL('image/png');const m=document.createElement('div');m.className='ex-modal';
-      m.innerHTML=`<div class="ex-sheet"><img alt="" src="${url}"><p class="msg">${T(['Si no se descarga, mantén pulsada la imagen y elige «Guardar».','Si rien ne se télécharge, appuyez longuement sur l’image et choisissez « Enregistrer ».','If it doesn’t download, press and hold the image and choose “Save”.','Se non si scarica, tieni premuta l’immagine e scegli «Salva».','Se não descarregar, mantenha a imagem premida e escolha «Guardar».'])}</p><div class="row"><a class="btn" href="${url}" download="${esc(name)}.png">⬇ PNG</a><button class="btn ghost">✕</button></div></div>`;
-      m.querySelector('button').onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()};document.body.appendChild(m)}
+      let y=0;pdf.addImage(img,'JPEG',0,0,w,h);while(h-(y+297)>1){y+=297;pdf.addPage();pdf.addImage(img,'JPEG',0,-y,w,h)}deliverFile(pdf.output('blob'),name+'.pdf',null)}
+    else{const url=c.toDataURL('image/png');await new Promise(r=>c.toBlob(bl=>{deliverFile(bl,name+'.png',url);r()},'image/png'))}
     msg.textContent=PRO?t('done'):t('doneMark');
   }catch(e){msg.textContent=t('fail')}finally{b1.disabled=b2.disabled=false}
 }

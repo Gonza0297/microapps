@@ -239,7 +239,7 @@ function makePlan(){
   d.setFontSize(13);d.setTextColor(23,23,28);d.text(P(t('pdfTricks')),14,y);y+=8;d.setFontSize(10.5);
   [t('pdfT1',{a:fmtEUR(sv/12,0)}),t('pdfT2'),t('pdfT3')].forEach(s=>{const L=d.splitTextToSize(P('•  '+s),180);d.text(L,14,y);y+=L.length*5+3});
   d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,284);
-  d.save('Fuga-de-Euros.pdf');msg.textContent=t('pdfDone');
+  deliverFile(d.output('blob'),'Fuga-de-Euros.pdf',null);msg.textContent=t('pdfDone');
 }
 exampleCard('example',D.exStory,()=>{habits=[{id:'cafe',p:2.5,f:'laborable'},{id:'delivery',p:18,f:'semana'}];document.getElementById('yrs').value=10;document.getElementById('inv').checked=false;save();render();document.getElementById('resCard').scrollIntoView({behavior:'smooth'})},()=>{habits=[];save();render()});
 exportBar('exportBar',()=>[document.getElementById('resCard'),document.getElementById('listCard')],'Fuga-de-Euros');

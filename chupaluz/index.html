@@ -310,7 +310,7 @@ function makePdf(){
   if(y>250){d.addPage();y=20}
   d.setFillColor(255,204,31);d.roundedRect(14,y,182,18,3,3,'F');d.setTextColor(22,24,31);d.setFontSize(13);d.text(P(t('pdfAll',{s:fmtEUR(sv,0)})),20,y+11);
   d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,286);
-  d.save('Chupaluz.pdf');msg.textContent=t('pdfDone');
+  deliverFile(d.output('blob'),'Chupaluz.pdf',null);msg.textContent=t('pdfDone');
 }
 exampleCard('example',D.exStory,()=>{items=['fridge','washer','dryer','tv','heater','router','oldbulb'].map(id=>({id,w:APN[id][1],h:APN[id][2],d:APN[id][3]}));priceEl.value='0.35';save();render();document.getElementById('resCard').scrollIntoView({behavior:'smooth'})},()=>{items=[];save();render()});
 exportBar('exportBar',()=>[document.getElementById('resCard'),document.getElementById('tip'),document.getElementById('listCard')],'Chupaluz');
