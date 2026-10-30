@@ -3,52 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Apps Útiles de Gonzalo</title>
+<title>Apps Útiles</title>
 <meta name="description" content="Cinco apps gratis para el día a día: luz, ahorro, gastos compartidos, menú semanal y currículum.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600&display=swap">
-<style>
-:root{--bg:#f4f3ef;--surface:#fff;--ink:#1c1c22;--muted:#63636f;--line:#e0ded6;--accent:#2d4bd1;
- --display:"Bricolage Grotesque",system-ui,sans-serif;--body:"Figtree",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root{--bg:#121216;--surface:#1b1b21;--ink:#ececf1;--muted:#9d9daa;--line:#2b2b33;--accent:#8ea0ff;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;padding:40px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
-.wrap{max-width:860px;margin:0 auto;display:grid;gap:28px}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,8vw,60px);line-height:1;margin:0;letter-spacing:-.02em;text-wrap:balance}
-.sub{color:var(--muted);font-size:18px;margin:10px 0 0;max-width:56ch}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-a.app{display:grid;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;color:inherit;text-decoration:none;transition:transform .15s,border-color .15s}
-a.app:hover,a.app:focus-visible{transform:translateY(-2px);border-color:var(--accent);outline:none}
-.app b{font-family:var(--display);font-size:24px;font-weight:700}
-.app span{color:var(--muted)}
-.app i{font-style:normal;font-weight:600;color:var(--accent);margin-top:6px}
-footer{color:var(--muted);font-size:14px;text-align:center}
-@media (prefers-reduced-motion:reduce){a.app{transition:none}}
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="ui.css">
+<script src="i18n.js"></script>
 <script src="pro.js"></script>
+<style>
+:root{--hero:#17171c;--hero-ink:#fff;--accent:#ffd23f;--accent-ink:#17171c}
+.hero h1{font-size:clamp(36px,10vw,64px);max-width:14ch;text-wrap:balance}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+a.app{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:start;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+a.app:hover,a.app:focus-visible{transform:translateY(-3px);border-color:var(--c);outline:none}
+a.app .ic{grid-row:span 3;width:56px;height:56px;border-radius:16px;background:var(--c);color:var(--ci);display:grid;place-items:center}
+a.app .ic svg{width:32px;height:32px}
+a.app b{font-family:var(--display);font-size:24px;line-height:1.1}
+a.app span{color:var(--muted);font-size:15px}
+a.app i{font-style:normal;font-weight:800;font-size:15px;margin-top:4px}
+.trust{display:flex;flex-wrap:wrap;gap:8px}
+.trust span{background:rgb(255 255 255 / .12);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600}
+</style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Apps pequeñas para problemas de cada día</h1>
-    <p class="sub">Gratis, sin registro y funcionan en el móvil. Tus datos se quedan en tu navegador.</p>
-  </header>
-  <div class="grid">
-    <a class="app" href="chupaluz/"><b>Chupaluz</b><span>Calcula el gasto de cada aparato al mes y al año, descubre cuál consume más y cuánto ahorras pasándote a LED.</span><i>Calcular mi gasto →</i></a>
-    <a class="app" href="fuga-de-euros/"><b>Fuga de Euros</b><span>Suma tus cafés, suscripciones y caprichos a 1–40 años, compáralo con cosas reales y simula cuánto tendrías invirtiéndolo.</span><i>Ver mi fuga →</i></a>
-    <a class="app" href="cuentas-claras/"><b>Cuentas Claras</b><span>Apunta quién pagó qué en un viaje o en el piso y te dice quién paga a quién con el mínimo de transferencias.</span><i>Repartir gastos →</i></a>
-    <a class="app" href="quecomemos/"><b>QuéComemos</b><span>Elige comida y cena de 7 días (o deja que lo haga la app) y obtén la lista de la compra con cantidades, por pasillos.</span><i>Planificar menú →</i></a>
-    <a class="app" href="cv-flash/"><b>CV Flash</b><span>Rellena tus datos, elige entre 3 diseños y 6 colores y descarga un CV profesional en PDF en 5 minutos.</span><i>Crear mi CV →</i></a>
+<header class="top"><span style="font-weight:800;white-space:nowrap">⚡ Apps Útiles</span><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <h1 data-i18n="h1">Apps pequeñas para problemas de cada día</h1>
+    <p class="tagline" data-i18n="sub">Ahorra en la luz, controla tus gastos, reparte cuentas, organiza tus comidas y crea tu CV.</p>
+    <div class="trust"><span data-i18n="t1">✓ Gratis</span><span data-i18n="t2">✓ Sin registro</span><span data-i18n="t3">✓ Funciona en el móvil</span><span data-i18n="t4">✓ 5 idiomas</span></div>
   </div>
-  <section id="pro" aria-live="polite"></section>
-  <footer>Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
-</div>
+</section>
+<main class="wrap">
+  <div class="apps" id="apps"></div>
+  <section id="pro"></section>
+</main>
+<footer data-auto></footer>
 <script>
-var box=document.getElementById('pro');
-if(window.PRO){
-  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>'+(window.PRO_JUST_UNLOCKED?'¡Gracias por tu compra! ':'')+'Pack Pro activado</b> en este navegador. Ya tienes desbloqueadas las 5 apps. ¿Algún problema con tu compra? Escribe a appsutiles8@gmail.com</p></div>';
-}else{
-  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>Pack Pro:</b> CV sin marca de agua · informe de ahorro de luz en PDF · plan de ahorro en PDF · varios grupos en Cuentas Claras · recetas extra en QuéComemos. Un solo pago de '+window.PRECIO_PRO+', para siempre.</p>'+(window.PAGO_URL?'<a class="pro-buy" href="'+window.PAGO_URL+'">Desbloquear Pack Pro</a>':'<span class="pro-soon">Disponible muy pronto</span>')+'</div>';
-}
+const D={
+ h1:['Apps pequeñas para problemas de cada día','Des petites applis pour les soucis du quotidien','Small apps for everyday problems','Piccole app per i problemi di ogni giorno','Pequenas apps para problemas do dia a dia'],
+ sub:['Ahorra en la luz, controla tus gastos, reparte cuentas, organiza tus comidas y crea tu CV.','Économisez sur l’électricité, maîtrisez vos dépenses, partagez les comptes, organisez vos repas et créez votre CV.','Save on electricity, track spending, split bills, plan meals and build your CV.','Risparmia sulla luce, controlla le spese, dividi i conti, organizza i pasti e crea il tuo CV.','Poupe na luz, controle os gastos, divida contas, organize as refeições e crie o seu CV.'],
+ t1:['✓ Gratis','✓ Gratuit','✓ Free','✓ Gratis','✓ Grátis'],t2:['✓ Sin registro','✓ Sans inscription','✓ No sign-up','✓ Senza registrazione','✓ Sem registo'],t3:['✓ Funciona en el móvil','✓ Fonctionne sur mobile','✓ Works on your phone','✓ Funziona sul telefono','✓ Funciona no telemóvel'],t4:['✓ 5 idiomas','✓ 5 langues','✓ 5 languages','✓ 5 lingue','✓ 5 idiomas'],
+ proOn:['<b>{j}Pack Pro activado</b> en este navegador. Ya tienes desbloqueadas las 5 apps. ¿Algún problema? Escribe a appsutiles8@gmail.com','<b>{j}Pack Pro activé</b> sur ce navigateur. Les 5 apps sont débloquées. Un souci ? Écrivez à appsutiles8@gmail.com','<b>{j}Pro Pack active</b> in this browser. All 5 apps are unlocked. Any issue? Email appsutiles8@gmail.com','<b>{j}Pack Pro attivo</b> su questo browser. Le 5 app sono sbloccate. Problemi? Scrivi a appsutiles8@gmail.com','<b>{j}Pack Pro ativado</b> neste navegador. As 5 apps estão desbloqueadas. Algum problema? Escreva para appsutiles8@gmail.com'],
+ thanks:['¡Gracias por tu compra! ','Merci pour votre achat ! ','Thanks for your purchase! ','Grazie per l’acquisto! ','Obrigado pela compra! '],
+ proList:['<b>Pack Pro:</b> CV sin marca de agua · informe de ahorro de luz en PDF · plan de ahorro en PDF · varios grupos en Cuentas Claras · 14 recetas extra.','<b>Pack Pro :</b> CV sans filigrane · rapport d’économies d’électricité en PDF · plan d’épargne en PDF · plusieurs groupes dans Cuentas Claras · 14 recettes en plus.','<b>Pro Pack:</b> watermark-free CV · PDF electricity savings report · PDF savings plan · multiple groups in Cuentas Claras · 14 extra recipes.','<b>Pack Pro:</b> CV senza filigrana · report di risparmio luce in PDF · piano di risparmio in PDF · più gruppi in Cuentas Claras · 14 ricette extra.','<b>Pack Pro:</b> CV sem marca de água · relatório de poupança de luz em PDF · plano de poupança em PDF · vários grupos no Cuentas Claras · 14 receitas extra.']
+};
+const APPS=[
+ ['chupaluz/','Chupaluz','#ffcc1f','#16181f','<path fill="currentColor" d="M13.5 2 5 13.5h6l-1.5 8.5L19 10h-6z"/>',['Descubre qué aparato se come tu factura de luz y cuánto ahorras con LED.','Découvrez quel appareil fait grimper votre facture et combien vous économisez avec des LED.','Find out which appliance eats your power bill and how much LED saves you.','Scopri quale apparecchio si mangia la bolletta e quanto risparmi con i LED.','Descubra que aparelho come a sua fatura da luz e quanto poupa com LED.'],['Calcular mi gasto →','Calculer ma dépense →','Check my costs →','Calcola la mia spesa →','Calcular o meu gasto →']],
+ ['fuga-de-euros/','Fuga de Euros','#ff5a4e','#fff','<path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/>',['Mira cuánto dinero se te escapa en cafés, suscripciones y caprichos.','Voyez combien d’argent part en cafés, abonnements et petits plaisirs.','See how much money slips away on coffee, subscriptions and treats.','Guarda quanti soldi ti scappano tra caffè, abbonamenti e sfizi.','Veja quanto dinheiro foge em cafés, subscrições e caprichos.'],['Ver mi fuga →','Voir ma fuite →','See my leak →','Vedi la mia fuga →','Ver a minha fuga →']],
+ ['cuentas-claras/','Cuentas Claras','#19c2b3','#06292a','<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5M14 15.5c.9-.4 1.9-.6 3-.6 2.3 0 4 1.7 4 4.6"/></g>',['Reparte los gastos del viaje o del piso con el mínimo de pagos.','Partagez les dépenses du voyage ou de la coloc avec un minimum de virements.','Split trip or flat costs with the fewest payments.','Dividi le spese del viaggio o della casa con il minimo di pagamenti.','Divida os gastos da viagem ou da casa com o mínimo de pagamentos.'],['Repartir gastos →','Partager les dépenses →','Split costs →','Dividi le spese →','Dividir gastos →']],
+ ['quecomemos/','QuéComemos','#8ad13f','#13250b','<path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.2 1-3.5 3.5-3.5 7 0 1.7 1.2 3 3.5 3"/>',['El menú de la semana y la lista de la compra por pasillos, en un minuto.','Le menu de la semaine et la liste de courses par rayon, en une minute.','Your weekly menu and an aisle-sorted shopping list in a minute.','Il menu della settimana e la lista della spesa per reparti, in un minuto.','O menu da semana e a lista de compras por corredor, num minuto.'],['Planificar menú →','Planifier le menu →','Plan my menu →','Pianifica il menu →','Planear menu →']],
+ ['cv-flash/','CV Flash','#4d7cff','#fff','<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></g>',['Tu currículum profesional en PDF en 5 minutos, desde el móvil.','Votre CV professionnel en PDF en 5 minutes, depuis le téléphone.','A professional PDF CV in 5 minutes, from your phone.','Il tuo CV professionale in PDF in 5 minuti, dal telefono.','O seu CV profissional em PDF em 5 minutos, no telemóvel.'],['Crear mi CV →','Créer mon CV →','Build my CV →','Crea il mio CV →','Criar o meu CV →']]
+];
+applyI18n(D);
+document.getElementById('apps').innerHTML=APPS.map(a=>`<a class="app" href="${a[0]}?lang=${LANG}" style="--c:${a[2]};--ci:${a[3]}"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">${a[4]}</svg></span><b>${a[1]}</b><span>${T(a[5])}</span><i style="color:inherit">${T(a[6])}</i></a>`).join('');
+const box=document.getElementById('pro');
+if(window.PRO)box.innerHTML=`<div class="pro-box"><span class="pro-tag">PRO</span><p>${T(D.proOn,{j:window.PRO_JUST_UNLOCKED?T(D.thanks):''})}</p></div>`;
+else box.innerHTML=proBanner(T(D.proList));
 </script>
 </body>
 </html>

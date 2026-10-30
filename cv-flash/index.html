@@ -3,70 +3,35 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Crea tu currículum en minutos y descárgalo en PDF.">
-</head>
-<body>
 <title>CV Flash</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<meta name="description" content="Crea tu currículum en minutos y descárgalo en PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap">
+<link rel="stylesheet" href="../ui.css">
+<script src="../i18n.js"></script>
 <script src="../pro.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-/* Layout: formulario a la izquierda, hoja A4 en vivo a la derecha (apilado en móvil) */
-:root{
-  --bg:#f1f1f4;--surface:#ffffff;--ink:#1b1b26;--muted:#62627a;--line:#dcdce6;
-  --accent:#3a3ad1;--accent-ink:#ffffff;
-  --display:"DM Serif Display",Georgia,serif;--body:"Plus Jakarta Sans",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101016;--surface:#191922;--ink:#e8e8f0;--muted:#9c9cb4;--line:#2c2c3a;--accent:#8f8fff;--accent-ink:#101016;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#101016;--surface:#191922;--ink:#e8e8f0;--muted:#9c9cb4;--line:#2c2c3a;--accent:#8f8fff;--accent-ink:#101016;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
-.wrap{max-width:1200px;margin:0 auto;display:grid;gap:18px}
-h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,44px);margin:0;line-height:1.05}
-.sub{color:var(--muted);margin:4px 0 0}
-.app{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:20px;align-items:start}
-@media (max-width:900px){.app{grid-template-columns:1fr}}
-.form{display:grid;gap:12px;min-width:0}
-details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-summary{font-weight:700;cursor:pointer}
-.fields{display:grid;gap:8px;margin-top:10px}
-.fields label{font-size:12px;color:var(--muted);display:grid;gap:3px}
-input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;width:100%;min-width:0}
-textarea{resize:vertical;min-height:64px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.entry{border-top:1px dashed var(--line);padding-top:10px;display:grid;gap:8px}
-.mini{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;justify-self:start}
-.tpls{display:flex;gap:8px;flex-wrap:wrap}
-.tpl{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
-.tpl[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.colors{display:flex;gap:8px;align-items:center}
-.sw{width:26px;height:26px;border-radius:50%;border:2px solid var(--surface);outline:1px solid var(--line);cursor:pointer;padding:0}
-.sw[aria-pressed="true"]{outline:2px solid var(--ink)}
-.dl{font:inherit;font-weight:700;background:var(--accent);color:var(--accent-ink);border:none;border-radius:10px;padding:12px 18px;cursor:pointer}
-.msg{font-size:13px;color:var(--muted)}
-.pro{font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px}
-.pro .buy{justify-self:start;display:inline-block;margin-top:6px;background:var(--ink);color:var(--bg);text-decoration:none;font-weight:700;border-radius:8px;padding:8px 14px}
-.side{position:sticky;top:12px;display:grid;gap:12px;min-width:0}
-.stage{overflow:hidden;border-radius:6px;box-shadow:0 8px 30px rgb(0 0 0 / .15)}
+:root{--hero:#10204f;--hero-ink:#fff;--accent:#4d7cff;--accent-ink:#fff;--soft:#e8eeff}
+@media (prefers-color-scheme:dark){:root{--soft:#1a2340}}
+.wrap.cv{max-width:1180px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1000px){.wrap.cv{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}.side{position:sticky;top:70px}.side .card{max-height:calc(100vh - 90px);overflow:auto}}
+.form{display:grid;gap:18px;min-width:0}
+.tpls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tpl{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:10px;cursor:pointer;min-height:50px}
+.tpl[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+.colors{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:38px;height:38px;border-radius:50%;border:3px solid var(--surface);outline:2px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{outline:3px solid var(--ink)}
+.entry{border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px;background:var(--bg)}
+.entry-h{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:var(--muted);font-size:13px}
+.stage{overflow:hidden;border-radius:8px;box-shadow:0 10px 30px rgb(0 0 0 / .18);background:#fff}
 .scaler{transform-origin:top left;width:794px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
-.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
-.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
-.uses h2{font-size:20px;margin:0 0 10px}
-.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
-.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
-footer{color:var(--muted);font-size:13px;text-align:center}
-
-/* ---- Hoja del CV (colores fijos: es papel) ---- */
-.page{width:794px;min-height:1123px;background:#fff;color:#22222c;font-family:var(--body);font-size:12.5px;line-height:1.5;--c:#2b4c7e}
-.page h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:0 0 8px;font-weight:700}
+/* hoja A4 (colores fijos: es papel) */
+.page{width:794px;min-height:1123px;background:#fff;color:#22222c;font-family:"Figtree","Inter",sans-serif;font-size:12.5px;line-height:1.5;--c:#2b4c7e}
+.page h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--c);margin:0 0 8px;font-weight:800}
 .page .sec{margin-bottom:20px}
 .page .job{margin-bottom:12px}
 .page .job .t{font-weight:700;font-size:13.5px}
@@ -74,13 +39,11 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 .page .job p{margin:4px 0 0;white-space:pre-line}
 .page .tags{display:flex;flex-wrap:wrap;gap:6px}
 .page .tags span{border:1px solid #d8d8e2;border-radius:4px;padding:2px 8px;font-size:12px}
-.page .name{font-family:var(--display);font-size:40px;line-height:1.05;margin:0}
-.page .role{font-size:15px;color:var(--c);font-weight:600;margin:4px 0 0}
+.page .name{font-family:"DM Serif Display",Georgia,serif;font-size:40px;line-height:1.05;margin:0;font-weight:400}
+.page .role{font-size:15px;color:var(--c);font-weight:700;margin:4px 0 0}
 .page .contact{display:flex;flex-wrap:wrap;gap:4px 16px;color:#55556a;font-size:12px;margin-top:10px}
-/* Clásica */
 .t-clasica{padding:56px 64px}
 .t-clasica header{border-bottom:2px solid var(--c);padding-bottom:16px;margin-bottom:22px}
-/* Moderna */
 .t-moderna{display:grid;grid-template-columns:250px 1fr}
 .t-moderna .col1{background:var(--c);color:#fff;padding:48px 26px}
 .t-moderna .col1 h2{color:#fff;opacity:.85}
@@ -89,170 +52,168 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 .t-moderna .col1 .name{font-size:32px;color:#fff}
 .t-moderna .col1 .role{color:#fff;opacity:.9;margin-bottom:24px}
 .t-moderna .col2{padding:48px 36px}
-/* Minimal */
 .t-minimal{padding:64px 72px}
-.t-minimal .name{font-family:var(--body);font-weight:700;font-size:34px;letter-spacing:-.02em}
+.t-minimal .name{font-family:"Figtree","Inter",sans-serif;font-weight:800;font-size:34px;letter-spacing:-.02em}
 .t-minimal .grid{display:grid;grid-template-columns:130px 1fr;gap:0 24px}
-.t-minimal .grid h2{padding-top:2px}
 .t-minimal header{margin-bottom:32px}
 </style>
-
-<div class="wrap">
-  <header>
-    <h1>CV Flash</h1>
-    <p class="sub">Rellena tus datos, elige un diseño y descarga tu currículum en PDF. Los datos de ejemplo están para que veas cómo queda.</p>
-  </header>
-  <details class="howto" open><summary>¿Cómo funciona CV Flash?</summary><ol><li>Rellena tus datos: nombre, puesto, contacto y una frase sobre ti.</li><li>Añade tu experiencia y tu formación (puedes añadir o quitar entradas).</li><li>Elige uno de los 3 diseños (Clásica, Moderna, Minimal) y un color: la hoja se actualiza en directo.</li><li>Pulsa "Descargar PDF" y tu CV está listo para enviar.</li></ol><ul class="feat"><li>3 diseños profesionales y 6 colores</li><li>Vista previa en tamaño A4</li><li>Tus datos se guardan en tu móvil</li><li>Descarga en PDF</li><li>Pro: PDF sin marca de agua</li></ul></details>
-
-
-  <div class="app">
-    <div class="form">
-      <details open>
-        <summary>Diseño</summary>
-        <div class="fields">
-          <div class="tpls" id="tpls">
-            <button class="tpl" data-t="clasica">Clásica</button><button class="tpl" data-t="moderna">Moderna</button><button class="tpl" data-t="minimal">Minimal</button>
-          </div>
-          <div class="colors" id="colors"></div>
-        </div>
-      </details>
-      <details open>
-        <summary>Datos personales</summary>
-        <div class="fields">
-          <div class="two"><label>Nombre completo<input id="f-name"></label><label>Puesto<input id="f-role"></label></div>
-          <div class="two"><label>Email<input id="f-email"></label><label>Teléfono<input id="f-phone"></label></div>
-          <div class="two"><label>Ciudad<input id="f-city"></label><label>LinkedIn / web<input id="f-web"></label></div>
-          <label>Sobre mí<textarea id="f-about"></textarea></label>
-        </div>
-      </details>
-      <details>
-        <summary>Experiencia</summary>
-        <div class="fields" id="exp"></div>
-      </details>
-      <details>
-        <summary>Formación</summary>
-        <div class="fields" id="edu"></div>
-      </details>
-      <details>
-        <summary>Habilidades e idiomas</summary>
-        <div class="fields">
-          <label>Habilidades (separadas por comas)<input id="f-skills"></label>
-          <label>Idiomas (separados por comas)<input id="f-langs"></label>
-        </div>
-      </details>
-      <button class="dl" id="dl">Descargar PDF</button>
-      <div class="msg" id="msg" aria-live="polite"></div>
-      <div class="pro" id="pro"></div>
+</head>
+<body>
+<header class="top"><a href="../" data-i18n="back">← Apps Útiles</a><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></div>
+      <h1>CV Flash</h1>
     </div>
-
-    <div class="side">
-      <div class="stage" id="stage"><div class="scaler" id="scaler"><div class="page" id="page"></div></div></div>
-    </div>
+    <p class="tagline" data-i18n="tagline">Tu currículum profesional en PDF, en 5 minutos.</p>
+    <ol class="steps">
+      <li><b>1</b><span data-i18n="s1">Elige un diseño</span></li>
+      <li><b>2</b><span data-i18n="s2">Rellena tus datos</span></li>
+      <li><b>3</b><span data-i18n="s3">Descarga el PDF</span></li>
+    </ol>
   </div>
+</section>
 
-
-  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">💼</i><b>Buscar trabajo</b><span>Un CV limpio y profesional para mandar a empresas o agencias.</span></div><div class="u"><i aria-hidden="true">🎓</i><b>Primer empleo</b><span>Aunque tengas poca experiencia, el diseño te ayuda a destacar.</span></div><div class="u"><i aria-hidden="true">⏱️</i><b>Flexi-jobs y trabajos de verano</b><span>Un CV rápido para trabajos por horas o de temporada.</span></div><div class="u"><i aria-hidden="true">🔄</i><b>Cambiar de sector</b><span>Prepara varias versiones con un perfil distinto para cada puesto.</span></div><div class="u"><i aria-hidden="true">🌍</i><b>Trabajar en otro país</b><span>Haz versiones en español, francés o inglés con el mismo diseño.</span></div><div class="u"><i aria-hidden="true">📱</i><b>Desde el móvil</b><span>Sin ordenador ni Word: lo haces y lo descargas desde el teléfono.</span></div></div></section>
-
-  <section id="amz"></section>
-
-  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
-</div>
+<main class="wrap cv">
+  <div class="form">
+    <section class="card">
+      <h2><span class="n">1</span><span data-i18n="designH">Diseño</span></h2>
+      <div class="tpls" id="tpls"><button class="tpl" data-t="clasica" data-i18n="tClas">Clásica</button><button class="tpl" data-t="moderna" data-i18n="tMod">Moderna</button><button class="tpl" data-t="minimal" data-i18n="tMin">Minimal</button></div>
+      <div class="colors" id="colors"></div>
+    </section>
+    <section class="card">
+      <h2><span class="n">2</span><span data-i18n="dataH">Tus datos</span></h2>
+      <div class="grid2"><label class="f"><span data-i18n="fName">Nombre completo</span><input id="f-name" autocomplete="name"></label><label class="f"><span data-i18n="fRole">Puesto</span><input id="f-role"></label></div>
+      <div class="grid2"><label class="f"><span data-i18n="fEmail">Email</span><input id="f-email" type="email" autocomplete="email"></label><label class="f"><span data-i18n="fPhone">Teléfono</span><input id="f-phone" type="tel" autocomplete="tel"></label></div>
+      <div class="grid2"><label class="f"><span data-i18n="fCity">Ciudad</span><input id="f-city"></label><label class="f"><span data-i18n="fWeb">LinkedIn / web</span><input id="f-web"></label></div>
+      <label class="f"><span data-i18n="fAbout">Sobre mí</span><textarea id="f-about"></textarea></label>
+    </section>
+    <section class="card"><h2><span class="n">3</span><span data-i18n="expH">Experiencia</span></h2><div id="exp" style="display:grid;gap:10px"></div></section>
+    <section class="card"><h2><span class="n">4</span><span data-i18n="eduH">Formación</span></h2><div id="edu" style="display:grid;gap:10px"></div></section>
+    <section class="card"><h2><span class="n">5</span><span data-i18n="skillH">Habilidades e idiomas</span></h2>
+      <label class="f"><span data-i18n="fSkills">Habilidades (separadas por comas)</span><input id="f-skills"></label>
+      <label class="f"><span data-i18n="fLangs">Idiomas (separados por comas)</span><input id="f-langs"></label>
+    </section>
+  </div>
+  <div class="side">
+    <section class="card">
+      <h2 data-i18n="previewH">Vista previa</h2>
+      <div class="stage" id="stage"><div class="scaler" id="scaler"><div class="page" id="page"></div></div></div>
+      <button class="btn" id="dl" data-i18n="dl">⬇ Descargar PDF</button>
+      <div class="msg" id="msg" aria-live="polite"></div>
+      <div id="pro"></div>
+    </section>
+  </div>
+  <section class="card" style="grid-column:1/-1"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
+  <section class="card" id="amz" style="grid-column:1/-1"></section>
+</main>
+<footer data-auto></footer>
 
 <script>
-const COLORS=["#2b4c7e","#1f6b52","#7a2e3a","#3b3b48","#a0522d","#5b3fa8"];
-const EX={tpl:"moderna",color:"#2b4c7e",name:"Laura Martín",role:"Técnica de marketing digital",email:"laura.martin@ejemplo.com",phone:"+32 470 12 34 56",city:"Bruselas",web:"linkedin.com/in/lauramartin",
- about:"Profesional de marketing con 5 años de experiencia en campañas digitales y redes sociales. Me gusta medir resultados y mejorar cada campaña con datos.",
- exp:[{t:"Responsable de redes sociales",c:"Agencia Nova",d:"2022 – Actualidad",x:"Gestión de 8 cuentas de clientes.\nAumento medio del 40% en interacción en un año."},
-      {t:"Asistente de marketing",c:"Tiendas Sol",d:"2019 – 2022",x:"Campañas de email y anuncios en Google y Meta.\nInformes mensuales de resultados."}],
- edu:[{t:"Grado en Publicidad y Relaciones Públicas",c:"Universidad Complutense de Madrid",d:"2015 – 2019",x:""}],
- skills:"Google Ads, Meta Ads, Canva, Google Analytics, SEO, Copywriting",langs:"Español (nativo), Francés (C1), Inglés (B2)"};
-let D;
-try{D=JSON.parse(localStorage.getItem('cv5')||'null')}catch(e){}
-if(!D||!D.exp)D=JSON.parse(JSON.stringify(EX));
-const esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function save(){try{localStorage.setItem('cv5',JSON.stringify(D))}catch(e){}}
-["name","role","email","phone","city","web","about","skills","langs"].forEach(k=>{const el=document.getElementById('f-'+k);el.value=D[k]||'';el.oninput=()=>{D[k]=el.value;save();draw()}});
+const D={
+ tagline:['Tu currículum profesional en PDF, en 5 minutos.','Votre CV professionnel en PDF, en 5 minutes.','Your professional CV as a PDF, in 5 minutes.','Il tuo CV professionale in PDF, in 5 minuti.','O seu CV profissional em PDF, em 5 minutos.'],
+ s1:['Elige un diseño','Choisissez un modèle','Pick a design','Scegli un modello','Escolha um modelo'],s2:['Rellena tus datos','Remplissez vos infos','Fill in your details','Inserisci i tuoi dati','Preencha os seus dados'],s3:['Descarga el PDF','Téléchargez le PDF','Download the PDF','Scarica il PDF','Descarregue o PDF'],
+ designH:['Diseño','Modèle','Design','Modello','Modelo'],tClas:['Clásica','Classique','Classic','Classico','Clássico'],tMod:['Moderna','Moderne','Modern','Moderno','Moderno'],tMin:['Minimal','Minimal','Minimal','Minimal','Minimal'],
+ dataH:['Tus datos','Vos informations','Your details','I tuoi dati','Os seus dados'],fName:['Nombre completo','Nom complet','Full name','Nome e cognome','Nome completo'],fRole:['Puesto','Poste','Job title','Ruolo','Cargo'],fEmail:['Email','E-mail','Email','Email','E-mail'],fPhone:['Teléfono','Téléphone','Phone','Telefono','Telefone'],fCity:['Ciudad','Ville','City','Città','Cidade'],fWeb:['LinkedIn / web','LinkedIn / site','LinkedIn / website','LinkedIn / sito','LinkedIn / site'],fAbout:['Sobre mí','À propos de moi','About me','Su di me','Sobre mim'],
+ expH:['Experiencia','Expérience','Experience','Esperienza','Experiência'],eduH:['Formación','Formation','Education','Formazione','Formação'],skillH:['Habilidades e idiomas','Compétences et langues','Skills and languages','Competenze e lingue','Competências e línguas'],
+ fSkills:['Habilidades (separadas por comas)','Compétences (séparées par des virgules)','Skills (comma-separated)','Competenze (separate da virgole)','Competências (separadas por vírgulas)'],fLangs:['Idiomas (separados por comas)','Langues (séparées par des virgules)','Languages (comma-separated)','Lingue (separate da virgole)','Línguas (separadas por vírgulas)'],
+ jobT:['Puesto','Poste','Job title','Ruolo','Cargo'],jobC:['Empresa','Entreprise','Company','Azienda','Empresa'],eduT:['Título','Diplôme','Degree','Titolo','Curso'],eduC:['Centro','Établissement','School','Istituto','Instituição'],dates:['Fechas','Dates','Dates','Date','Datas'],desc:['Descripción','Description','Description','Descrizione','Descrição'],
+ addE:['+ Añadir','+ Ajouter','+ Add','+ Aggiungi','+ Adicionar'],remove:['Quitar','Retirer','Remove','Rimuovi','Remover'],
+ previewH:['Vista previa','Aperçu','Preview','Anteprima','Pré-visualização'],dl:['⬇ Descargar PDF','⬇ Télécharger le PDF','⬇ Download PDF','⬇ Scarica PDF','⬇ Descarregar PDF'],
+ preparing:['Preparando tu PDF…','Préparation du PDF…','Preparing your PDF…','Preparazione del PDF…','A preparar o PDF…'],done:['PDF descargado.','PDF téléchargé.','PDF downloaded.','PDF scaricato.','PDF descarregado.'],doneMark:['PDF descargado (con marca de agua).','PDF téléchargé (avec filigrane).','PDF downloaded (with watermark).','PDF scaricato (con filigrana).','PDF descarregado (com marca de água).'],
+ fail:['No se pudo generar el PDF. Inténtalo de nuevo.','Impossible de générer le PDF. Réessayez.','Couldn’t create the PDF. Try again.','Impossibile creare il PDF. Riprova.','Não foi possível criar o PDF. Tente de novo.'],libErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
+ proTxt:['La descarga gratis lleva marca de agua. Con Pro, tu CV sale limpio.','Le téléchargement gratuit a un filigrane. Avec Pro, votre CV est propre.','The free download has a watermark. With Pro your CV is clean.','Il download gratuito ha una filigrana. Con Pro il CV è pulito.','A transferência grátis tem marca de água. Com Pro, o CV sai limpo.'],
+ proOn:['<b>Pack Pro activado.</b> Tus PDF salen sin marca de agua.','<b>Pack Pro activé.</b> Vos PDF sont sans filigrane.','<b>Pro Pack active.</b> Your PDFs have no watermark.','<b>Pack Pro attivo.</b> I PDF sono senza filigrana.','<b>Pack Pro ativado.</b> Os PDF saem sem marca de água.'],
+ mark:['CV FLASH · versión gratis','CV FLASH · version gratuite','CV FLASH · free version','CV FLASH · versione gratuita','CV FLASH · versão grátis'],
+ cProfile:['Perfil','Profil','Profile','Profilo','Perfil'],cExp:['Experiencia','Expérience','Experience','Esperienza','Experiência'],cEdu:['Formación','Formation','Education','Formazione','Formação'],cSkills:['Habilidades','Compétences','Skills','Competenze','Competências'],cLangs:['Idiomas','Langues','Languages','Lingue','Línguas'],cContact:['Contacto','Contact','Contact','Contatti','Contacto'],
+ usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ amzH:['Para conseguir ese trabajo','Pour décrocher ce poste','To land that job','Per ottenere quel lavoro','Para conseguir esse emprego']
+};
+const t=(k,v)=>T(D[k],v);
+const EX={tpl:'moderna',color:'#2b4c7e',name:'Laura Martín',email:'laura.martin@ejemplo.com',phone:'+32 470 12 34 56',city:'Bruxelles',web:'linkedin.com/in/lauramartin',
+ role:['Técnica de marketing digital','Chargée de marketing digital','Digital marketing specialist','Specialista di marketing digitale','Técnica de marketing digital'],
+ about:['Profesional de marketing con 5 años de experiencia en campañas digitales y redes sociales.','Professionnelle du marketing avec 5 ans d’expérience en campagnes digitales et réseaux sociaux.','Marketing professional with 5 years’ experience in digital campaigns and social media.','Professionista del marketing con 5 anni di esperienza in campagne digitali e social.','Profissional de marketing com 5 anos de experiência em campanhas digitais e redes sociais.'],
+ exp:[{t:['Responsable de redes sociales','Responsable réseaux sociaux','Social media manager','Social media manager','Responsável de redes sociais'],c:'Agencia Nova',d:'2022 – …',x:['Gestión de 8 cuentas de clientes. +40% de interacción en un año.','Gestion de 8 comptes clients. +40 % d’engagement en un an.','Managed 8 client accounts. +40% engagement in one year.','Gestione di 8 account clienti. +40% di interazioni in un anno.','Gestão de 8 contas de clientes. +40% de interação num ano.']},
+  {t:['Asistente de marketing','Assistante marketing','Marketing assistant','Assistente marketing','Assistente de marketing'],c:'Sol Retail',d:'2019 – 2022',x:['Campañas de email y anuncios en Google y Meta.','Campagnes e-mail et publicités Google et Meta.','Email campaigns and Google and Meta ads.','Campagne email e annunci Google e Meta.','Campanhas de e-mail e anúncios Google e Meta.']}],
+ edu:[{t:['Grado en Publicidad','Licence en publicité','BA in Advertising','Laurea in Pubblicità','Licenciatura em Publicidade'],c:'Universidad Complutense de Madrid',d:'2015 – 2019',x:''}],
+ skills:'Google Ads, Meta Ads, Canva, Google Analytics, SEO',
+ langs:['Español (nativo), Francés (C1), Inglés (B2)','Espagnol (natif), Français (C1), Anglais (B2)','Spanish (native), French (C1), English (B2)','Spagnolo (madrelingua), Francese (C1), Inglese (B2)','Espanhol (nativo), Francês (C1), Inglês (B2)']};
+const COLORS=['#2b4c7e','#1f6b52','#7a2e3a','#3b3b48','#a0522d','#5b3fa8'];
+const USES=[
+ [['Buscar trabajo','Chercher un emploi','Job hunting','Cercare lavoro','Procurar emprego'],['Un CV limpio para empresas o agencias.','Un CV net pour les entreprises et agences.','A clean CV for companies or agencies.','Un CV pulito per aziende o agenzie.','Um CV limpo para empresas ou agências.']],
+ [['Primer empleo','Premier emploi','First job','Primo lavoro','Primeiro emprego'],['Aunque tengas poca experiencia, el diseño te ayuda a destacar.','Même avec peu d’expérience, le design vous fait ressortir.','Even with little experience, the design helps you stand out.','Anche con poca esperienza, il design ti fa notare.','Mesmo com pouca experiência, o design ajuda a destacar.']],
+ [['Flexi-jobs y trabajos de verano','Flexi-jobs et jobs d’été','Part-time and summer jobs','Lavori part-time ed estivi','Part-time e trabalhos de verão'],['Un CV rápido para trabajos por horas.','Un CV rapide pour les petits boulots.','A quick CV for hourly work.','Un CV veloce per lavori a ore.','Um CV rápido para trabalhos à hora.']],
+ [['Cambiar de sector','Changer de secteur','Change careers','Cambiare settore','Mudar de área'],['Prepara una versión distinta para cada puesto.','Préparez une version par poste.','Make a version for each role.','Prepara una versione per ogni ruolo.','Prepare uma versão para cada vaga.']],
+ [['Trabajar en otro país','Travailler à l’étranger','Work abroad','Lavorare all’estero','Trabalhar noutro país'],['Cambia el idioma de la app y los títulos del CV cambian solos.','Changez la langue de l’appli : les titres du CV suivent.','Switch the app language and the CV headings change too.','Cambia la lingua dell’app e cambiano i titoli del CV.','Mude o idioma da app e os títulos do CV mudam.']],
+ [['Desde el móvil','Depuis le téléphone','From your phone','Dal telefono','A partir do telemóvel'],['Sin ordenador ni Word.','Sans ordinateur ni Word.','No computer or Word needed.','Senza computer né Word.','Sem computador nem Word.']]
+];
+const AMZ=[
+ {name:['Aro de luz para videollamadas','Anneau lumineux pour visio','Ring light for video calls','Luce ad anello per videochiamate','Aro de luz para videochamadas'],desc:['Sal bien iluminado en entrevistas online.','Soyez bien éclairé en entretien vidéo.','Look well lit in online interviews.','Sii ben illuminato nei colloqui online.','Fique bem iluminado nas entrevistas online.'],q:'aro de luz videollamada',hot:true},
+ {name:['Auriculares con micrófono','Casque avec micro','Headset with microphone','Cuffie con microfono','Auscultadores com microfone'],desc:['Que te oigan claro en Teams o Zoom.','Pour être bien entendu sur Teams ou Zoom.','Be heard clearly on Teams or Zoom.','Fatti sentire bene su Teams o Zoom.','Para o ouvirem bem no Teams ou Zoom.'],q:'auriculares con microfono videollamadas'},
+ {name:['Libros sobre entrevistas','Livres sur l’entretien d’embauche','Job interview books','Libri sui colloqui di lavoro','Livros sobre entrevistas'],desc:['Las preguntas típicas y cómo responderlas.','Les questions classiques et comment y répondre.','Common questions and how to answer them.','Le domande tipiche e come rispondere.','As perguntas típicas e como responder.'],q:'libro entrevista de trabajo'},
+ {name:['Carpeta portadocumentos','Porte-documents','Document folder','Cartellina portadocumenti','Pasta porta-documentos'],desc:['Lleva tu CV impreso sin arrugas.','Apportez votre CV sans pli.','Bring your printed CV crease-free.','Porta il CV stampato senza pieghe.','Leve o CV impresso sem vincos.'],q:'carpeta portadocumentos a4'},
+ {name:['Soporte para portátil','Support d’ordinateur portable','Laptop stand','Supporto per portatile','Suporte para portátil'],desc:['La cámara a la altura de los ojos.','La caméra à hauteur des yeux.','Camera at eye level.','La webcam all’altezza degli occhi.','A câmara à altura dos olhos.'],q:'soporte portatil ajustable'}
+];
 
-function entries(key,labels){
+applyI18n(D);
+let S=null;
+try{S=JSON.parse(localStorage.getItem('cv5')||'null')}catch(e){}
+if(!S||!S.exp){S={tpl:EX.tpl,color:EX.color,name:EX.name,role:T(EX.role),email:EX.email,phone:EX.phone,city:EX.city,web:EX.web,about:T(EX.about),
+  exp:EX.exp.map(e=>({t:T(e.t),c:e.c,d:e.d,x:T(e.x)})),edu:EX.edu.map(e=>({t:T(e.t),c:e.c,d:e.d,x:''})),skills:EX.skills,langs:T(EX.langs)}}
+function save(){try{localStorage.setItem('cv5',JSON.stringify(S))}catch(e){}}
+['name','role','email','phone','city','web','about','skills','langs'].forEach(k=>{const el=document.getElementById('f-'+k);el.value=S[k]||'';el.oninput=()=>{S[k]=el.value;save();draw()}});
+function entries(key,lt,lc){
   const box=document.getElementById(key);
-  box.innerHTML=D[key].map((e,i)=>`<div class="entry">
-    <div class="two"><label>${labels[0]}<input id="${key}t${i}" data-k="t" data-i="${i}" value="${esc(e.t)}"></label><label>${labels[1]}<input id="${key}c${i}" data-k="c" data-i="${i}" value="${esc(e.c)}"></label></div>
-    <label>Fechas<input id="${key}d${i}" data-k="d" data-i="${i}" value="${esc(e.d)}"></label>
-    <label>Descripción<textarea id="${key}x${i}" data-k="x" data-i="${i}">${esc(e.x)}</textarea></label>
-    <button class="mini" data-del="${i}">Quitar</button></div>`).join('')+`<button class="mini" data-add="1">+ Añadir</button>`;
-  box.querySelectorAll('[data-k]').forEach(el=>el.oninput=()=>{D[key][el.dataset.i][el.dataset.k]=el.value;save();draw()});
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{D[key].splice(b.dataset.del,1);save();entries(key,labels);draw()});
-  box.querySelector('[data-add]').onclick=()=>{D[key].push({t:'',c:'',d:'',x:''});save();entries(key,labels);draw()};
+  box.innerHTML=S[key].map((e,i)=>`<div class="entry"><div class="entry-h"><span>#${i+1}</span><button class="x" data-del="${i}" aria-label="${t('remove')}">×</button></div>
+   <div class="grid2"><label class="f">${t(lt)}<input id="${key}t${i}" data-k="t" data-i="${i}" value="${esc(e.t)}"></label><label class="f">${t(lc)}<input id="${key}c${i}" data-k="c" data-i="${i}" value="${esc(e.c)}"></label></div>
+   <label class="f">${t('dates')}<input id="${key}d${i}" data-k="d" data-i="${i}" value="${esc(e.d)}"></label>
+   <label class="f">${t('desc')}<textarea id="${key}x${i}" data-k="x" data-i="${i}">${esc(e.x)}</textarea></label></div>`).join('')+`<button class="btn small ghost" data-add="1" style="justify-self:start">${t('addE')}</button>`;
+  box.querySelectorAll('[data-k]').forEach(el=>el.oninput=()=>{S[key][el.dataset.i][el.dataset.k]=el.value;save();draw()});
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{S[key].splice(+b.dataset.del,1);save();entries(key,lt,lc);draw()});
+  box.querySelector('[data-add]').onclick=()=>{S[key].push({t:'',c:'',d:'',x:''});save();entries(key,lt,lc);draw()};
 }
-entries('exp',['Puesto','Empresa']);entries('edu',['Título','Centro']);
-
-document.querySelectorAll('.tpl').forEach(b=>b.onclick=()=>{D.tpl=b.dataset.t;save();draw()});
-document.getElementById('colors').innerHTML=COLORS.map(c=>`<button class="sw" style="background:${c}" data-c="${c}" aria-label="Color ${c}"></button>`).join('');
-document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{D.color=b.dataset.c;save();draw()});
-
-function list(arr){return arr.filter(e=>e.t||e.c).map(e=>`<div class="job"><div class="t">${esc(e.t)}</div><div class="m">${esc(e.c)}${e.c&&e.d?' · ':''}${esc(e.d)}</div>${e.x?`<p>${esc(e.x)}</p>`:''}</div>`).join('')}
-function tags(s){return `<div class="tags">${String(s||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
-function contact(){return `<div class="contact">${[D.email,D.phone,D.city,D.web].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`}
-function sec(t,h,cls=''){return h?`<div class="sec ${cls}"><h2>${t}</h2>${h}</div>`:''}
+entries('exp','jobT','jobC');entries('edu','eduT','eduC');
+document.querySelectorAll('.tpl').forEach(b=>b.onclick=()=>{S.tpl=b.dataset.t;save();draw()});
+document.getElementById('colors').innerHTML=COLORS.map(c=>`<button class="sw" style="background:${c}" data-c="${c}" aria-label="${c}"></button>`).join('');
+document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{S.color=b.dataset.c;save();draw()});
+const list=a=>a.filter(e=>e.t||e.c).map(e=>`<div class="job"><div class="t">${esc(e.t)}</div><div class="m">${esc(e.c)}${e.c&&e.d?' · ':''}${esc(e.d)}</div>${e.x?`<p>${esc(e.x)}</p>`:''}</div>`).join('');
+const tags=s=>`<div class="tags">${String(s||'').split(',').map(x=>x.trim()).filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
+const contact=()=>`<div class="contact">${[S.email,S.phone,S.city,S.web].filter(Boolean).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`;
+const sec=(k,h)=>h?`<div class="sec"><h2>${t(k)}</h2>${h}</div>`:'';
 function draw(){
-  document.querySelectorAll('.tpl').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===D.tpl));
-  document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===D.color));
-  const p=document.getElementById('page');p.className='page t-'+D.tpl;p.style.setProperty('--c',D.color);
-  const about=D.about?`<p style="margin:0">${esc(D.about)}</p>`:'';
-  if(D.tpl==='moderna'){
-    p.innerHTML=`<div class="col1"><h1 class="name">${esc(D.name)}</h1><p class="role">${esc(D.role)}</p>${sec('Contacto',contact())}${sec('Habilidades',D.skills?tags(D.skills):'')}${sec('Idiomas',D.langs?tags(D.langs):'')}</div>
-      <div class="col2">${sec('Perfil',about)}${sec('Experiencia',list(D.exp))}${sec('Formación',list(D.edu))}</div>`;
-  }else if(D.tpl==='minimal'){
-    const row=(t,h)=>h?`<h2>${t}</h2><div class="sec">${h}</div>`:'';
-    p.innerHTML=`<header><h1 class="name">${esc(D.name)}</h1><p class="role">${esc(D.role)}</p>${contact()}</header>
-      <div class="grid">${row('Perfil',about)}${row('Experiencia',list(D.exp))}${row('Formación',list(D.edu))}${row('Habilidades',D.skills?tags(D.skills):'')}${row('Idiomas',D.langs?tags(D.langs):'')}</div>`;
-  }else{
-    p.innerHTML=`<header><h1 class="name">${esc(D.name)}</h1><p class="role">${esc(D.role)}</p>${contact()}</header>
-      ${sec('Perfil',about)}${sec('Experiencia',list(D.exp))}${sec('Formación',list(D.edu))}${sec('Habilidades',D.skills?tags(D.skills):'')}${sec('Idiomas',D.langs?tags(D.langs):'')}`;
-  }
+  document.querySelectorAll('.tpl').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===S.tpl));
+  document.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===S.color));
+  const p=document.getElementById('page');p.className='page t-'+S.tpl;p.style.setProperty('--c',S.color);
+  const about=S.about?`<p style="margin:0">${esc(S.about)}</p>`:'';
+  if(S.tpl==='moderna')p.innerHTML=`<div class="col1"><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${sec('cContact',contact())}${sec('cSkills',S.skills?tags(S.skills):'')}${sec('cLangs',S.langs?tags(S.langs):'')}</div><div class="col2">${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}</div>`;
+  else if(S.tpl==='minimal'){const row=(k,h)=>h?`<h2>${t(k)}</h2><div class="sec">${h}</div>`:'';p.innerHTML=`<header><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</header><div class="grid">${row('cProfile',about)}${row('cExp',list(S.exp))}${row('cEdu',list(S.edu))}${row('cSkills',S.skills?tags(S.skills):'')}${row('cLangs',S.langs?tags(S.langs):'')}</div>`}
+  else p.innerHTML=`<header><h1 class="name">${esc(S.name)}</h1><p class="role">${esc(S.role)}</p>${contact()}</header>${sec('cProfile',about)}${sec('cExp',list(S.exp))}${sec('cEdu',list(S.edu))}${sec('cSkills',S.skills?tags(S.skills):'')}${sec('cLangs',S.langs?tags(S.langs):'')}`;
   fit();
 }
-function fit(){
-  const st=document.getElementById('stage'),sc=document.getElementById('scaler'),pg=document.getElementById('page');
-  const s=Math.min(1,st.clientWidth/794);sc.style.transform=`scale(${s})`;st.style.height=(pg.offsetHeight*s)+'px';
-}
+function fit(){const st=document.getElementById('stage'),sc=document.getElementById('scaler'),pg=document.getElementById('page');const s=Math.min(1,st.clientWidth/794);sc.style.transform=`scale(${s})`;st.style.height=(pg.offsetHeight*s)+'px'}
 addEventListener('resize',fit);
-
-// ===== COBRO: Pack Pro compartido (ver ../pro.js) =====
 const PRO=!!window.PRO;
-const proBox=document.getElementById('pro');
-proBox.innerHTML=PRO?'<b>Pack Pro activado.</b> Tus PDF salen sin marca de agua.':window.proBanner('La descarga gratis lleva marca de agua. Con Pro, tu CV sale limpio.');
+document.getElementById('pro').innerHTML=PRO?`<p class="msg">${t('proOn')}</p>`:proBanner(t('proTxt'));
 document.getElementById('dl').onclick=async()=>{
   const msg=document.getElementById('msg'),btn=document.getElementById('dl');
-  if(!window.html2canvas||!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
-  btn.disabled=true;msg.textContent='Preparando tu PDF…';
+  if(!window.html2canvas||!window.jspdf){msg.textContent=t('libErr');return}
+  btn.disabled=true;msg.textContent=t('preparing');
   const sc=document.getElementById('scaler'),prev=sc.style.transform;sc.style.transform='none';
   try{
     await document.fonts.ready;
     const canvas=await html2canvas(document.getElementById('page'),{scale:2,backgroundColor:'#ffffff',useCORS:true});
-    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:'mm',format:'a4'});
-    const w=210,h=canvas.height*w/canvas.width,img=canvas.toDataURL('image/jpeg',0.95);
-    const mark=()=>{if(PRO)return;pdf.setTextColor(200,200,210);pdf.setFontSize(46);pdf.text('CV FLASH · versión gratis',105,160,{align:'center',angle:35});pdf.setFontSize(9);pdf.setTextColor(140,140,150);pdf.text('Hecho con CV Flash · gonza0297.github.io/microapps',105,292,{align:'center'})};
+    const {jsPDF}=window.jspdf,pdf=new jsPDF({unit:'mm',format:'a4'});
+    const w=210,h=canvas.height*w/canvas.width,img=canvas.toDataURL('image/jpeg',.95);
+    const mark=()=>{if(PRO)return;pdf.setTextColor(200,200,210);pdf.setFontSize(40);pdf.text(t('mark'),105,160,{align:'center',angle:35});pdf.setFontSize(9);pdf.setTextColor(140,140,150);pdf.text('CV Flash · gonza0297.github.io/microapps',105,292,{align:'center'})};
     let y=0;pdf.addImage(img,'JPEG',0,0,w,h);mark();
     while(h-(y+297)>1){y+=297;pdf.addPage();pdf.addImage(img,'JPEG',0,-y,w,h);mark()}
-    pdf.save('CV '+(D.name||'mi curriculum').trim()+'.pdf');
-    msg.textContent=PRO?'PDF descargado.':'PDF descargado (con marca de agua).';
-  }catch(e){
-    msg.textContent='No se pudo generar el PDF. Inténtalo de nuevo.';
-  }finally{sc.style.transform=prev;fit();btn.disabled=false}
+    pdf.save('CV '+(S.name||'').trim()+'.pdf');msg.textContent=PRO?t('done'):t('doneMark');
+  }catch(e){msg.textContent=t('fail')}finally{sc.style.transform=prev;fit();btn.disabled=false}
 };
+document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
+renderAmazon('amz',D.amzH,AMZ);
 draw();
-
-// ===== Amazon: búsqueda de empleo =====
-window.renderAmazon&&renderAmazon('amz','Para conseguir ese trabajo',[
-  {name:'Aro de luz para videollamadas',desc:'Sal bien iluminado en las entrevistas online.',q:'aro de luz videollamada',hot:true},
-  {name:'Auriculares con micrófono',desc:'Que te oigan claro en la entrevista por Teams o Zoom.',q:'auriculares con microfono videollamadas'},
-  {name:'Libros sobre entrevistas de trabajo',desc:'Las preguntas típicas y cómo responderlas.',q:'libro entrevista de trabajo'},
-  {name:'Carpeta portadocumentos',desc:'Lleva tu CV impreso sin arrugas a la entrevista.',q:'carpeta portadocumentos a4'},
-  {name:'Papel premium para imprimir el CV',desc:'Un CV en buen papel causa mejor impresión.',q:'papel a4 120 g'},
-  {name:'Soporte para portátil',desc:'La cámara a la altura de los ojos en las entrevistas online.',q:'soporte portatil ajustable'}
-]);
 </script>
-
 </body>
 </html>

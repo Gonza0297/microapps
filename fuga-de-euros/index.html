@@ -3,200 +3,238 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Calcula cuánto dinero se te escapa en pequeños gastos a lo largo de los años.">
-</head>
-<body>
 <title>Fuga de Euros</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600&display=swap">
-<style>
-/* Layout: una gran cifra-impacto que crece con los años; hábitos como "gotas" editables debajo */
-:root{
-  --bg:#fbf7f2;--surface:#ffffff;--ink:#231a2b;--muted:#6f6577;--line:#e7dfe8;
-  --accent:#7b2fbe;--hot:#e2493b;--soft:#efe4f7;
-  --display:"Bricolage Grotesque",system-ui,sans-serif;--body:"Instrument Sans",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#140f18;--surface:#1e1724;--ink:#f1eaf4;--muted:#a99db1;--line:#33293b;--accent:#c18bff;--hot:#ff7a6b;--soft:#2a2033;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#140f18;--surface:#1e1724;--ink:#f1eaf4;--muted:#a99db1;--line:#33293b;--accent:#c18bff;--hot:#ff7a6b;--soft:#2a2033;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
-.wrap{max-width:720px;margin:0 auto;display:grid;gap:22px}
-.eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.5vw,44px);line-height:1.02;margin:4px 0 0;text-wrap:balance}
-.hero{background:var(--soft);border-radius:18px;padding:22px;display:grid;gap:10px}
-.big{font-family:var(--display);font-weight:800;font-size:clamp(48px,14vw,92px);line-height:.95;color:var(--hot);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.equiv{font-size:18px;font-weight:600}
-.years{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.years input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
-.years b{font-family:var(--display);font-size:22px;min-width:84px}
-.check{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px}
-.habits{display:grid;gap:10px}
-.h{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.h .f{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.h input,.h select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
-.h .nm{flex:1 1 160px;font-weight:600}
-.h .pr{width:84px}
-.h .yr{grid-column:1/-1;font-size:13px;color:var(--muted)}
-.h .yr b{color:var(--ink);font-variant-numeric:tabular-nums}
-.del{border:none;background:none;color:var(--muted);font-size:20px;cursor:pointer}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{font:inherit;font-size:14px;border:1px dashed var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:6px 12px;cursor:pointer}
-.share{background:var(--ink);color:var(--bg);border-radius:14px;padding:16px;display:grid;gap:10px}
-.share p{margin:0;font-weight:500}
-.share button{justify-self:start;font:inherit;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.plan{display:grid;gap:10px}
-.plan .go{justify-self:start;font:inherit;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer}
-.plan .msg{font-size:13px;color:var(--muted)}
-.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
-.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
-.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
-.uses h2{font-size:20px;margin:0 0 10px}
-.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
-.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
-footer{color:var(--muted);font-size:13px;text-align:center}
-</style>
-
-<div class="wrap">
-  <header>
-    <div class="eyebrow">Fuga de Euros</div>
-    <h1>Los pequeños gastos que se llevan tu dinero</h1>
-  </header>
-  <details class="howto" open><summary>¿Cómo funciona Fuga de Euros?</summary><ol><li>Apunta tus pequeños gastos repetidos: café, tabaco, suscripciones, comida a domicilio…</li><li>Elige cada cuánto los haces: al día, cada día laborable, a la semana, al mes o al año.</li><li>Mueve la barra de años y mira cuánto suman a largo plazo, y a qué equivale (un móvil, un viaje, un coche…).</li><li>Activa "si lo invirtieras" para ver cuánto tendrías con un 5% anual.</li></ol><ul class="feat"><li>Total de 1 a 40 años</li><li>Comparación con cosas reales</li><li>Simulación de inversión al 5%</li><li>Texto listo para compartir</li><li>Pro: plan de ahorro en PDF</li></ul></details>
-
-
-  <section class="hero" aria-live="polite">
-    <div class="eyebrow" id="lead">En 10 años habrás gastado</div>
-    <div class="big" id="big">0 €</div>
-    <div class="equiv" id="equiv"></div>
-    <div class="years"><label for="yrs">Años</label><input id="yrs" type="range" min="1" max="40" value="10"><b id="yrsLbl">10 años</b></div>
-    <label class="check"><input type="checkbox" id="inv"> Mostrar cuánto tendrías si lo invirtieras (5% anual)</label>
-  </section>
-
-  <section class="habits" id="habits"></section>
-
-  <div class="chips" id="chips"></div>
-
-  <section class="share">
-    <p id="shareText"></p>
-    <button id="copy">Copiar para compartir</button>
-  </section>
-
-  <section class="plan" id="plan"></section>
-
-
-  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">☕</i><b>Gastos hormiga</b><span>Ve cuánto suman de verdad el café, el tabaco o los refrescos.</span></div><div class="u"><i aria-hidden="true">📺</i><b>Suscripciones</b><span>Descubre cuánto pagas al año por plataformas que casi no usas.</span></div><div class="u"><i aria-hidden="true">🎯</i><b>Ahorrar para algo</b><span>Calcula cuánto juntas para un viaje, un coche o la entrada de un piso dejando un capricho.</span></div><div class="u"><i aria-hidden="true">🚭</i><b>Dejar de fumar</b><span>Mira el dinero que recuperas al dejar el tabaco: motivación extra.</span></div><div class="u"><i aria-hidden="true">📈</i><b>Empezar a invertir</b><span>Compara gastarlo con invertirlo al 5% durante 10, 20 o 30 años.</span></div><div class="u"><i aria-hidden="true">👨‍👩‍👧</i><b>Hablar de dinero en familia</b><span>Enséñalo a tus hijos o tu pareja para decidir juntos en qué recortar.</span></div></div></section>
-
-  <section id="amz"></section>
-
-  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a> · Cálculo orientativo, no es asesoramiento financiero.</footer>
-</div>
-
+<meta name="description" content="Calcula cuánto dinero se te escapa en pequeños gastos a lo largo de los años.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../ui.css">
+<script src="../i18n.js"></script>
 <script src="../pro.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--hero:#2a1430;--hero-ink:#fff;--accent:#ff5a4e;--accent-ink:#fff;--soft:#ffe9e6}
+@media (prefers-color-scheme:dark){:root{--soft:#3a1d1b}}
+.equiv{font-size:20px;font-weight:700}
+.years{display:grid;gap:8px}
+.years-top{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+.years-top b{font-family:var(--display);font-size:26px}
+input[type=range]{accent-color:var(--accent);min-height:30px;padding:0;border:none;background:transparent}
+.switch{display:flex;gap:12px;align-items:center;font-weight:600;cursor:pointer}
+.switch input{width:24px;height:24px;min-height:0;accent-color:var(--accent)}
+.hb{border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px;background:var(--bg)}
+.hb-h{display:flex;gap:8px;align-items:center}
+.hb-h input{font-weight:700;flex:1}
+.hb-f{display:grid;grid-template-columns:110px 1fr;gap:10px}
+.hb-y{font-size:14px;color:var(--muted)}
+.hb-y b{color:var(--ink);font-variant-numeric:tabular-nums}
+.sharebox{background:var(--soft);border-radius:16px;padding:14px;display:grid;gap:10px}
+.sharebox p{margin:0;font-weight:600}
+</style>
+</head>
+<body>
+<header class="top"><a href="../" data-i18n="back">← Apps Útiles</a><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3c3 4 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 3-7 6-11z"/><path d="M14.5 12.5c-.6-.6-1.4-1-2.4-1-1.9 0-3.1 1.4-3.1 3.2s1.2 3.2 3.1 3.2c1 0 1.8-.4 2.4-1M8.3 14h4.5M8.3 15.8h4"/></svg></div>
+      <h1>Fuga de Euros</h1>
+    </div>
+    <p class="tagline" data-i18n="tagline">Los pequeños gastos que se llevan tu dinero.</p>
+    <ol class="steps">
+      <li><b>1</b><span data-i18n="s1">Apunta tus caprichos</span></li>
+      <li><b>2</b><span data-i18n="s2">Elige los años</span></li>
+      <li><b>3</b><span data-i18n="s3">Mira lo que se escapa</span></li>
+    </ol>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="card result" aria-live="polite">
+    <span class="lbl" id="lead"></span>
+    <div class="big" id="big">0 €</div>
+    <div class="equiv" id="equiv"></div>
+    <div class="years">
+      <div class="years-top"><label for="yrs" data-i18n="years">Años</label><b id="yrsLbl"></b></div>
+      <input id="yrs" type="range" min="1" max="40" value="10">
+    </div>
+    <label class="switch"><input type="checkbox" id="inv"><span data-i18n="invest">¿Y si lo invirtieras al 5% anual?</span></label>
+  </section>
+
+  <section class="card">
+    <h2><span class="n">1</span><span data-i18n="listH">Tus pequeños gastos</span></h2>
+    <p class="help" data-i18n="listHelp">Precio y cada cuánto lo pagas.</p>
+    <div id="habits" style="display:grid;gap:10px"></div>
+    <p class="help" data-i18n="ideas" style="margin:4px 0 0">Ideas para añadir:</p>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="sharebox">
+    <p id="shareText"></p>
+    <button class="btn small" id="copy" style="justify-self:start" data-i18n="copy">Copiar para compartir</button>
+  </section>
+
+  <section id="plan"></section>
+
+  <section class="card"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
+
+  <section class="card" id="amz"></section>
+</main>
+<footer data-auto data-note="note"></footer>
+
 <script>
-const FREQ={dia:365,"laborable":250,semana:52,mes:12,"año":1};
-const FREQ_LBL={dia:"al día",laborable:"cada día laborable",semana:"a la semana",mes:"al mes","año":"al año"};
-const IDEAS=[["Café para llevar",2.5,"laborable"],["Paquete de tabaco",8,"dia"],["Streaming que no usas",12.99,"mes"],["Comida a domicilio",18,"semana"],["Refresco de máquina",1.8,"laborable"],["Lotería",5,"semana"],["Gimnasio sin ir",35,"mes"],["Cerveza en el bar",3,"dia"],["Apps de pago olvidadas",4.99,"mes"]];
-const EQUIV=[[300,"un móvil de gama media"],[900,"un viaje de una semana a Canarias"],[2500,"un MacBook"],[6000,"la entrada de un coche"],[15000,"un coche de segunda mano"],[30000,"un coche nuevo"],[60000,"la entrada de un piso"],[150000,"medio piso"]];
-let habits;
+const D={
+ tagline:['Los pequeños gastos que se llevan tu dinero.','Les petites dépenses qui vident votre compte.','The small spends that drain your money.','Le piccole spese che si mangiano i tuoi soldi.','Os pequenos gastos que levam o seu dinheiro.'],
+ s1:['Apunta tus caprichos','Notez vos petites dépenses','Add your little spends','Segna le tue spese','Anote os seus gastos'],
+ s2:['Elige los años','Choisissez les années','Pick the years','Scegli gli anni','Escolha os anos'],
+ s3:['Mira lo que se escapa','Voyez ce qui s’envole','See what slips away','Guarda cosa scappa','Veja o que foge'],
+ leadSpent:['En {y} habrás gastado','En {y}, vous aurez dépensé','In {y} you will have spent','In {y} avrai speso','Em {y} terá gasto'],
+ leadInv:['Si lo invirtieras, en {y} tendrías','Investi, en {y} vous auriez','If you invested it, in {y} you’d have','Se lo investissi, in {y} avresti','Se o investisse, em {y} teria'],
+ y1:['1 año','1 an','1 year','1 anno','1 ano'],yN:['{n} años','{n} ans','{n} years','{n} anni','{n} anos'],
+ years:['Años','Années','Years','Anni','Anos'],
+ invest:['¿Y si lo invirtieras al 5% anual?','Et si vous l’investissiez à 5 % par an ?','What if you invested it at 5% a year?','E se lo investissi al 5% annuo?','E se o investisse a 5% ao ano?'],
+ eqIs:['Eso es {x}.','C’est {x}.','That’s {x}.','È {x}.','Isso é {x}.'],
+ eqTimes:['Eso es {x} (¡{n} veces!).','C’est {x} ({n} fois !).','That’s {x} ({n} times!).','È {x} ({n} volte!).','Isso é {x} ({n} vezes!).'],
+ eqNone:['Añade gastos para ver el impacto.','Ajoutez des dépenses pour voir l’impact.','Add spends to see the impact.','Aggiungi spese per vedere l’impatto.','Adicione gastos para ver o impacto.'],
+ listH:['Tus pequeños gastos','Vos petites dépenses','Your little spends','Le tue piccole spese','Os seus pequenos gastos'],
+ listHelp:['Escribe el precio y cada cuánto lo pagas.','Indiquez le prix et la fréquence.','Enter the price and how often you pay it.','Scrivi il prezzo e ogni quanto lo paghi.','Indique o preço e de quanto em quanto tempo o paga.'],
+ price:['Precio (€)','Prix (€)','Price (€)','Prezzo (€)','Preço (€)'],
+ freq:['Frecuencia','Fréquence','How often','Frequenza','Frequência'],
+ perYear:['Al año','Par an','Per year','All’anno','Por ano'],
+ inY:['En {y}','En {y}','In {y}','In {y}','Em {y}'],
+ ideas:['Ideas para añadir:','Idées à ajouter :','Ideas to add:','Idee da aggiungere:','Ideias para adicionar:'],
+ other:['+ Otro gasto','+ Autre dépense','+ Other spend','+ Altra spesa','+ Outro gasto'],
+ mine:['Mi gasto','Ma dépense','My spend','La mia spesa','O meu gasto'],
+ remove:['Quitar','Retirer','Remove','Rimuovi','Remover'],
+ shareTxt:['Mis pequeños gastos suman {a} al año. En {y}: {t}{e}. ¿Y los tuyos?','Mes petites dépenses font {a} par an. En {y} : {t}{e}. Et les vôtres ?','My little spends add up to {a} a year. In {y}: {t}{e}. What about yours?','Le mie piccole spese fanno {a} all’anno. In {y}: {t}{e}. E le tue?','Os meus pequenos gastos somam {a} por ano. Em {y}: {t}{e}. E os seus?'],
+ copy:['Copiar para compartir','Copier pour partager','Copy to share','Copia per condividere','Copiar para partilhar'],
+ copied:['Copiado ✓','Copié ✓','Copied ✓','Copiato ✓','Copiado ✓'],
+ selected:['Texto seleccionado','Texte sélectionné','Text selected','Testo selezionato','Texto selecionado'],
+ planBtn:['Descargar mi plan de ahorro (PDF)','Télécharger mon plan d’épargne (PDF)','Download my savings plan (PDF)','Scarica il mio piano di risparmio (PDF)','Descarregar o meu plano de poupança (PDF)'],
+ planPro:['Consigue tu <b>plan de ahorro en PDF</b>: qué recortar primero y cuánto tendrías en 5, 10 y 20 años.','Obtenez votre <b>plan d’épargne en PDF</b> : quoi réduire d’abord et combien vous auriez dans 5, 10 et 20 ans.','Get your <b>PDF savings plan</b>: what to cut first and what you’d have in 5, 10 and 20 years.','Ottieni il tuo <b>piano di risparmio in PDF</b>: cosa tagliare prima e quanto avresti in 5, 10 e 20 anni.','Obtenha o seu <b>plano de poupança em PDF</b>: o que cortar primeiro e quanto teria em 5, 10 e 20 anos.'],
+ pdfDone:['Plan descargado.','Plan téléchargé.','Plan downloaded.','Piano scaricato.','Plano descarregado.'],
+ pdfErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
+ usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ amzH:['Para tapar tu fuga','Pour colmater la fuite','To plug your leak','Per tappare la fuga','Para tapar a fuga'],
+ note:['Cálculo orientativo, no es asesoramiento financiero.','Calcul indicatif, ce n’est pas un conseil financier.','Rough calculation, not financial advice.','Calcolo indicativo, non è consulenza finanziaria.','Cálculo indicativo, não é aconselhamento financeiro.'],
+ pdfT:['FUGA DE EUROS · Plan de ahorro','FUGA DE EUROS · Plan d’épargne','FUGA DE EUROS · Savings plan','FUGA DE EUROS · Piano di risparmio','FUGA DE EUROS · Plano de poupança'],
+ pdfH:['Tu plan para tapar la fuga','Votre plan pour stopper la fuite','Your plan to plug the leak','Il tuo piano per fermare la fuga','O seu plano para tapar a fuga'],
+ pdfNow:['Hoy se te escapan {a} al año ({m} al mes)','Aujourd’hui, {a} s’envolent chaque année ({m} par mois)','Right now {a} a year slips away ({m} a month)','Oggi ti sfuggono {a} all’anno ({m} al mese)','Hoje fogem-lhe {a} por ano ({m} por mês)'],
+ pdfCol:[['GASTO','PRECIO','FRECUENCIA','AL AÑO'],['DÉPENSE','PRIX','FRÉQUENCE','PAR AN'],['SPEND','PRICE','HOW OFTEN','PER YEAR'],['SPESA','PREZZO','FREQUENZA','ALL’ANNO'],['GASTO','PREÇO','FREQUÊNCIA','POR ANO']],
+ pdfPlan:['El plan: recorta a la mitad tus 3 mayores fugas','Le plan : réduire de moitié vos 3 plus grosses fuites','The plan: halve your 3 biggest leaks','Il piano: dimezza le tue 3 fughe più grandi','O plano: corte para metade as suas 3 maiores fugas'],
+ pdfSave:['ahorras {a} al año','vous économisez {a} par an','you save {a} a year','risparmi {a} all’anno','poupa {a} por ano'],
+ pdfIf:['Si apartas ese ahorro cada mes...','Si vous mettez cette somme de côté chaque mois...','If you set that aside every month...','Se metti da parte quella somma ogni mese...','Se guardar essa poupança todos os meses...'],
+ pdfKept:['{y}: {a} guardado','{y} : {a} épargnés','{y}: {a} saved','{y}: {a} risparmiati','{y}: {a} poupados'],
+ pdfInv:['invertido al 5%: {a}','investi à 5 % : {a}','invested at 5%: {a}','investito al 5%: {a}','investido a 5%: {a}'],
+ pdfTricks:['3 trucos para cumplirlo','3 astuces pour y arriver','3 tricks to stick to it','3 trucchi per riuscirci','3 truques para conseguir'],
+ pdfT1:['Programa una transferencia automática a tu cuenta de ahorro el día que cobras: {a} al mes.','Programmez un virement automatique vers votre épargne le jour de la paie : {a} par mois.','Set up an automatic transfer to savings on payday: {a} a month.','Imposta un bonifico automatico sul conto risparmio il giorno di paga: {a} al mese.','Programe uma transferência automática para a poupança no dia do salário: {a} por mês.'],
+ pdfT2:['Revisa tus suscripciones cada mes y cancela las que no uses.','Vérifiez vos abonnements chaque mois et résiliez ceux que vous n’utilisez pas.','Review subscriptions monthly and cancel the ones you don’t use.','Controlla gli abbonamenti ogni mese e disdici quelli che non usi.','Reveja as subscrições todos os meses e cancele as que não usa.'],
+ pdfT3:['Antes de un capricho, espera 24 horas. Si aún lo quieres, cómpralo.','Avant un achat plaisir, attendez 24 heures. Si vous le voulez toujours, achetez-le.','Before a treat, wait 24 hours. If you still want it, buy it.','Prima di uno sfizio, aspetta 24 ore. Se lo vuoi ancora, compralo.','Antes de um capricho, espere 24 horas. Se ainda o quiser, compre.'],
+ pdfDisc:['Cálculo orientativo, no es asesoramiento financiero. El 5% es un ejemplo y no está garantizado. Gonzalo Leon · gonza0297.github.io/microapps','Calcul indicatif, pas un conseil financier. Les 5 % sont un exemple, non garanti. Gonzalo Leon · gonza0297.github.io/microapps','Rough calculation, not financial advice. 5% is an example, not guaranteed. Gonzalo Leon · gonza0297.github.io/microapps','Calcolo indicativo, non consulenza finanziaria. Il 5% è un esempio, non garantito. Gonzalo Leon · gonza0297.github.io/microapps','Cálculo indicativo, não é aconselhamento financeiro. Os 5% são um exemplo, não garantido. Gonzalo Leon · gonza0297.github.io/microapps']
+};
+const t=(k,v)=>T(D[k],v);
+const FREQ={dia:365,laborable:250,semana:52,mes:12,'año':1};
+const FREQL={dia:['al día','par jour','a day','al giorno','por dia'],laborable:['cada día laborable','chaque jour ouvrable','every workday','ogni giorno lavorativo','cada dia útil'],semana:['a la semana','par semaine','a week','a settimana','por semana'],mes:['al mes','par mois','a month','al mese','por mês'],'año':['al año','par an','a year','all’anno','por ano']};
+const IDEAS=[
+ ['cafe',2.5,'laborable',['Café para llevar','Café à emporter','Takeaway coffee','Caffè da asporto','Café para levar']],
+ ['tabaco',8,'dia',['Paquete de tabaco','Paquet de cigarettes','Pack of cigarettes','Pacchetto di sigarette','Maço de tabaco']],
+ ['stream',12.99,'mes',['Streaming que no usas','Streaming inutilisé','Streaming you don’t use','Streaming che non usi','Streaming que não usa']],
+ ['delivery',18,'semana',['Comida a domicilio','Livraison de repas','Food delivery','Cibo a domicilio','Comida ao domicílio']],
+ ['soda',1.8,'laborable',['Refresco de máquina','Soda au distributeur','Vending machine drink','Bibita al distributore','Refrigerante da máquina']],
+ ['lotto',5,'semana',['Lotería','Loterie','Lottery','Lotteria','Lotaria']],
+ ['gym',35,'mes',['Gimnasio sin ir','Salle de sport où vous n’allez pas','Gym you don’t go to','Palestra dove non vai','Ginásio onde não vai']],
+ ['beer',3,'dia',['Cerveza en el bar','Bière au bar','Beer at the bar','Birra al bar','Cerveja no bar']],
+ ['apps',4.99,'mes',['Apps de pago olvidadas','Applis payantes oubliées','Forgotten paid apps','App a pagamento dimenticate','Apps pagas esquecidas']]
+];
+const IDN=Object.fromEntries(IDEAS.map(i=>[i[0],i]));
+const EQUIV=[[300,['un móvil de gama media','un smartphone milieu de gamme','a mid-range phone','uno smartphone di fascia media','um telemóvel de gama média']],[900,['un viaje de una semana','un voyage d’une semaine','a week-long trip','un viaggio di una settimana','uma viagem de uma semana']],[2500,['un portátil nuevo','un ordinateur portable neuf','a new laptop','un portatile nuovo','um portátil novo']],[6000,['la entrada de un coche','l’apport pour une voiture','a car down payment','l’anticipo di un’auto','a entrada de um carro']],[15000,['un coche de segunda mano','une voiture d’occasion','a second-hand car','un’auto usata','um carro em segunda mão']],[30000,['un coche nuevo','une voiture neuve','a brand-new car','un’auto nuova','um carro novo']],[60000,['la entrada de un piso','l’apport pour un appartement','a flat down payment','l’anticipo di una casa','a entrada de uma casa']],[150000,['medio piso','la moitié d’un appartement','half a flat','mezza casa','meia casa']]];
+const USES=[
+ [['Gastos hormiga','Petites dépenses','Tiny daily spends','Spese formica','Gastos formiga'],['Mira cuánto suman de verdad el café, el tabaco o los refrescos.','Voyez ce que coûtent vraiment le café, les cigarettes ou les sodas.','See what coffee, cigarettes or soft drinks really add up to.','Scopri quanto sommano davvero caffè, sigarette o bibite.','Veja quanto somam de verdade o café, o tabaco ou os refrigerantes.']],
+ [['Suscripciones','Abonnements','Subscriptions','Abbonamenti','Subscrições'],['Descubre cuánto pagas al año por plataformas que casi no usas.','Découvrez ce que vous payez par an pour des services que vous utilisez peu.','Find out what you pay yearly for services you barely use.','Scopri quanto paghi all’anno per servizi che usi poco.','Descubra quanto paga por ano por serviços que quase não usa.']],
+ [['Ahorrar para algo','Épargner pour un projet','Save for something','Risparmiare per qualcosa','Poupar para algo'],['Calcula cuánto juntas para un viaje o un coche dejando un capricho.','Calculez ce que vous mettez de côté pour un voyage ou une voiture.','See how much you’d put aside for a trip or a car.','Calcola quanto metti da parte per un viaggio o un’auto.','Calcule quanto junta para uma viagem ou um carro.']],
+ [['Dejar de fumar','Arrêter de fumer','Quit smoking','Smettere di fumare','Deixar de fumar'],['Mira el dinero que recuperas: motivación extra.','Voyez l’argent récupéré : une motivation en plus.','See the money you get back: extra motivation.','Guarda i soldi che recuperi: motivazione in più.','Veja o dinheiro que recupera: motivação extra.']],
+ [['Empezar a invertir','Commencer à investir','Start investing','Iniziare a investire','Começar a investir'],['Compara gastarlo con invertirlo durante 10, 20 o 30 años.','Comparez dépenser et investir sur 10, 20 ou 30 ans.','Compare spending it with investing it over 10, 20 or 30 years.','Confronta spendere e investire per 10, 20 o 30 anni.','Compare gastar com investir durante 10, 20 ou 30 anos.']],
+ [['En familia','En famille','As a family','In famiglia','Em família'],['Decidid juntos en qué recortar.','Décidez ensemble où réduire.','Decide together what to cut.','Decidete insieme cosa tagliare.','Decidam juntos onde cortar.']]
+];
+const AMZ=[
+ {id:'cafe',name:['Termo de café para llevar','Thermos à café','Travel coffee mug','Thermos da caffè','Termo de café'],desc:['Lleva el café de casa cada día.','Emportez le café de la maison chaque jour.','Bring coffee from home every day.','Porta il caffè da casa ogni giorno.','Leve o café de casa todos os dias.'],q:'termo cafe para llevar'},
+ {id:'cafe',name:['Cafetera espresso','Machine à espresso','Espresso machine','Macchina espresso','Máquina de café expresso'],desc:['Un café en casa cuesta unos céntimos.','Un café à la maison coûte quelques centimes.','A coffee at home costs a few cents.','Un caffè a casa costa pochi centesimi.','Um café em casa custa uns cêntimos.'],q:'cafetera espresso'},
+ {id:'delivery',name:['Táperes de cristal','Boîtes repas en verre','Glass lunch boxes','Contenitori in vetro','Marmitas de vidro'],desc:['Llevar comida de casa ahorra cientos de euros al año.','Apporter son repas fait économiser des centaines d’euros par an.','Bringing lunch from home saves hundreds a year.','Portare il pranzo da casa fa risparmiare centinaia di euro.','Levar comida de casa poupa centenas de euros por ano.'],q:'tapers cristal hermeticos'},
+ {name:['Hucha con contador','Tirelire à compteur','Counting money box','Salvadanaio con contatore','Mealheiro com contador'],desc:['Ve cómo crece lo que dejas de gastar.','Voyez grandir ce que vous ne dépensez plus.','Watch what you don’t spend grow.','Guarda crescere quello che non spendi.','Veja crescer o que deixa de gastar.'],q:'hucha contador digital'},
+ {name:['Agenda de presupuesto','Agenda budget','Budget planner','Agenda del budget','Agenda de orçamento'],desc:['Apunta tus gastos y controla tu dinero.','Notez vos dépenses et gardez le contrôle.','Track spending and stay in control.','Annota le spese e controlla i soldi.','Anote os gastos e controle o dinheiro.'],q:'agenda presupuesto finanzas personales'},
+ {name:['Libros de finanzas personales','Livres de finances personnelles','Personal finance books','Libri di finanza personale','Livros de finanças pessoais'],desc:['Aprende a ahorrar e invertir desde cero.','Apprenez à épargner et investir de zéro.','Learn to save and invest from scratch.','Impara a risparmiare e investire da zero.','Aprenda a poupar e investir do zero.'],q:'libro finanzas personales ahorro'}
+];
+
+applyI18n(D);
+let habits=null;
 try{habits=JSON.parse(localStorage.getItem('goteo')||'null')}catch(e){}
-if(!Array.isArray(habits)||!habits.length)habits=[{n:"Café para llevar",p:2.5,f:"laborable"},{n:"Comida a domicilio",p:18,f:"semana"},{n:"Streaming que no usas",p:12.99,f:"mes"}];
-const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0});
-const yearly=h=>(parseFloat(h.p)||0)*FREQ[h.f];
+if(!Array.isArray(habits)||!habits.length)habits=[{id:'cafe',p:2.5,f:'laborable'},{id:'delivery',p:18,f:'semana'},{id:'stream',p:12.99,f:'mes'}];
+const nameOf=h=>h.n||(h.id&&IDN[h.id]?T(IDN[h.id][3]):t('mine'));
+const yearly=h=>(parseFloat(String(h.p).replace(',','.'))||0)*(FREQ[h.f]||0);
+const ylbl=n=>n===1?t('y1'):t('yN',{n});
 function save(){try{localStorage.setItem('goteo',JSON.stringify(habits))}catch(e){}}
-function future(annual,yrs,invest){if(!invest)return annual*yrs;const r=0.05;return annual*((Math.pow(1+r,yrs)-1)/r)}
+function future(a,y,inv){if(!inv)return a*y;const r=.05;return a*((Math.pow(1+r,y)-1)/r)}
 function render(){
-  const box=document.getElementById('habits');box.innerHTML='';
-  habits.forEach((h,i)=>{
-    const d=document.createElement('div');d.className='h';
-    d.innerHTML=`<div class="f"><input class="nm" id="hn${i}" aria-label="Gasto" value="${h.n.replace(/"/g,'&quot;')}">
-      <input class="pr" id="hp${i}" type="number" step="0.01" min="0" aria-label="Precio" value="${h.p}"> €
-      <select id="hf${i}" aria-label="Frecuencia">${Object.keys(FREQ).map(k=>`<option value="${k}" ${k===h.f?'selected':''}>${FREQ_LBL[k]}</option>`).join('')}</select></div>
-      <button class="del" aria-label="Quitar">×</button><div class="yr"></div>`;
-    d.querySelector('.nm').oninput=e=>{h.n=e.target.value;save();calc()};
-    d.querySelector('.pr').oninput=e=>{h.p=e.target.value;save();calc()};
-    d.querySelector('select').onchange=e=>{h.f=e.target.value;save();calc()};
-    d.querySelector('.del').onclick=()=>{habits.splice(i,1);save();render()};
-    box.appendChild(d);
-  });
+  const box=document.getElementById('habits');
+  box.innerHTML=habits.map((h,i)=>`<div class="hb">
+   <div class="hb-h"><input class="nm" id="hn${i}" value="${esc(nameOf(h))}" aria-label="${esc(nameOf(h))}"><button class="x" data-del="${i}" aria-label="${t('remove')}">×</button></div>
+   <div class="hb-f"><label class="f">${t('price')}<input id="hp${i}" data-i="${i}" class="pr" type="number" step="0.01" min="0" inputmode="decimal" value="${h.p}"></label>
+   <label class="f">${t('freq')}<select id="hf${i}" data-i="${i}" class="fq">${Object.keys(FREQ).map(k=>`<option value="${k}"${k===h.f?' selected':''}>${T(FREQL[k])}</option>`).join('')}</select></label></div>
+   <div class="hb-y"></div></div>`).join('');
+  box.querySelectorAll('.nm').forEach((e,i)=>e.oninput=()=>{habits[i].n=e.value;save();calc()});
+  box.querySelectorAll('.pr').forEach(e=>e.oninput=()=>{habits[e.dataset.i].p=e.value;save();calc()});
+  box.querySelectorAll('.fq').forEach(e=>e.onchange=()=>{habits[e.dataset.i].f=e.value;save();calc()});
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{habits.splice(+b.dataset.del,1);save();render()});
   calc();
 }
 function calc(){
-  const yrs=+document.getElementById('yrs').value, inv=document.getElementById('inv').checked;
-  document.getElementById('yrsLbl').textContent=yrs+(yrs===1?' año':' años');
-  document.querySelectorAll('.h').forEach((el,i)=>{el.querySelector('.yr').innerHTML=`Al año: <b>${eur(yearly(habits[i]))}</b> · En ${yrs} años: <b>${eur(future(yearly(habits[i]),yrs,inv))}</b>`});
-  const annual=habits.reduce((s,h)=>s+yearly(h),0);
-  const total=future(annual,yrs,inv);
-  document.getElementById('lead').textContent=inv?`Si lo invirtieras, en ${yrs} años tendrías`:`En ${yrs} años habrás gastado`;
-  document.getElementById('big').textContent=eur(total);
+  const y=+document.getElementById('yrs').value,inv=document.getElementById('inv').checked;
+  document.getElementById('yrsLbl').textContent=ylbl(y);
+  document.querySelectorAll('.hb-y').forEach((el,i)=>el.innerHTML=`${t('perYear')}: <b>${fmtEUR(yearly(habits[i]),0)}</b> · ${t('inY',{y:ylbl(y)})}: <b>${fmtEUR(future(yearly(habits[i]),y,inv),0)}</b>`);
+  const annual=habits.reduce((s,h)=>s+yearly(h),0),total=future(annual,y,inv);
+  document.getElementById('lead').textContent=inv?t('leadInv',{y:ylbl(y)}):t('leadSpent',{y:ylbl(y)});
+  document.getElementById('big').textContent=fmtEUR(total,0);
   let eq=null;EQUIV.forEach(e=>{if(total>=e[0])eq=e});
-  document.getElementById('equiv').textContent=eq?`Eso es ${eq[1]}${total>=eq[0]*2?' (¡'+Math.floor(total/eq[0])+' veces!)':''}.`:'Sigue sumando gastos para ver el impacto.';
-  document.getElementById('shareText').textContent=`Mis pequeños gastos suman ${eur(annual)} al año. En ${yrs} años: ${eur(total)}${eq?' — '+eq[1]:''}. ¿Y los tuyos?`;
+  document.getElementById('equiv').textContent=eq?(total>=eq[0]*2?t('eqTimes',{x:T(eq[1]),n:Math.floor(total/eq[0])}):t('eqIs',{x:T(eq[1])})):t('eqNone');
+  document.getElementById('shareText').textContent=t('shareTxt',{a:fmtEUR(annual,0),y:ylbl(y),t:fmtEUR(total,0),e:eq?' ('+T(eq[1])+')':''});
+  renderAmz();
 }
-const chips=document.getElementById('chips');
-IDEAS.forEach(x=>{const b=document.createElement('button');b.className='chip';b.textContent='+ '+x[0];b.onclick=()=>{habits.push({n:x[0],p:x[1],f:x[2]});save();render()};chips.appendChild(b)});
-const own=document.createElement('button');own.className='chip';own.textContent='+ Otro gasto';own.onclick=()=>{habits.push({n:'Mi gasto',p:5,f:'semana'});save();render()};chips.appendChild(own);
+document.getElementById('chips').innerHTML=IDEAS.map(i=>`<button class="chip" data-id="${i[0]}">+ ${esc(T(i[3]))}</button>`).join('')+`<button class="chip" data-id="">${t('other')}</button>`;
+document.querySelectorAll('#chips .chip').forEach(b=>b.onclick=()=>{const id=b.dataset.id;habits.push(id?{id,p:IDN[id][1],f:IDN[id][2]}:{n:t('mine'),p:5,f:'semana'});save();render()});
 document.getElementById('yrs').oninput=calc;document.getElementById('inv').onchange=calc;
-document.getElementById('copy').onclick=async e=>{const t=document.getElementById('shareText').textContent;try{await navigator.clipboard.writeText(t);e.target.textContent='Copiado'}catch(err){const r=document.createRange();r.selectNodeContents(document.getElementById('shareText'));getSelection().removeAllRanges();getSelection().addRange(r);e.target.textContent='Texto seleccionado'}setTimeout(()=>e.target.textContent='Copiar para compartir',2000)};
-render();
+document.getElementById('copy').onclick=async e=>{const b=e.currentTarget,txt=document.getElementById('shareText').textContent+' → gonza0297.github.io/microapps/fuga-de-euros/';
+  try{await navigator.clipboard.writeText(txt);b.textContent=t('copied')}catch(err){const r=document.createRange();r.selectNodeContents(document.getElementById('shareText'));getSelection().removeAllRanges();getSelection().addRange(r);b.textContent=t('selected')}
+  setTimeout(()=>b.textContent=t('copy'),2000)};
+function renderAmz(){const ids=new Set(habits.map(h=>h.id));renderAmazon('amz',D.amzH,AMZ.map(a=>Object.assign({},a,{hot:a.id&&ids.has(a.id)})))}
+document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
 
-// ===== PRO: plan de ahorro en PDF =====
-function renderPlan(){
-  const box=document.getElementById('plan');
-  if(window.PRO){box.innerHTML='<button class="go" id="planBtn">Descargar mi plan de ahorro (PDF)</button><div class="msg" id="planMsg" aria-live="polite"></div>';document.getElementById('planBtn').onclick=makePlan}
-  else box.innerHTML=window.proBanner('Consigue tu <b>plan de ahorro en PDF</b>: qué recortar primero, cuánto ahorras al mes y cuánto tendrías en 5, 10 y 20 años.');
-}
+const PL=document.getElementById('plan');
+if(window.PRO){PL.className='card';PL.innerHTML=`<button class="btn" id="planBtn">⬇ ${t('planBtn')}</button><div class="msg" id="planMsg" aria-live="polite"></div>`;document.getElementById('planBtn').onclick=makePlan}
+else PL.innerHTML=proBanner(t('planPro'));
+const P=s=>String(s).replace(/[  ]/g,' ').replace(/[’]/g,"'");
 function makePlan(){
-  const msg=document.getElementById('planMsg');
-  if(!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
-  const rows=habits.map(h=>({n:h.n,p:parseFloat(h.p)||0,f:h.f,y:yearly(h)})).filter(r=>r.y>0).sort((a,b)=>b.y-a.y);
-  const annual=rows.reduce((s,r)=>s+r.y,0);
-  const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'mm',format:'a4'});
-  const purple=[123,47,190],red=[226,73,59],ink=[35,26,43],mut=[111,101,119];let y=22;
-  d.setFillColor(...purple);d.rect(0,0,210,14,'F');d.setTextColor(255);d.setFontSize(11);d.text('FUGA DE EUROS · Plan de ahorro',14,9.5);
-  d.setTextColor(...ink);d.setFontSize(22);d.text('Tu plan para tapar la fuga',14,y+6);y+=16;
-  d.setFontSize(11);d.setTextColor(...mut);d.text('Fecha: '+new Date().toLocaleDateString('es-ES'),14,y);y+=10;
-  d.setFontSize(14);d.setTextColor(...red);d.text('Hoy se te escapan '+eur(annual)+' al año ('+eur(annual/12)+' al mes)',14,y);y+=12;
-  d.setFontSize(10);d.setTextColor(...mut);d.text('GASTO',14,y);d.text('PRECIO',115,y,{align:'right'});d.text('FRECUENCIA',120,y);d.text('AL AÑO',196,y,{align:'right'});y+=3;
-  d.setDrawColor(231,223,232);d.line(14,y,196,y);y+=6;d.setTextColor(...ink);d.setFontSize(11);
-  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(String(r.n).slice(0,42),14,y);d.text(r.p.toLocaleString('es-ES',{style:'currency',currency:'EUR'}),115,y,{align:'right'});d.text(FREQ_LBL[r.f],120,y);d.text(eur(r.y),196,y,{align:'right'});y+=7});
+  const msg=document.getElementById('planMsg');if(!window.jspdf){msg.textContent=t('pdfErr');return}
+  const rows=habits.map(h=>({n:nameOf(h),p:parseFloat(String(h.p).replace(',','.'))||0,f:h.f,y:yearly(h)})).filter(r=>r.y>0).sort((a,b)=>b.y-a.y),annual=rows.reduce((s,r)=>s+r.y,0);
+  const {jsPDF}=window.jspdf,d=new jsPDF({unit:'mm',format:'a4'}),cols=T(D.pdfCol);let y=22;
+  d.setFillColor(42,20,48);d.rect(0,0,210,16,'F');d.setTextColor(255,90,78);d.setFontSize(11);d.text(P(t('pdfT')),14,10.5);
+  d.setTextColor(23,23,28);d.setFontSize(20);d.text(P(t('pdfH')),14,y+8);y+=18;
+  d.setFontSize(13);d.setTextColor(196,61,43);d.text(P(t('pdfNow',{a:fmtEUR(annual,0),m:fmtEUR(annual/12,0)})),14,y);y+=12;
+  d.setFontSize(9);d.setTextColor(95,95,107);d.text(P(cols[0]),14,y);d.text(P(cols[1]),110,y,{align:'right'});d.text(P(cols[2]),116,y);d.text(P(cols[3]),196,y,{align:'right'});y+=3;
+  d.setDrawColor(220,220,215);d.line(14,y,196,y);y+=6;d.setTextColor(23,23,28);d.setFontSize(11);
+  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(P(r.n).slice(0,40),14,y);d.text(P(fmtEUR(r.p)),110,y,{align:'right'});d.text(P(T(FREQL[r.f])),116,y);d.text(P(fmtEUR(r.y,0)),196,y,{align:'right'});y+=7});
   y+=6;if(y>220){d.addPage();y=20}
-  d.setFontSize(16);d.setTextColor(...ink);d.text('El plan: recorta a la mitad tus 3 mayores fugas',14,y);y+=9;
-  let save=0;
-  rows.slice(0,3).forEach((r,i)=>{const a=r.y/2;save+=a;d.setFontSize(11.5);d.setTextColor(...purple);d.text((i+1)+'. '+r.n,14,y);d.setTextColor(...ink);d.text('ahorras '+eur(a)+' al año ('+eur(a/12)+'/mes)',196,y,{align:'right'});y+=7});
+  d.setFontSize(15);d.text(P(t('pdfPlan')),14,y);y+=9;let sv=0;
+  rows.slice(0,3).forEach((r,i)=>{const a=r.y/2;sv+=a;d.setFontSize(11.5);d.setTextColor(196,61,43);d.text(P((i+1)+'. '+r.n),14,y);d.setTextColor(23,23,28);d.text(P(t('pdfSave',{a:fmtEUR(a,0)})),196,y,{align:'right'});y+=7});
   y+=6;if(y>220){d.addPage();y=20}
-  d.setFontSize(16);d.text('Si ese ahorro lo apartas cada mes...',14,y);y+=10;
-  [[5,'5 años'],[10,'10 años'],[20,'20 años']].forEach(([n,l])=>{
-    d.setFillColor(239,228,247);d.roundedRect(14,y-6,182,14,2,2,'F');d.setFontSize(12);d.setTextColor(...ink);
-    d.text(l+':  '+eur(save*n)+' guardado',18,y+2.5);d.setTextColor(...purple);d.text('invertido al 5%: '+eur(future(save,n,true)),192,y+2.5,{align:'right'});y+=18});
-  y+=2;d.setFontSize(13);d.setTextColor(...ink);d.text('3 trucos para cumplirlo',14,y);y+=8;d.setFontSize(10.5);
-  ['Programa una transferencia automática a una cuenta de ahorro el día que cobras: '+eur(save/12)+' al mes.','Revisa tus suscripciones una vez al mes y da de baja las que no hayas usado en 30 días.','Antes de un capricho, espera 24 horas. Si sigues queriéndolo al día siguiente, cómpralo.'].forEach(t=>{const L=d.splitTextToSize('•  '+t,180);d.text(L,14,y);y+=L.length*5+3});
-  d.setFontSize(9);d.setTextColor(...mut);d.text(d.splitTextToSize('Cálculo orientativo, no es asesoramiento financiero. La rentabilidad del 5% es un ejemplo y no está garantizada. Creado por Gonzalo Leon · gonza0297.github.io/microapps',182),14,285);
-  d.save('Plan de ahorro Fuga de Euros.pdf');msg.textContent='Plan descargado.';
+  d.setFontSize(15);d.text(P(t('pdfIf')),14,y);y+=10;
+  [5,10,20].forEach(n=>{d.setFillColor(255,233,230);d.roundedRect(14,y-6,182,14,2,2,'F');d.setFontSize(11.5);d.setTextColor(23,23,28);
+    d.text(P(t('pdfKept',{y:ylbl(n),a:fmtEUR(sv*n,0)})),18,y+2.5);d.setTextColor(196,61,43);d.text(P(t('pdfInv',{a:fmtEUR(future(sv,n,true),0)})),192,y+2.5,{align:'right'});y+=18});
+  d.setFontSize(13);d.setTextColor(23,23,28);d.text(P(t('pdfTricks')),14,y);y+=8;d.setFontSize(10.5);
+  [t('pdfT1',{a:fmtEUR(sv/12,0)}),t('pdfT2'),t('pdfT3')].forEach(s=>{const L=d.splitTextToSize(P('•  '+s),180);d.text(L,14,y);y+=L.length*5+3});
+  d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,284);
+  d.save('Fuga-de-Euros.pdf');msg.textContent=t('pdfDone');
 }
-renderPlan();
-
-// ===== Amazon: productos para ahorrar =====
-function renderAmz(){
-  const names=habits.map(h=>String(h.n).toLowerCase()).join(' ');
-  const has=r=>r.test(names);
-  window.renderAmazon&&renderAmazon('amz','Para tapar tu fuga',[
-    {name:'Termo de café para llevar',desc:'Lleva el café de casa: ahorras el de la cafetería cada día.',q:'termo cafe para llevar',hot:has(/caf/)},
-    {name:'Cafetera de cápsulas o espresso',desc:'Un café en casa cuesta unos céntimos.',q:'cafetera espresso',hot:has(/caf/)},
-    {name:'Táperes para llevar comida',desc:'Llevar comida de casa al trabajo ahorra cientos de euros al año.',q:'tapers cristal hermeticos',hot:has(/comida|domicilio|men/)},
-    {name:'Hucha con contador digital',desc:'Ve cómo crece lo que dejas de gastar.',q:'hucha contador digital'},
-    {name:'Agenda de presupuesto',desc:'Apunta tus gastos del mes y controla tu dinero.',q:'agenda presupuesto finanzas personales'},
-    {name:'Libros de finanzas personales',desc:'Aprende a ahorrar e invertir desde cero.',q:'libro finanzas personales ahorro'}
-  ]);
-}
-const _calc=calc;calc=function(){_calc();renderAmz()};
-renderAmz();
+render();
 </script>
-
 </body>
 </html>

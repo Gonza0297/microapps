@@ -3,187 +3,215 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>QuéComemos</title>
 <meta name="description" content="Planifica tus comidas de la semana y genera la lista de la compra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../ui.css">
+<script src="../i18n.js"></script>
+<script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
+<style>
+:root{--hero:#1f3a14;--hero-ink:#fff;--accent:#8ad13f;--accent-ink:#13250b;--soft:#eef8e2}
+@media (prefers-color-scheme:dark){:root{--soft:#1d2a14}}
+.week{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.day{border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:8px;background:var(--bg);min-width:0}
+.day h3{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day.today{border:2px solid var(--accent)}
+.slot{display:grid;gap:2px;font-size:12px;font-weight:700;color:var(--muted)}
+.slot select{font-size:15px;color:var(--ink)}
+.aisles{columns:2 260px;column-gap:24px}
+.aisle{break-inside:avoid;margin-bottom:16px}
+.aisle h4{margin:0 0 6px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;display:flex;gap:6px;align-items:center}
+.it{display:flex;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.it input{width:22px;height:22px;min-height:0;accent-color:var(--accent);flex:none}
+.it .q{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.it.done span:not(.q){text-decoration:line-through;color:var(--muted)}
+.prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent)}
+</style>
 </head>
 <body>
-<title>QuéComemos</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Karla:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: pizarra de 7 días (comida/cena) y debajo la lista de la compra agrupada por pasillo */
-:root{
-  --bg:#f6f4ec;--surface:#fffefa;--ink:#24291f;--muted:#666d5e;--line:#dcd9c9;
-  --accent:#3f6b2a;--tomato:#c8502e;--slot:#eef0e2;
-  --display:"Young Serif",Georgia,serif;--body:"Karla",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13160f;--surface:#1b1f16;--ink:#e9ecdf;--muted:#a3aa94;--line:#30362a;--accent:#9ccc7a;--tomato:#ef8a64;--slot:#232a1c;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#13160f;--surface:#1b1f16;--ink:#e9ecdf;--muted:#a3aa94;--line:#30362a;--accent:#9ccc7a;--tomato:#ef8a64;--slot:#232a1c;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
-.wrap{max-width:960px;margin:0 auto;display:grid;gap:22px}
-h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,46px);margin:0;line-height:1.05}
-h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
-.sub{color:var(--muted);margin:6px 0 0}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.bar label{color:var(--muted);font-size:14px;display:flex;gap:6px;align-items:center}
-select,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
-button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px}
-button.go{background:var(--accent);border-color:var(--accent);color:var(--surface)}
-.week{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.day{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;min-width:0}
-.day h3{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tomato)}
-.slot{display:grid;gap:2px;font-size:12px;color:var(--muted)}
-.slot select{width:100%;background:var(--slot);border-color:transparent;font-size:14px}
-.shop{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px}
-.shop .head{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
-.aisles{columns:2 260px;column-gap:24px}
-.aisle{break-inside:avoid;margin-bottom:14px}
-.aisle h4{margin:0 0 4px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-.it{display:flex;gap:8px;align-items:baseline;padding:3px 0}
-.it input{margin:0;accent-color:var(--accent)}
-.it .q{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
-.it.done span{text-decoration:line-through;color:var(--muted)}
-.count{color:var(--muted);font-size:14px}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
-.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
-.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
-.uses h2{font-size:20px;margin:0 0 10px}
-.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
-.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
-footer{color:var(--muted);font-size:13px;text-align:center}
-</style>
-
-<div class="wrap">
-  <header>
-    <h1>QuéComemos</h1>
-    <p class="sub">Elige qué comes cada día y la lista de la compra se hace sola, ordenada por pasillos del súper.</p>
-  </header>
-  <details class="howto" open><summary>¿Cómo funciona QuéComemos?</summary><ol><li>Elige cuántas personas sois.</li><li>Escoge la comida y la cena de cada día, o pulsa "Sorpréndeme" para que lo haga la app.</li><li>La lista de la compra se crea sola, con las cantidades sumadas y ordenada por pasillos del súper.</li><li>En el súper, marca lo que ya has cogido y copia la lista para mandarla por WhatsApp.</li></ol><ul class="feat"><li>Menú de 7 días (comida y cena)</li><li>Cantidades ajustadas a las personas</li><li>Lista por pasillos</li><li>Marcar productos mientras compras</li><li>Pro: 14 recetas extra</li></ul></details>
-
-
-  <div class="bar">
-    <label for="ppl">Personas <select id="ppl"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
-    <button class="go" id="rand">Sorpréndeme</button>
-    <button id="clear">Vaciar semana</button>
+<header class="top"><a href="../" data-i18n="back">← Apps Útiles</a><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.2 1-3.5 3.5-3.5 7 0 1.7 1.2 3 3.5 3"/></svg></div>
+      <h1>QuéComemos</h1>
+    </div>
+    <p class="tagline" data-i18n="tagline">El menú de la semana y la lista de la compra, en un minuto.</p>
+    <ol class="steps">
+      <li><b>1</b><span data-i18n="s1">Elige personas</span></li>
+      <li><b>2</b><span data-i18n="s2">Elige los platos</span></li>
+      <li><b>3</b><span data-i18n="s3">Ve al súper con tu lista</span></li>
+    </ol>
   </div>
+</section>
 
-  <section class="week" id="week"></section>
+<main class="wrap">
+  <section class="card">
+    <h2><span class="n">1</span><span data-i18n="weekH">Tu menú de la semana</span></h2>
+    <div class="row">
+      <label class="f" style="width:140px"><span data-i18n="people">Personas</span><select id="ppl"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+      <button class="btn" id="rand" style="align-self:end" data-i18n="surprise">🎲 Sorpréndeme</button>
+      <button class="btn ghost small" id="clear" style="align-self:end" data-i18n="clear">Vaciar</button>
+    </div>
+    <div class="week" id="week"></div>
+  </section>
 
-  <section class="shop">
-    <div class="head"><h2>Lista de la compra</h2><span class="count" id="count"></span><button id="copy">Copiar lista</button></div>
+  <section class="card">
+    <h2><span class="n">2</span><span data-i18n="listH">Lista de la compra</span></h2>
+    <div class="row" style="justify-content:space-between"><span class="muted" id="count"></span><button class="btn small ghost" id="copy" data-i18n="copy">Copiar lista</button></div>
+    <div class="prog"><i id="progbar" style="width:0"></i></div>
     <div class="aisles" id="aisles"></div>
   </section>
 
   <section id="pro"></section>
 
+  <section class="card"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
+  <section class="card" id="amz"></section>
+</main>
+<footer data-auto></footer>
 
-  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">🛒</i><b>Comprar una vez a la semana</b><span>Vas al súper con la lista hecha y no se te olvida nada.</span></div><div class="u"><i aria-hidden="true">💶</i><b>Gastar menos en comida</b><span>Compras solo lo que vas a cocinar y tiras menos comida.</span></div><div class="u"><i aria-hidden="true">🍱</i><b>Batch cooking</b><span>Cocina el domingo y deja hechas las comidas de la semana.</span></div><div class="u"><i aria-hidden="true">👨‍👩‍👧</i><b>Familias</b><span>Ajusta las cantidades al número de personas automáticamente.</span></div><div class="u"><i aria-hidden="true">🎓</i><b>Estudiantes y pisos</b><span>Ideas fáciles y baratas para no comer siempre lo mismo.</span></div><div class="u"><i aria-hidden="true">🤷</i><b>Cuando no tienes ideas</b><span>Pulsa "Sorpréndeme" y la app decide por ti.</span></div></div></section>
-
-  <section id="amz"></section>
-
-  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
-</div>
-
-<script src="../pro.js"></script>
-<script src="../afiliados.js"></script>
 <script>
-// Cantidades por persona. Pasillos: Fruta y verdura, Carne y pescado, Lácteos y huevos, Despensa, Panadería, Congelados
+const D={
+ tagline:['El menú de la semana y la lista de la compra, en un minuto.','Le menu de la semaine et la liste de courses, en une minute.','Your weekly menu and shopping list in one minute.','Il menu della settimana e la lista della spesa, in un minuto.','O menu da semana e a lista de compras, num minuto.'],
+ s1:['Elige cuántos sois','Choisissez combien vous êtes','Choose how many people','Scegli quante persone','Escolha quantas pessoas'],
+ s2:['Elige los platos','Choisissez les plats','Pick the meals','Scegli i piatti','Escolha os pratos'],
+ s3:['Ve al súper con tu lista','Allez faire les courses avec votre liste','Shop with your list','Vai a fare la spesa con la lista','Vá às compras com a lista'],
+ weekH:['Tu menú de la semana','Votre menu de la semaine','Your weekly menu','Il tuo menu della settimana','O seu menu da semana'],
+ people:['Personas','Personnes','People','Persone','Pessoas'],
+ surprise:['🎲 Sorpréndeme','🎲 Surprenez-moi','🎲 Surprise me','🎲 Sorprendimi','🎲 Surpreenda-me'],
+ clear:['Vaciar','Vider','Clear','Svuota','Limpar'],
+ lunch:['Comida','Déjeuner','Lunch','Pranzo','Almoço'],dinner:['Cena','Dîner','Dinner','Cena','Jantar'],
+ none:['— Nada —','— Rien —','— Nothing —','— Niente —','— Nada —'],
+ recipes:['Recetas','Recettes','Recipes','Ricette','Receitas'],
+ proRecipes:['Recetas Pro','Recettes Pro','Pro recipes','Ricette Pro','Receitas Pro'],
+ proLocked:['Recetas Pro (bloqueadas)','Recettes Pro (verrouillées)','Pro recipes (locked)','Ricette Pro (bloccate)','Receitas Pro (bloqueadas)'],
+ listH:['Lista de la compra','Liste de courses','Shopping list','Lista della spesa','Lista de compras'],
+ count:['{d} de {t} cogidos','{d} sur {t} dans le panier','{d} of {t} in the basket','{d} di {t} nel carrello','{d} de {t} no cesto'],
+ empty:['Elige algún plato arriba y aquí aparecerá tu lista.','Choisissez un plat ci-dessus et votre liste apparaîtra ici.','Pick a meal above and your list will appear here.','Scegli un piatto sopra e qui apparirà la lista.','Escolha um prato acima e a lista aparece aqui.'],
+ copy:['Copiar lista','Copier la liste','Copy list','Copia lista','Copiar lista'],
+ copied:['Copiada ✓','Copiée ✓','Copied ✓','Copiata ✓','Copiada ✓'],
+ copyFail:['No se pudo copiar','Copie impossible','Couldn’t copy','Impossibile copiare','Não foi possível copiar'],
+ pro:['Desbloquea <b>14 recetas más</b>: paella, curry, poke, lasaña, ramen… y "Sorpréndeme" las incluirá.','Débloquez <b>14 recettes de plus</b> : paella, curry, poke, lasagnes, ramen… et "Surprenez-moi" les utilisera.','Unlock <b>14 more recipes</b>: paella, curry, poke, lasagne, ramen… and "Surprise me" will use them.','Sblocca <b>14 ricette in più</b>: paella, curry, poke, lasagne, ramen… e "Sorprendimi" le userà.','Desbloqueie <b>mais 14 receitas</b>: paella, caril, poke, lasanha, ramen… e "Surpreenda-me" vai usá-las.'],
+ usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ amzH:['Para cocinar tu menú de la semana','Pour cuisiner votre menu de la semaine','To cook your weekly menu','Per cucinare il menu della settimana','Para cozinhar o menu da semana']
+};
+const t=(k,v)=>T(D[k],v);
+const DAYS=[['Lunes','Lundi','Monday','Lunedì','Segunda'],['Martes','Mardi','Tuesday','Martedì','Terça'],['Miércoles','Mercredi','Wednesday','Mercoledì','Quarta'],['Jueves','Jeudi','Thursday','Giovedì','Quinta'],['Viernes','Vendredi','Friday','Venerdì','Sexta'],['Sábado','Samedi','Saturday','Sabato','Sábado'],['Domingo','Dimanche','Sunday','Domenica','Domingo']];
+const AISLE={fv:['🥬 Fruta y verdura','🥬 Fruits et légumes','🥬 Fruit & veg','🥬 Frutta e verdura','🥬 Fruta e legumes'],cp:['🥩 Carne y pescado','🥩 Viande et poisson','🥩 Meat & fish','🥩 Carne e pesce','🥩 Carne e peixe'],lh:['🥚 Lácteos y huevos','🥚 Produits laitiers et œufs','🥚 Dairy & eggs','🥚 Latticini e uova','🥚 Lacticínios e ovos'],pa:['🥖 Panadería','🥖 Boulangerie','🥖 Bakery','🥖 Panetteria','🥖 Padaria'],de:['🥫 Despensa','🥫 Épicerie','🥫 Pantry','🥫 Dispensa','🥫 Mercearia'],co:['🧊 Congelados','🧊 Surgelés','🧊 Frozen','🧊 Surgelati','🧊 Congelados']};
+const AORD=['fv','cp','lh','pa','de','co'];
+const UNIT={diente:['diente','gousse','clove','spicchio','dente'],lata:['lata','boîte','can','scatoletta','lata']};
+// ingrediente: [pasillo, es, fr, en, it, pt]
+const ING={
+ spaghetti:['de','Espaguetis','Spaghettis','Spaghetti','Spaghetti','Esparguete'],mince:['cp','Carne picada','Viande hachée','Minced beef','Carne macinata','Carne picada'],tomsauce:['de','Tomate triturado','Tomates concassées','Crushed tomatoes','Polpa di pomodoro','Tomate triturado'],onion:['fv','Cebolla','Oignon','Onion','Cipolla','Cebola'],cheese:['lh','Queso rallado','Fromage râpé','Grated cheese','Formaggio grattugiato','Queijo ralado'],
+ thighs:['cp','Muslos de pollo','Cuisses de poulet','Chicken thighs','Cosce di pollo','Coxas de frango'],potato:['fv','Patatas','Pommes de terre','Potatoes','Patate','Batatas'],lemon:['fv','Limón','Citron','Lemon','Limone','Limão'],garlic:['fv','Ajo','Ail','Garlic','Aglio','Alho'],eggs:['lh','Huevos','Œufs','Eggs','Uova','Ovos'],
+ salmon:['cp','Salmón','Saumon','Salmon','Salmone','Salmão'],rice:['de','Arroz','Riz','Rice','Riso','Arroz'],broccoli:['fv','Brócoli','Brocoli','Broccoli','Broccoli','Brócolos'],lettuce:['fv','Lechuga romana','Laitue romaine','Romaine lettuce','Lattuga romana','Alface romana'],breast:['cp','Pechuga de pollo','Blanc de poulet','Chicken breast','Petto di pollo','Peito de frango'],
+ bread:['pa','Pan','Pain','Bread','Pane','Pão'],parmesan:['lh','Parmesano','Parmesan','Parmesan','Parmigiano','Parmesão'],lentils:['de','Lentejas','Lentilles','Lentils','Lenticchie','Lentilhas'],carrot:['fv','Zanahoria','Carotte','Carrot','Carota','Cenoura'],pepper:['fv','Pimiento','Poivron','Pepper','Peperone','Pimento'],
+ wraps:['pa','Tortillas de trigo','Tortillas de blé','Flour tortillas','Piadine di frumento','Tortilhas de trigo'],tomato:['fv','Tomate','Tomate','Tomato','Pomodoro','Tomate'],avocado:['fv','Aguacate','Avocat','Avocado','Avocado','Abacate'],pizzadough:['pa','Masa de pizza','Pâte à pizza','Pizza dough','Pasta per pizza','Massa de pizza'],mozza:['lh','Mozzarella','Mozzarella','Mozzarella','Mozzarella','Mozarela'],
+ ham:['cp','Jamón cocido','Jambon blanc','Cooked ham','Prosciutto cotto','Fiambre'],pumpkin:['fv','Calabaza','Potiron','Pumpkin','Zucca','Abóbora'],cream:['lh','Nata para cocinar','Crème liquide','Cooking cream','Panna da cucina','Natas para culinária'],peas:['co','Guisantes','Petits pois','Peas','Piselli','Ervilhas'],bun:['pa','Pan de hamburguesa','Pain à burger','Burger bun','Panino per hamburger','Pão de hambúrguer'],
+ slices:['lh','Queso en lonchas','Fromage en tranches','Cheese slices','Formaggio a fette','Queijo em fatias'],hake:['cp','Merluza','Merlu','Hake','Nasello','Pescada'],beans:['fv','Judías verdes','Haricots verts','Green beans','Fagiolini','Feijão-verde'],ricenoodles:['de','Fideos de arroz','Nouilles de riz','Rice noodles','Spaghetti di riso','Massa de arroz'],soy:['de','Salsa de soja','Sauce soja','Soy sauce','Salsa di soia','Molho de soja'],
+ chickpeas:['de','Garbanzos cocidos','Pois chiches cuits','Cooked chickpeas','Ceci cotti','Grão-de-bico cozido'],spinach:['fv','Espinacas','Épinards','Spinach','Spinaci','Espinafres'],macaroni:['de','Macarrones','Macaronis','Macaroni','Maccheroni','Macarrão'],tuna:['de','Atún en lata','Thon en boîte','Tinned tuna','Tonno in scatola','Atum em lata'],
+ bomba:['de','Arroz para paella','Riz à paella','Paella rice','Riso per paella','Arroz para paella'],prawns:['cp','Gambas','Crevettes','Prawns','Gamberi','Camarão'],mussels:['cp','Mejillones','Moules','Mussels','Cozze','Mexilhões'],fishstock:['de','Caldo de pescado','Fumet de poisson','Fish stock','Brodo di pesce','Caldo de peixe'],coconut:['de','Leche de coco','Lait de coco','Coconut milk','Latte di cocco','Leite de coco'],
+ curry:['de','Curry en polvo','Curry en poudre','Curry powder','Curry in polvere','Caril em pó'],aubergine:['fv','Berenjena','Aubergine','Aubergine','Melanzana','Beringela'],milk:['lh','Leche','Lait','Milk','Latte','Leite'],sourcream:['lh','Nata agria','Crème aigre','Sour cream','Panna acida','Natas ácidas'],lasagne:['de','Placas de lasaña','Feuilles de lasagne','Lasagne sheets','Sfoglie per lasagne','Folhas de lasanha'],
+ courgette:['fv','Calabacín','Courgette','Courgette','Zucchina','Curgete'],cucumber:['fv','Pepino','Concombre','Cucumber','Cetriolo','Pepino'],crumbs:['de','Pan rallado','Chapelure','Breadcrumbs','Pangrattato','Pão ralado'],arborio:['de','Arroz arborio','Riz arborio','Arborio rice','Riso arborio','Arroz arbório'],mushrooms:['fv','Champiñones','Champignons','Mushrooms','Funghi champignon','Cogumelos'],
+ vegstock:['de','Caldo de verduras','Bouillon de légumes','Vegetable stock','Brodo vegetale','Caldo de legumes'],pastry:['pa','Masa quebrada','Pâte brisée','Shortcrust pastry','Pasta brisée','Massa quebrada'],cod:['cp','Bacalao','Cabillaud','Cod','Merluzzo','Bacalhau'],blackbeans:['de','Alubias negras','Haricots noirs','Black beans','Fagioli neri','Feijão-preto'],corn:['de','Maíz dulce','Maïs doux','Sweetcorn','Mais dolce','Milho doce'],
+ pork:['cp','Solomillo de cerdo','Filet mignon de porc','Pork tenderloin','Filetto di maiale','Lombinho de porco'],ramen:['de','Fideos ramen','Nouilles ramen','Ramen noodles','Noodles ramen','Massa ramen'],chstock:['de','Caldo de pollo','Bouillon de volaille','Chicken stock','Brodo di pollo','Caldo de galinha'],spring:['fv','Cebolleta','Oignon nouveau','Spring onion','Cipollotto','Cebolinho']
+};
+// receta: [nombres, ingredientes [id,cantidad por persona,unidad], pro]
 const R={
- "Espaguetis a la boloñesa":[["Espaguetis",100,"g","Despensa"],["Carne picada",120,"g","Carne y pescado"],["Tomate triturado",100,"g","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Queso rallado",15,"g","Lácteos y huevos"]],
- "Pollo al horno con patatas":[["Muslos de pollo",2,"ud","Carne y pescado"],["Patatas",200,"g","Fruta y verdura"],["Limón",0.5,"ud","Fruta y verdura"],["Ajo",1,"diente","Fruta y verdura"]],
- "Tortilla de patatas":[["Huevos",2,"ud","Lácteos y huevos"],["Patatas",200,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"]],
- "Salmón con arroz":[["Salmón",150,"g","Carne y pescado"],["Arroz",80,"g","Despensa"],["Brócoli",100,"g","Fruta y verdura"],["Limón",0.5,"ud","Fruta y verdura"]],
- "Ensalada César":[["Lechuga romana",0.5,"ud","Fruta y verdura"],["Pechuga de pollo",120,"g","Carne y pescado"],["Pan",50,"g","Panadería"],["Parmesano",15,"g","Lácteos y huevos"]],
- "Lentejas con verduras":[["Lentejas",80,"g","Despensa"],["Zanahoria",1,"ud","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Pimiento",0.5,"ud","Fruta y verdura"]],
- "Tacos de carne":[["Tortillas de trigo",3,"ud","Panadería"],["Carne picada",120,"g","Carne y pescado"],["Tomate",1,"ud","Fruta y verdura"],["Aguacate",0.5,"ud","Fruta y verdura"],["Queso rallado",20,"g","Lácteos y huevos"]],
- "Pizza casera":[["Masa de pizza",0.5,"ud","Panadería"],["Tomate triturado",60,"g","Despensa"],["Mozzarella",60,"g","Lácteos y huevos"],["Jamón cocido",40,"g","Carne y pescado"]],
- "Crema de calabaza":[["Calabaza",250,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Nata para cocinar",50,"ml","Lácteos y huevos"]],
- "Arroz con verduras y huevo":[["Arroz",80,"g","Despensa"],["Huevos",1,"ud","Lácteos y huevos"],["Guisantes",50,"g","Congelados"],["Zanahoria",1,"ud","Fruta y verdura"]],
- "Hamburguesas caseras":[["Carne picada",150,"g","Carne y pescado"],["Pan de hamburguesa",1,"ud","Panadería"],["Tomate",0.5,"ud","Fruta y verdura"],["Lechuga romana",0.25,"ud","Fruta y verdura"],["Queso en lonchas",1,"ud","Lácteos y huevos"]],
- "Merluza a la plancha":[["Merluza",180,"g","Carne y pescado"],["Patatas",150,"g","Fruta y verdura"],["Judías verdes",100,"g","Fruta y verdura"]],
- "Wok de pollo y fideos":[["Fideos de arroz",80,"g","Despensa"],["Pechuga de pollo",130,"g","Carne y pescado"],["Pimiento",0.5,"ud","Fruta y verdura"],["Salsa de soja",15,"ml","Despensa"]],
- "Tostadas con aguacate y huevo":[["Pan",80,"g","Panadería"],["Aguacate",0.5,"ud","Fruta y verdura"],["Huevos",1,"ud","Lácteos y huevos"]],
- "Garbanzos con espinacas":[["Garbanzos cocidos",200,"g","Despensa"],["Espinacas",80,"g","Fruta y verdura"],["Ajo",1,"diente","Fruta y verdura"]],
- "Macarrones con atún":[["Macarrones",100,"g","Despensa"],["Atún en lata",1,"lata","Despensa"],["Tomate triturado",80,"g","Despensa"]]
+ bolo:[['Espaguetis a la boloñesa','Spaghettis bolognaise','Spaghetti bolognese','Spaghetti alla bolognese','Esparguete à bolonhesa'],[['spaghetti',100,'g'],['mince',120,'g'],['tomsauce',100,'g'],['onion',.5,'ud'],['cheese',15,'g']]],
+ chick:[['Pollo al horno con patatas','Poulet rôti et pommes de terre','Roast chicken with potatoes','Pollo al forno con patate','Frango assado com batatas'],[['thighs',2,'ud'],['potato',200,'g'],['lemon',.5,'ud'],['garlic',1,'diente']]],
+ tortilla:[['Tortilla de patatas','Omelette espagnole','Spanish omelette','Frittata di patate','Tortilha de batata'],[['eggs',2,'ud'],['potato',200,'g'],['onion',.5,'ud']]],
+ salmon:[['Salmón con arroz','Saumon et riz','Salmon with rice','Salmone con riso','Salmão com arroz'],[['salmon',150,'g'],['rice',80,'g'],['broccoli',100,'g'],['lemon',.5,'ud']]],
+ caesar:[['Ensalada César','Salade César','Caesar salad','Insalata Caesar','Salada César'],[['lettuce',.5,'ud'],['breast',120,'g'],['bread',50,'g'],['parmesan',15,'g']]],
+ lentils:[['Lentejas con verduras','Lentilles aux légumes','Lentils with vegetables','Lenticchie con verdure','Lentilhas com legumes'],[['lentils',80,'g'],['carrot',1,'ud'],['onion',.5,'ud'],['pepper',.5,'ud']]],
+ tacos:[['Tacos de carne','Tacos à la viande','Beef tacos','Tacos di carne','Tacos de carne'],[['wraps',3,'ud'],['mince',120,'g'],['tomato',1,'ud'],['avocado',.5,'ud'],['cheese',20,'g']]],
+ pizza:[['Pizza casera','Pizza maison','Homemade pizza','Pizza fatta in casa','Pizza caseira'],[['pizzadough',.5,'ud'],['tomsauce',60,'g'],['mozza',60,'g'],['ham',40,'g']]],
+ pumpkin:[['Crema de calabaza','Velouté de potiron','Pumpkin soup','Vellutata di zucca','Creme de abóbora'],[['pumpkin',250,'g'],['onion',.5,'ud'],['cream',50,'ml']]],
+ friedrice:[['Arroz con verduras y huevo','Riz sauté aux légumes et œuf','Egg fried rice with veg','Riso con verdure e uovo','Arroz com legumes e ovo'],[['rice',80,'g'],['eggs',1,'ud'],['peas',50,'g'],['carrot',1,'ud']]],
+ burger:[['Hamburguesas caseras','Burgers maison','Homemade burgers','Hamburger fatti in casa','Hambúrgueres caseiros'],[['mince',150,'g'],['bun',1,'ud'],['tomato',.5,'ud'],['lettuce',.25,'ud'],['slices',1,'ud']]],
+ hake:[['Merluza a la plancha','Merlu à la plancha','Grilled hake','Nasello alla piastra','Pescada grelhada'],[['hake',180,'g'],['potato',150,'g'],['beans',100,'g']]],
+ wok:[['Wok de pollo y fideos','Wok de poulet aux nouilles','Chicken noodle stir-fry','Wok di pollo e noodles','Wok de frango com massa'],[['ricenoodles',80,'g'],['breast',130,'g'],['pepper',.5,'ud'],['soy',15,'ml']]],
+ toast:[['Tostadas con aguacate y huevo','Toasts avocat et œuf','Avocado & egg toast','Toast con avocado e uovo','Tostas de abacate e ovo'],[['bread',80,'g'],['avocado',.5,'ud'],['eggs',1,'ud']]],
+ chickpeas:[['Garbanzos con espinacas','Pois chiches aux épinards','Chickpeas with spinach','Ceci con spinaci','Grão com espinafres'],[['chickpeas',200,'g'],['spinach',80,'g'],['garlic',1,'diente']]],
+ tunapasta:[['Macarrones con atún','Macaronis au thon','Tuna pasta','Maccheroni al tonno','Massa com atum'],[['macaroni',100,'g'],['tuna',1,'lata'],['tomsauce',80,'g']]],
+ paella:[['Paella de marisco','Paella aux fruits de mer','Seafood paella','Paella di mare','Paella de marisco'],[['bomba',90,'g'],['prawns',80,'g'],['mussels',100,'g'],['pepper',.5,'ud'],['tomato',.5,'ud'],['fishstock',250,'ml']],1],
+ curry:[['Curry de garbanzos','Curry de pois chiches','Chickpea curry','Curry di ceci','Caril de grão'],[['chickpeas',200,'g'],['coconut',100,'ml'],['onion',.5,'ud'],['curry',5,'g'],['rice',70,'g']],1],
+ moussaka:[['Moussaka','Moussaka','Moussaka','Moussaka','Moussaka'],[['aubergine',1,'ud'],['mince',120,'g'],['tomsauce',80,'g'],['milk',100,'ml'],['cheese',20,'g']],1],
+ fajitas:[['Fajitas de pollo','Fajitas au poulet','Chicken fajitas','Fajitas di pollo','Fajitas de frango'],[['wraps',3,'ud'],['breast',130,'g'],['pepper',1,'ud'],['onion',.5,'ud'],['sourcream',30,'g']],1],
+ lasagne:[['Lasaña de verduras','Lasagnes aux légumes','Vegetable lasagne','Lasagne di verdure','Lasanha de legumes'],[['lasagne',4,'ud'],['courgette',.5,'ud'],['spinach',60,'g'],['tomsauce',100,'g'],['mozza',60,'g']],1],
+ poke:[['Poke bowl de salmón','Poke bowl au saumon','Salmon poke bowl','Poke bowl di salmone','Poke bowl de salmão'],[['rice',80,'g'],['salmon',120,'g'],['avocado',.5,'ud'],['cucumber',.5,'ud'],['soy',15,'ml']],1],
+ meatballs:[['Albóndigas en salsa','Boulettes en sauce','Meatballs in sauce','Polpette al sugo','Almôndegas com molho'],[['mince',150,'g'],['crumbs',20,'g'],['eggs',.5,'ud'],['tomsauce',100,'g'],['potato',150,'g']],1],
+ risotto:[['Risotto de champiñones','Risotto aux champignons','Mushroom risotto','Risotto ai funghi','Risoto de cogumelos'],[['arborio',90,'g'],['mushrooms',120,'g'],['onion',.5,'ud'],['parmesan',20,'g'],['vegstock',300,'ml']],1],
+ gazpacho:[['Gazpacho con tostas','Gaspacho et toasts','Gazpacho with toast','Gazpacho con crostini','Gaspacho com tostas'],[['tomato',3,'ud'],['cucumber',.5,'ud'],['pepper',.5,'ud'],['bread',60,'g']],1],
+ quiche:[['Quiche de jamón y queso','Quiche jambon-fromage','Ham & cheese quiche','Quiche prosciutto e formaggio','Quiche de fiambre e queijo'],[['pastry',.25,'ud'],['eggs',1.5,'ud'],['cream',60,'ml'],['ham',50,'g'],['cheese',30,'g']],1],
+ cod:[['Bacalao con tomate','Cabillaud à la tomate','Cod in tomato sauce','Merluzzo al pomodoro','Bacalhau com tomate'],[['cod',180,'g'],['tomsauce',120,'g'],['onion',.5,'ud'],['potato',150,'g']],1],
+ burrito:[['Burrito vegetal','Burrito végétarien','Veggie burrito','Burrito vegetariano','Burrito vegetariano'],[['wraps',2,'ud'],['blackbeans',120,'g'],['corn',50,'g'],['rice',50,'g'],['avocado',.5,'ud']],1],
+ pork:[['Solomillo con champiñones','Filet de porc aux champignons','Pork with mushrooms','Filetto con funghi','Lombinho com cogumelos'],[['pork',180,'g'],['mushrooms',100,'g'],['cream',50,'ml'],['potato',150,'g']],1],
+ ramen:[['Ramen casero','Ramen maison','Homemade ramen','Ramen fatto in casa','Ramen caseiro'],[['ramen',90,'g'],['chstock',400,'ml'],['eggs',1,'ud'],['spring',.5,'ud'],['breast',100,'g']],1]
 };
-const DAYS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
-const AISLES=["Fruta y verdura","Carne y pescado","Lácteos y huevos","Panadería","Despensa","Congelados"];
-const RPRO={
- "Paella de marisco":[["Arroz bomba",90,"g","Despensa"],["Gambas",80,"g","Carne y pescado"],["Mejillones",100,"g","Carne y pescado"],["Pimiento",0.5,"ud","Fruta y verdura"],["Tomate",0.5,"ud","Fruta y verdura"],["Caldo de pescado",250,"ml","Despensa"]],
- "Curry de garbanzos":[["Garbanzos cocidos",200,"g","Despensa"],["Leche de coco",100,"ml","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Curry en polvo",5,"g","Despensa"],["Arroz",70,"g","Despensa"]],
- "Moussaka":[["Berenjena",1,"ud","Fruta y verdura"],["Carne picada",120,"g","Carne y pescado"],["Tomate triturado",80,"g","Despensa"],["Leche",100,"ml","Lácteos y huevos"],["Queso rallado",20,"g","Lácteos y huevos"]],
- "Fajitas de pollo":[["Tortillas de trigo",3,"ud","Panadería"],["Pechuga de pollo",130,"g","Carne y pescado"],["Pimiento",1,"ud","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Nata agria",30,"g","Lácteos y huevos"]],
- "Lasaña de verduras":[["Placas de lasaña",4,"ud","Despensa"],["Calabacín",0.5,"ud","Fruta y verdura"],["Espinacas",60,"g","Fruta y verdura"],["Tomate triturado",100,"g","Despensa"],["Mozzarella",60,"g","Lácteos y huevos"]],
- "Poke bowl de salmón":[["Arroz",80,"g","Despensa"],["Salmón",120,"g","Carne y pescado"],["Aguacate",0.5,"ud","Fruta y verdura"],["Pepino",0.5,"ud","Fruta y verdura"],["Salsa de soja",15,"ml","Despensa"]],
- "Albóndigas en salsa":[["Carne picada",150,"g","Carne y pescado"],["Pan rallado",20,"g","Despensa"],["Huevos",0.5,"ud","Lácteos y huevos"],["Tomate triturado",100,"g","Despensa"],["Patatas",150,"g","Fruta y verdura"]],
- "Risotto de champiñones":[["Arroz arborio",90,"g","Despensa"],["Champiñones",120,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Parmesano",20,"g","Lácteos y huevos"],["Caldo de verduras",300,"ml","Despensa"]],
- "Gazpacho con tostas":[["Tomate",3,"ud","Fruta y verdura"],["Pepino",0.5,"ud","Fruta y verdura"],["Pimiento",0.5,"ud","Fruta y verdura"],["Pan",60,"g","Panadería"]],
- "Quiche de jamón y queso":[["Masa quebrada",0.25,"ud","Panadería"],["Huevos",1.5,"ud","Lácteos y huevos"],["Nata para cocinar",60,"ml","Lácteos y huevos"],["Jamón cocido",50,"g","Carne y pescado"],["Queso rallado",30,"g","Lácteos y huevos"]],
- "Bacalao con tomate":[["Bacalao",180,"g","Carne y pescado"],["Tomate triturado",120,"g","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Patatas",150,"g","Fruta y verdura"]],
- "Burrito vegetal":[["Tortillas de trigo",2,"ud","Panadería"],["Alubias negras",120,"g","Despensa"],["Maíz dulce",50,"g","Despensa"],["Arroz",50,"g","Despensa"],["Aguacate",0.5,"ud","Fruta y verdura"]],
- "Solomillo con champiñones":[["Solomillo de cerdo",180,"g","Carne y pescado"],["Champiñones",100,"g","Fruta y verdura"],["Nata para cocinar",50,"ml","Lácteos y huevos"],["Patatas",150,"g","Fruta y verdura"]],
- "Ramen casero":[["Fideos ramen",90,"g","Despensa"],["Caldo de pollo",400,"ml","Despensa"],["Huevos",1,"ud","Lácteos y huevos"],["Cebolleta",0.5,"ud","Fruta y verdura"],["Pechuga de pollo",100,"g","Carne y pescado"]]
-};
-const FREE=Object.keys(R);
-if(window.PRO)Object.assign(R,RPRO);
-const names=Object.keys(R);
-let plan,checked={};
-try{plan=JSON.parse(localStorage.getItem('menu-plan')||'null');checked=JSON.parse(localStorage.getItem('menu-check')||'{}')}catch(e){}
-if(!Array.isArray(plan)||plan.length!==14)plan=["Espaguetis a la boloñesa","Crema de calabaza","Pollo al horno con patatas","Tortilla de patatas","Lentejas con verduras","Ensalada César","Salmón con arroz","Tostadas con aguacate y huevo","Garbanzos con espinacas","Pizza casera","Tacos de carne","",  "Wok de pollo y fideos",""];
-plan=plan.map(x=>x&&R[x]?x:'');
-function save(){try{localStorage.setItem('menu-plan',JSON.stringify(plan));localStorage.setItem('menu-check',JSON.stringify(checked))}catch(e){}}
-const opts=sel=>'<option value="">— Nada —</option>'+`<optgroup label="Recetas">`+FREE.map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('')+'</optgroup>'+`<optgroup label="${window.PRO?'Recetas Pro':'Recetas Pro (bloqueadas)'}">`+Object.keys(RPRO).map(n=>`<option ${n===sel?'selected':''} ${window.PRO?'':'disabled'}>${n}</option>`).join('')+'</optgroup>';
+const USES=[
+ [['Comprar una vez a la semana','Faire les courses une fois par semaine','Shop once a week','Fare la spesa una volta a settimana','Fazer compras uma vez por semana'],['Vas al súper con la lista hecha y no se te olvida nada.','Vous partez avec la liste prête et n’oubliez rien.','Go with your list ready and forget nothing.','Vai con la lista pronta e non dimentichi nulla.','Vai com a lista feita e não se esquece de nada.']],
+ [['Gastar menos en comida','Dépenser moins en nourriture','Spend less on food','Spendere meno per il cibo','Gastar menos em comida'],['Compras solo lo que vas a cocinar y tiras menos.','Vous achetez juste ce que vous cuisinez et gaspillez moins.','Buy only what you’ll cook and waste less.','Compri solo ciò che cucini e sprechi meno.','Compra só o que vai cozinhar e desperdiça menos.']],
+ [['Batch cooking','Batch cooking','Batch cooking','Batch cooking','Batch cooking'],['Cocina el domingo y deja hecha la semana.','Cuisinez le dimanche pour toute la semaine.','Cook on Sunday for the whole week.','Cucina la domenica per tutta la settimana.','Cozinhe ao domingo para a semana toda.']],
+ [['Familias','Familles','Families','Famiglie','Famílias'],['Las cantidades se ajustan solas a las personas.','Les quantités s’adaptent au nombre de personnes.','Quantities adjust to the number of people.','Le quantità si adattano alle persone.','As quantidades ajustam-se às pessoas.']],
+ [['Estudiantes y pisos','Étudiants et colocs','Students and flatshares','Studenti e coinquilini','Estudantes e casas partilhadas'],['Ideas fáciles y baratas para no comer siempre lo mismo.','Des idées simples et pas chères pour varier.','Easy, cheap ideas so you don’t eat the same thing.','Idee facili ed economiche per variare.','Ideias fáceis e baratas para variar.']],
+ [['Cuando no tienes ideas','Quand vous manquez d’idées','When you’re out of ideas','Quando non hai idee','Quando não tem ideias'],['Pulsa "Sorpréndeme" y la app decide por ti.','Touchez "Surprenez-moi" et l’appli choisit.','Tap "Surprise me" and the app decides.','Tocca "Sorprendimi" e decide l’app.','Toque em "Surpreenda-me" e a app decide.']]
+];
+const AMZ=[
+ {name:['Táperes de cristal','Boîtes en verre','Glass meal-prep boxes','Contenitori in vetro','Caixas de vidro'],desc:['Cocina el domingo y guarda las comidas de la semana.','Cuisinez le dimanche et rangez les repas de la semaine.','Cook on Sunday and store the week’s meals.','Cucina la domenica e conserva i pasti.','Cozinhe ao domingo e guarde as refeições.'],q:'tapers cristal hermeticos set',hot:true},
+ {name:['Freidora de aire','Friteuse à air','Air fryer','Friggitrice ad aria','Air fryer'],desc:['Rápida, con poco aceite y menos luz que el horno.','Rapide, peu d’huile et moins d’électricité que le four.','Fast, little oil and less power than the oven.','Veloce, poco olio e meno energia del forno.','Rápida, pouco óleo e menos luz que o forno.'],q:'freidora de aire'},
+ {name:['Báscula de cocina','Balance de cuisine','Kitchen scale','Bilancia da cucina','Balança de cozinha'],desc:['Sigue las cantidades al gramo.','Suivez les quantités au gramme près.','Follow quantities to the gram.','Segui le dosi al grammo.','Siga as quantidades ao grama.'],q:'bascula cocina digital'},
+ {name:['Bolsas de compra plegables','Sacs de courses pliables','Foldable shopping bags','Borse spesa pieghevoli','Sacos de compras dobráveis'],desc:['Caben en el bolsillo y aguantan peso.','Tiennent dans la poche et sont solides.','Fit in your pocket and hold weight.','Stanno in tasca e reggono il peso.','Cabem no bolso e aguentam peso.'],q:'bolsas compra reutilizables plegables'},
+ {name:['Set de cuchillos','Set de couteaux','Knife set','Set di coltelli','Conjunto de facas'],desc:['Cortar bien hace que cocinar sea el doble de rápido.','Bien couper rend la cuisine deux fois plus rapide.','Good knives make cooking twice as fast.','Tagliare bene dimezza i tempi.','Cortar bem torna a cozinha duas vezes mais rápida.'],q:'set cuchillos cocina'}
+];
+
+applyI18n(D);
+const FREE=Object.keys(R).filter(k=>!R[k][2]),PRO_R=Object.keys(R).filter(k=>R[k][2]);
+const usable=k=>R[k]&&(!R[k][2]||window.PRO);
+let plan=null,checked={};
+try{plan=JSON.parse(localStorage.getItem('qc-plan')||'null');checked=JSON.parse(localStorage.getItem('qc-check')||'{}')}catch(e){}
+if(!Array.isArray(plan)||plan.length!==14)plan=['bolo','pumpkin','chick','tortilla','lentils','caesar','salmon','toast','chickpeas','pizza','tacos','','wok',''];
+plan=plan.map(k=>usable(k)?k:'');
+try{const p=localStorage.getItem('qc-ppl');if(p)document.getElementById('ppl').value=p}catch(e){}
+function save(){try{localStorage.setItem('qc-plan',JSON.stringify(plan));localStorage.setItem('qc-check',JSON.stringify(checked));localStorage.setItem('qc-ppl',document.getElementById('ppl').value)}catch(e){}}
+const rn=k=>T(R[k][0]);
+const opts=sel=>`<option value="">${t('none')}</option><optgroup label="${t('recipes')}">`+FREE.map(k=>`<option value="${k}"${k===sel?' selected':''}>${esc(rn(k))}</option>`).join('')+`</optgroup><optgroup label="${window.PRO?t('proRecipes'):t('proLocked')}">`+PRO_R.map(k=>`<option value="${k}"${k===sel?' selected':''}${window.PRO?'':' disabled'}>${esc(rn(k))}</option>`).join('')+'</optgroup>';
 function renderWeek(){
-  document.getElementById('week').innerHTML=DAYS.map((d,i)=>`<div class="day"><h3>${d}</h3>
-   <label class="slot">Comida<select id="s${i*2}" data-k="${i*2}">${opts(plan[i*2])}</select></label>
-   <label class="slot">Cena<select id="s${i*2+1}" data-k="${i*2+1}">${opts(plan[i*2+1])}</select></label></div>`).join('');
+  const today=(new Date().getDay()+6)%7;
+  document.getElementById('week').innerHTML=DAYS.map((d,i)=>`<div class="day${i===today?' today':''}"><h3>${T(d)}</h3>
+   <label class="slot">${t('lunch')}<select id="s${i*2}" data-k="${i*2}">${opts(plan[i*2])}</select></label>
+   <label class="slot">${t('dinner')}<select id="s${i*2+1}" data-k="${i*2+1}">${opts(plan[i*2+1])}</select></label></div>`).join('');
   document.querySelectorAll('#week select').forEach(s=>s.onchange=()=>{plan[s.dataset.k]=s.value;save();renderList()});
 }
-function fmt(q,u){
-  if(u==='g'&&q>=1000)return (q/1000).toLocaleString('es-ES',{maximumFractionDigits:2})+' kg';
-  if(u==='ml'&&q>=1000)return (q/1000).toLocaleString('es-ES',{maximumFractionDigits:2})+' l';
-  if(u==='g'||u==='ml')return Math.ceil(q/10)*10+' '+u;
-  const n=Math.ceil(q*2)/2;return n.toLocaleString('es-ES')+' '+(u==='ud'?'':u+(n>1?'s':''));
+function fmtQ(q,u){
+  if(u==='g'){return q>=1000?fmtNum(q/1000,2)+' kg':Math.ceil(q/10)*10+' g'}
+  if(u==='ml'){return q>=1000?fmtNum(q/1000,2)+' l':Math.ceil(q/10)*10+' ml'}
+  const n=Math.ceil(q*2)/2;return fmtNum(n,1)+(u==='ud'?'':' '+T(UNIT[u]));
 }
-function list(){
-  const ppl=+document.getElementById('ppl').value,agg={};
-  plan.filter(Boolean).forEach(r=>R[r].forEach(([n,q,u,a])=>{const k=n+'|'+u;agg[k]=agg[k]||{n,u,a,q:0};agg[k].q+=q*ppl}));
-  return agg;
-}
+function agg(){const ppl=+document.getElementById('ppl').value,a={};
+  plan.filter(Boolean).forEach(r=>R[r][1].forEach(([id,q,u])=>{const k=id+'|'+u;a[k]=a[k]||{id,u,q:0};a[k].q+=q*ppl}));return a}
+const iname=id=>ING[id][1+LI]||ING[id][1];
 function renderList(){
-  const agg=list();
-  const by={};Object.values(agg).forEach(x=>(by[x.a]=by[x.a]||[]).push(x));
-  const total=Object.keys(agg).length,done=Object.keys(agg).filter(k=>checked[k]).length;
-  document.getElementById('count').textContent=total?`${done} de ${total} cogidos`:'';
-  document.getElementById('aisles').innerHTML=total?AISLES.filter(a=>by[a]).map(a=>`<div class="aisle"><h4>${a}</h4>${by[a].sort((x,y)=>x.n.localeCompare(y.n)).map(x=>{const k=x.n+'|'+x.u;return `<label class="it ${checked[k]?'done':''}"><input type="checkbox" data-k="${k}" ${checked[k]?'checked':''}><span>${x.n}</span><span class="q">${fmt(x.q,x.u)}</span></label>`}).join('')}</div>`).join(''):'<p class="count">Elige algún plato arriba y aquí aparecerá tu lista.</p>';
+  const a=agg(),by={};Object.entries(a).forEach(([k,x])=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push([k,x]));
+  const total=Object.keys(a).length,done=Object.keys(a).filter(k=>checked[k]).length;
+  document.getElementById('count').textContent=total?t('count',{d:done,t:total}):'';
+  document.getElementById('progbar').style.width=(total?done/total*100:0)+'%';
+  document.getElementById('aisles').innerHTML=total?AORD.filter(s=>by[s]).map(s=>`<div class="aisle"><h4>${T(AISLE[s])}</h4>${by[s].sort((x,y)=>iname(x[1].id).localeCompare(iname(y[1].id))).map(([k,x])=>`<label class="it${checked[k]?' done':''}"><input type="checkbox" data-k="${k}"${checked[k]?' checked':''}><span>${esc(iname(x.id))}</span><span class="q">${fmtQ(x.q,x.u)}</span></label>`).join('')}</div>`).join(''):`<p class="muted">${t('empty')}</p>`;
   document.querySelectorAll('#aisles input').forEach(c=>c.onchange=()=>{checked[c.dataset.k]=c.checked;save();renderList()});
 }
-document.getElementById('ppl').onchange=renderList;
-document.getElementById('rand').onclick=()=>{const pool=[...names].sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList()};
+document.getElementById('ppl').onchange=()=>{save();renderList()};
+document.getElementById('rand').onclick=()=>{const pool=Object.keys(R).filter(usable).sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList()};
 document.getElementById('clear').onclick=()=>{plan=Array(14).fill('');checked={};save();renderWeek();renderList()};
-document.getElementById('copy').onclick=async e=>{
-  const agg=list(),by={};Object.values(agg).forEach(x=>(by[x.a]=by[x.a]||[]).push(x));
-  const txt='Lista de la compra\n'+AISLES.filter(a=>by[a]).map(a=>'\n'+a.toUpperCase()+'\n'+by[a].map(x=>'- '+x.n+' ('+fmt(x.q,x.u).trim()+')').join('\n')).join('\n');
-  try{await navigator.clipboard.writeText(txt);e.target.textContent='Copiada'}catch(err){e.target.textContent='No se pudo copiar'}
-  setTimeout(()=>e.target.textContent='Copiar lista',2000)};
+document.getElementById('copy').onclick=async e=>{const b=e.currentTarget,a=agg(),by={};Object.values(a).forEach(x=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push(x));
+  const txt='🛒 '+t('listH')+'\n'+AORD.filter(s=>by[s]).map(s=>'\n'+T(AISLE[s])+'\n'+by[s].map(x=>'- '+iname(x.id)+' ('+fmtQ(x.q,x.u)+')').join('\n')).join('\n');
+  try{await navigator.clipboard.writeText(txt);b.textContent=t('copied')}catch(err){b.textContent=t('copyFail')}setTimeout(()=>b.textContent=t('copy'),2000)};
+document.getElementById('pro').innerHTML=window.PRO?'':proBanner(t('pro'));
+document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
+renderAmazon('amz',D.amzH,AMZ);
 renderWeek();renderList();
-
-document.getElementById('pro').innerHTML=window.PRO?'':window.proBanner('Desbloquea <b>14 recetas más</b>: paella, curry, poke bowl, lasaña, ramen… y "Sorpréndeme" las incluirá en tu menú.');
-
-// ===== Amazon: cocina y compra =====
-window.renderAmazon&&renderAmazon('amz','Para cocinar tu menú de la semana',[
-  {name:'Táperes de cristal',desc:'Cocina el domingo y guarda las comidas de toda la semana.',q:'tapers cristal hermeticos set',hot:true},
-  {name:'Freidora de aire',desc:'Cocina rápido, con poco aceite y gastando menos luz que el horno.',q:'freidora de aire'},
-  {name:'Báscula de cocina digital',desc:'Para seguir las cantidades de las recetas al gramo.',q:'bascula cocina digital'},
-  {name:'Bolsas de compra reutilizables',desc:'Plegables, caben en el bolsillo y aguantan peso.',q:'bolsas compra reutilizables plegables'},
-  {name:'Set de cuchillos de cocina',desc:'Cortar bien hace que cocinar sea el doble de rápido.',q:'set cuchillos cocina'},
-  {name:'Libro de recetas fáciles',desc:'Más ideas para tu menú semanal.',q:'libro recetas faciles rapidas'}
-]);
 </script>
-
 </body>
 </html>

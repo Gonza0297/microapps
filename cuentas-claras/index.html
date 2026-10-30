@@ -3,219 +3,204 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cuentas Claras</title>
 <meta name="description" content="Reparte gastos entre amigos y descubre quién debe a quién.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../ui.css">
+<script src="../i18n.js"></script>
+<script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
+<style>
+:root{--hero:#0b3b3c;--hero-ink:#fff;--accent:#19c2b3;--accent-ink:#06292a;--soft:#dff6f3}
+@media (prefers-color-scheme:dark){:root{--soft:#143534}}
+.tx{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;background:rgb(255 255 255 / .08);border-radius:14px;padding:12px}
+.tx .who{font-weight:800;font-size:17px;overflow-wrap:anywhere}
+.tx .who:last-child{text-align:right}
+.tx .arrow{display:grid;justify-items:center;font-size:12px;opacity:.9;font-weight:600}
+.tx .amt{font-family:var(--display);font-weight:800;font-size:22px;color:var(--accent);font-variant-numeric:tabular-nums}
+.ok{font-size:18px;font-weight:700;margin:0}
+.people{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:2px 2px 2px 14px;font-weight:700;min-height:44px}
+.pill small{font-variant-numeric:tabular-nums;font-weight:800}
+.pill .p{color:var(--ok)}.pill .m{color:var(--bad)}
+.inline{display:grid;grid-template-columns:1fr auto;gap:10px}
+.split{display:flex;flex-wrap:wrap;gap:8px}
+.split label{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px;font-weight:600;min-height:42px;cursor:pointer;color:var(--ink)}
+.split input{width:20px;height:20px;min-height:0;accent-color:var(--accent)}
+.exp{display:grid;grid-template-columns:1fr auto auto;gap:2px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.exp:last-child{border-bottom:none}
+.exp .d{font-weight:700;overflow-wrap:anywhere}
+.exp .meta{grid-column:1/2;font-size:13px;color:var(--muted)}
+.exp .v{font-weight:800;font-variant-numeric:tabular-nums}
+.gbar{display:grid;grid-template-columns:1fr auto;gap:10px}
+</style>
 </head>
 <body>
-<title>Cuentas Claras</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap">
-<style>
-/* Layout: arriba "quién paga a quién" (lo importante), debajo gastos y personas */
-:root{
-  --bg:#eef3f7;--surface:#ffffff;--ink:#14212b;--muted:#5d6d79;--line:#d6e0e8;
-  --accent:#0e7c86;--pos:#1d8a4e;--neg:#c2452f;--tint:#dff0f1;
-  --display:"Syne",system-ui,sans-serif;--body:"Manrope",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1419;--surface:#152028;--ink:#e3ecf2;--muted:#93a4b0;--line:#26343e;--accent:#4fc4cd;--pos:#5cd08f;--neg:#ff8a72;--tint:#12313a;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0d1419;--surface:#152028;--ink:#e3ecf2;--muted:#93a4b0;--line:#26343e;--accent:#4fc4cd;--pos:#5cd08f;--neg:#ff8a72;--tint:#12313a;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
-.wrap{max-width:720px;margin:0 auto;display:grid;gap:20px}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,44px);margin:0;line-height:1}
-h2{font-family:var(--display);font-size:18px;margin:0 0 10px}
-.sub{color:var(--muted);margin:6px 0 0}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
-.settle{background:var(--tint);border:none}
-.tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.tx:last-child{border-bottom:none}
-.tx .who{font-weight:700}
-.tx .arrow{color:var(--accent);font-weight:700}
-.tx .amt{margin-left:auto;font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
-.total{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-top:8px}
-.total b{color:var(--ink);font-variant-numeric:tabular-nums}
-.people{display:flex;flex-wrap:wrap;gap:8px}
-.pill{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px;font-weight:600}
-.pill small{font-variant-numeric:tabular-nums;font-weight:700}
-.pill small.p{color:var(--pos)} .pill small.n{color:var(--neg)}
-.pill button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
-.inline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
-.inline input{flex:1}
-button.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--surface);border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
-.form{display:grid;gap:10px}
-.form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.form label{font-size:13px;color:var(--muted);display:grid;gap:4px}
-.split{display:flex;flex-wrap:wrap;gap:6px}
-.split label{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink);font-size:14px}
-.exp{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.exp:last-child{border-bottom:none}
-.exp .meta{grid-column:1/2;font-size:13px;color:var(--muted)}
-.exp .v{font-weight:700;font-variant-numeric:tabular-nums}
-.exp button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:18px}
-.empty{color:var(--muted)}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.gbar select{flex:1 1 160px}
-.glbl{font-weight:700}
-button.ghost{font:inherit;font-size:14px;font-weight:600;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
-#groupPro:not(:empty){margin-top:10px}
-.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
-.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
-.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
-.uses h2{font-size:20px;margin:0 0 10px}
-.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
-.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
-footer{color:var(--muted);font-size:13px;text-align:center}
-</style>
-
-<div class="wrap">
-  <header>
-    <h1>Cuentas Claras</h1>
-    <p class="sub">Apunta quién pagó qué en el viaje o en el piso. La app te dice quién debe a quién, con el mínimo de pagos.</p>
-  </header>
-  <details class="howto" open><summary>¿Cómo funciona Cuentas Claras?</summary><ol><li>Añade a las personas del grupo (amigos de viaje, compañeros de piso…).</li><li>Apunta cada gasto: qué fue, cuánto costó, quién pagó y entre quiénes se reparte.</li><li>La app calcula el saldo de cada uno: en verde quien debe recibir, en rojo quien debe pagar.</li><li>En "Para quedar en paz" te dice quién paga a quién, con el mínimo de transferencias.</li></ol><ul class="feat"><li>Gastos repartidos entre todos o solo entre algunos</li><li>Saldo de cada persona</li><li>Mínimo número de pagos</li><li>Sin registro: todo se guarda en tu móvil</li><li>Pro: varios grupos y copiar resumen para WhatsApp</li></ul></details>
-
-
-  <section class="card groups">
-    <div class="gbar">
-      <label for="groupSel" class="glbl">Grupo</label>
-      <select id="groupSel"></select>
-      <button type="button" class="ghost" id="renameBtn">Renombrar</button>
-      <button type="button" class="ghost" id="newGroupBtn">+ Nuevo grupo</button>
-      <button type="button" class="ghost" id="exportBtn">Copiar resumen</button>
+<header class="top"><a href="../" data-i18n="back">← Apps Útiles</a><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5M14 15.5c.9-.4 1.9-.6 3-.6 2.3 0 4 1.7 4 4.6"/></svg></div>
+      <h1>Cuentas Claras</h1>
     </div>
-    <form class="inline" id="renameForm" hidden><input id="renameInput" aria-label="Nombre del grupo"><button class="btn">Guardar</button></form>
+    <p class="tagline" data-i18n="tagline">Quién pagó qué y quién debe a quién.</p>
+    <ol class="steps">
+      <li><b>1</b><span data-i18n="s1">Añade a las personas</span></li>
+      <li><b>2</b><span data-i18n="s2">Apunta cada gasto</span></li>
+      <li><b>3</b><span data-i18n="s3">Mira quién paga a quién</span></li>
+    </ol>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="card">
+    <div class="gbar"><select id="groupSel" data-i18n-aria="group"></select><button class="btn small ghost" id="newGroup" data-i18n="newGroup">+ Nuevo grupo</button></div>
+    <div class="row"><button class="btn small ghost" id="rename" data-i18n="rename">Renombrar</button><button class="btn small ghost" id="exportBtn" data-i18n="copySum">Copiar resumen</button></div>
+    <form class="inline" id="renameForm" hidden><input id="renameInput" data-i18n-aria="rename"><button class="btn small" data-i18n="save">Guardar</button></form>
     <div id="groupPro" aria-live="polite"></div>
   </section>
 
-  <section class="card settle" aria-live="polite">
-    <h2>Para quedar en paz</h2>
-    <div id="settle"></div>
-    <div class="total" id="totals"></div>
+  <section class="card result" aria-live="polite">
+    <span class="lbl" data-i18n="settleH">Para quedar en paz</span>
+    <div id="settle" style="display:grid;gap:8px"></div>
+    <div class="stats" id="totals"></div>
   </section>
 
   <section class="card">
-    <h2>Personas</h2>
+    <h2><span class="n">1</span><span data-i18n="peopleH">Personas</span></h2>
     <div class="people" id="people"></div>
-    <form class="inline" id="personForm"><input id="personName" placeholder="Nombre" aria-label="Nombre"><button class="btn">Añadir</button></form>
+    <form class="inline" id="personForm"><input id="personName" data-i18n-ph="name" data-i18n-aria="name"><button class="btn" data-i18n="add">Añadir</button></form>
   </section>
 
   <section class="card">
-    <h2>Nuevo gasto</h2>
-    <form class="form" id="expForm">
-      <label>Concepto<input id="expDesc" placeholder="Ej.: Supermercado" required></label>
-      <div class="two">
-        <label>Importe (€)<input id="expAmt" type="number" step="0.01" min="0.01" required></label>
-        <label>Pagó<select id="expPayer"></select></label>
+    <h2><span class="n">2</span><span data-i18n="newExp">Nuevo gasto</span></h2>
+    <form id="expForm" style="display:grid;gap:12px">
+      <label class="f"><span data-i18n="concept">Concepto</span><input id="expDesc" required data-i18n-ph="conceptPh"></label>
+      <div class="grid2">
+        <label class="f"><span data-i18n="amount">Importe (€)</span><input id="expAmt" type="number" step="0.01" min="0.01" inputmode="decimal" required></label>
+        <label class="f"><span data-i18n="paid">Pagó</span><select id="expPayer"></select></label>
       </div>
-      <div><div style="font-size:13px;color:var(--muted);margin-bottom:4px">Entre quiénes se reparte</div><div class="split" id="expSplit"></div></div>
-      <button class="btn" style="justify-self:start">Guardar gasto</button>
+      <div class="f"><span data-i18n="between">Entre quiénes se reparte</span><div class="split" id="expSplit"></div></div>
+      <button class="btn" data-i18n="saveExp">Guardar gasto</button>
     </form>
   </section>
 
-  <section class="card">
-    <h2>Gastos</h2>
-    <div id="expenses"></div>
-  </section>
+  <section class="card"><h2 data-i18n="expH">Gastos</h2><div id="expenses"></div></section>
 
+  <section class="card"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
+  <section class="card" id="amz"></section>
+</main>
+<footer data-auto></footer>
 
-  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">✈️</i><b>Viajes con amigos</b><span>Hotel, gasolina, cenas… y al final un solo pago por persona.</span></div><div class="u"><i aria-hidden="true">🏠</i><b>Piso compartido</b><span>Alquiler, luz, internet y la compra del súper entre compañeros.</span></div><div class="u"><i aria-hidden="true">🎂</i><b>Regalos en grupo</b><span>Un regalo de cumpleaños o despedida entre muchos, sin perder la cuenta.</span></div><div class="u"><i aria-hidden="true">🍽️</i><b>Cenas y fiestas</b><span>Cuando cada uno pagó una ronda o una parte de la comida.</span></div><div class="u"><i aria-hidden="true">👫</i><b>En pareja</b><span>Lleva las cuentas comunes del mes sin discusiones.</span></div><div class="u"><i aria-hidden="true">⚽</i><b>Equipos y clubes</b><span>Pistas, material o el autobús del partido entre todo el equipo.</span></div></div></section>
-
-  <section id="amz"></section>
-
-  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
-</div>
-
-<script src="../pro.js"></script>
-<script src="../afiliados.js"></script>
 <script>
-const EXAMPLE={name:"Viaje a Lisboa (ejemplo)",people:["Ana","Luis","Marta","Gonzalo"],exp:[
- {d:"Alquiler apartamento (ejemplo)",a:480,p:"Ana",s:["Ana","Luis","Marta","Gonzalo"]},
- {d:"Gasolina (ejemplo)",a:96,p:"Luis",s:["Ana","Luis","Marta","Gonzalo"]},
- {d:"Cena del sábado (ejemplo)",a:124,p:"Gonzalo",s:["Ana","Luis","Gonzalo"]},
- {d:"Supermercado (ejemplo)",a:63.4,p:"Marta",s:["Ana","Luis","Marta","Gonzalo"]}]};
-let G;
+const D={
+ tagline:['Quién pagó qué y quién debe a quién.','Qui a payé quoi et qui doit combien à qui.','Who paid what and who owes whom.','Chi ha pagato cosa e chi deve a chi.','Quem pagou o quê e quem deve a quem.'],
+ s1:['Añade a las personas','Ajoutez les personnes','Add the people','Aggiungi le persone','Adicione as pessoas'],
+ s2:['Apunta cada gasto','Notez chaque dépense','Log each expense','Segna ogni spesa','Registe cada gasto'],
+ s3:['Mira quién paga a quién','Voyez qui rembourse qui','See who pays whom','Guarda chi paga chi','Veja quem paga a quem'],
+ group:['Grupo','Groupe','Group','Gruppo','Grupo'],
+ newGroup:['+ Nuevo grupo','+ Nouveau groupe','+ New group','+ Nuovo gruppo','+ Novo grupo'],
+ rename:['Renombrar','Renommer','Rename','Rinomina','Mudar nome'],
+ save:['Guardar','Enregistrer','Save','Salva','Guardar'],
+ copySum:['Copiar resumen','Copier le résumé','Copy summary','Copia riepilogo','Copiar resumo'],
+ copied:['Copiado ✓','Copié ✓','Copied ✓','Copiato ✓','Copiado ✓'],
+ copyFail:['No se pudo copiar','Copie impossible','Couldn’t copy','Impossibile copiare','Não foi possível copiar'],
+ proGroups:['Con Pro puedes tener <b>varios grupos</b> a la vez: el piso, el viaje, la cena…','Avec Pro, gérez <b>plusieurs groupes</b> : la coloc, le voyage, le resto…','With Pro you can keep <b>several groups</b>: the flat, the trip, the dinner…','Con Pro puoi avere <b>più gruppi</b>: la casa, il viaggio, la cena…','Com Pro pode ter <b>vários grupos</b>: a casa, a viagem, o jantar…'],
+ proCopy:['Con Pro puedes <b>copiar el resumen</b> y mandarlo por WhatsApp en un toque.','Avec Pro, <b>copiez le résumé</b> et envoyez-le sur WhatsApp en un geste.','With Pro you can <b>copy the summary</b> and send it on WhatsApp in one tap.','Con Pro puoi <b>copiare il riepilogo</b> e inviarlo su WhatsApp con un tocco.','Com Pro pode <b>copiar o resumo</b> e enviá-lo por WhatsApp num toque.'],
+ settleH:['Para quedar en paz','Pour être quittes','To settle up','Per essere pari','Para ficar quites'],
+ pays:['paga a','paie','pays','paga a','paga a'],
+ allOk:['✅ Todo cuadrado. Nadie debe nada.','✅ Tout est réglé. Personne ne doit rien.','✅ All square. Nobody owes anything.','✅ Tutto a posto. Nessuno deve niente.','✅ Tudo certo. Ninguém deve nada.'],
+ total:['Gasto total','Total dépensé','Total spent','Spesa totale','Gasto total'],
+ avg:['Media por persona','Moyenne par personne','Average per person','Media a persona','Média por pessoa'],
+ payments:['Pagos necesarios','Paiements nécessaires','Payments needed','Pagamenti necessari','Pagamentos necessários'],
+ peopleH:['Personas','Personnes','People','Persone','Pessoas'],
+ name:['Nombre','Prénom','Name','Nome','Nome'],
+ add:['Añadir','Ajouter','Add','Aggiungi','Adicionar'],
+ noPeople:['Añade a la primera persona.','Ajoutez la première personne.','Add the first person.','Aggiungi la prima persona.','Adicione a primeira pessoa.'],
+ remove:['Quitar','Retirer','Remove','Rimuovi','Remover'],
+ newExp:['Nuevo gasto','Nouvelle dépense','New expense','Nuova spesa','Novo gasto'],
+ concept:['Concepto','Description','What was it?','Descrizione','Descrição'],
+ conceptPh:['Ej.: Supermercado','Ex. : Courses','e.g. Groceries','Es.: Spesa','Ex.: Supermercado'],
+ amount:['Importe (€)','Montant (€)','Amount (€)','Importo (€)','Valor (€)'],
+ paid:['Pagó','Payé par','Paid by','Ha pagato','Pagou'],
+ between:['Entre quiénes se reparte','Partagé entre','Split between','Diviso tra','Dividido entre'],
+ saveExp:['Guardar gasto','Enregistrer la dépense','Save expense','Salva spesa','Guardar gasto'],
+ expH:['Gastos','Dépenses','Expenses','Spese','Gastos'],
+ noExp:['Aún no hay gastos.','Aucune dépense pour l’instant.','No expenses yet.','Ancora nessuna spesa.','Ainda não há gastos.'],
+ meta:['Pagó {p} · entre {s}','Payé par {p} · entre {s}','Paid by {p} · split {s}','Pagato da {p} · tra {s}','Pagou {p} · entre {s}'],
+ expense:['Gasto','Dépense','Expense','Spesa','Gasto'],
+ groupN:['Grupo {n}','Groupe {n}','Group {n}','Gruppo {n}','Grupo {n}'],
+ myGroup:['Mi grupo','Mon groupe','My group','Il mio gruppo','O meu grupo'],
+ sumTitle:['Para quedar en paz:','Pour être quittes :','To settle up:','Per essere pari:','Para ficar quites:'],
+ sumExp:['Gastos:','Dépenses :','Expenses:','Spese:','Gastos:'],
+ sumBy:['pagó','payé par','paid by','pagato da','pagou'],
+ usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ amzH:['Para tu próximo viaje en grupo','Pour votre prochain voyage entre amis','For your next group trip','Per il tuo prossimo viaggio di gruppo','Para a sua próxima viagem em grupo'],
+ locked:['(Pro)','(Pro)','(Pro)','(Pro)','(Pro)']
+};
+const t=(k,v)=>T(D[k],v);
+const EX={name:['Viaje a Lisboa (ejemplo)','Voyage à Lisbonne (exemple)','Lisbon trip (example)','Viaggio a Lisbona (esempio)','Viagem a Lisboa (exemplo)'],
+ exp:[[['Apartamento','Appartement','Apartment','Appartamento','Apartamento'],480,0,[0,1,2,3]],[['Gasolina','Essence','Fuel','Benzina','Gasolina'],96,1,[0,1,2,3]],[['Cena del sábado','Dîner du samedi','Saturday dinner','Cena del sabato','Jantar de sábado'],124,3,[0,1,3]],[['Supermercado','Courses','Groceries','Spesa','Supermercado'],63.4,2,[0,1,2,3]]]};
+const USES=[
+ [['Viajes con amigos','Voyages entre amis','Trips with friends','Viaggi con amici','Viagens com amigos'],['Hotel, gasolina, cenas… y al final un solo pago por persona.','Hôtel, essence, restos… et à la fin un seul virement chacun.','Hotel, fuel, dinners… and one payment each at the end.','Hotel, benzina, cene… e alla fine un solo pagamento a testa.','Hotel, gasolina, jantares… e no fim um só pagamento cada um.']],
+ [['Piso compartido','Colocation','Shared flat','Casa condivisa','Casa partilhada'],['Alquiler, luz, internet y la compra entre compañeros.','Loyer, électricité, internet et courses entre colocs.','Rent, bills, internet and groceries between flatmates.','Affitto, bollette, internet e spesa tra coinquilini.','Renda, luz, internet e compras entre colegas de casa.']],
+ [['Regalos en grupo','Cadeaux communs','Group gifts','Regali di gruppo','Presentes em grupo'],['Un regalo entre muchos sin perder la cuenta.','Un cadeau à plusieurs sans perdre le fil.','A gift from many without losing track.','Un regalo tra tanti senza perdere il conto.','Um presente entre muitos sem perder a conta.']],
+ [['Cenas y fiestas','Dîners et fêtes','Dinners and parties','Cene e feste','Jantares e festas'],['Cuando cada uno pagó una ronda o una parte.','Quand chacun a payé une tournée ou une partie.','When everyone paid a round or a part.','Quando ognuno ha pagato un giro o una parte.','Quando cada um pagou uma rodada ou uma parte.']],
+ [['En pareja','En couple','As a couple','In coppia','Em casal'],['Las cuentas comunes del mes, sin discusiones.','Les dépenses communes du mois, sans disputes.','Shared monthly costs, no arguments.','Le spese comuni del mese, senza litigi.','As contas comuns do mês, sem discussões.']],
+ [['Equipos y clubes','Équipes et clubs','Teams and clubs','Squadre e club','Equipas e clubes'],['Pistas, material o el autobús del partido.','Terrains, matériel ou le bus du match.','Pitches, kit or the bus to the game.','Campi, materiale o il pullman della partita.','Campos, material ou o autocarro do jogo.']]
+];
+const AMZ=[
+ {name:['Mochila de cabina 40x20x25','Sac cabine 40x20x25','40x20x25 cabin backpack','Zaino da cabina 40x20x25','Mochila de cabine 40x20x25'],desc:['Entra gratis como equipaje de mano en las low cost.','Accepté gratuitement en bagage cabine low cost.','Fits free as hand luggage on low-cost airlines.','Entra gratis come bagaglio a mano low cost.','Entra grátis como bagagem de mão nas low cost.'],q:'mochila cabina 40x20x25',hot:true},
+ {name:['Báscula de equipaje','Pèse-bagage','Luggage scale','Bilancia per bagagli','Balança de bagagem'],desc:['Evita pagar sobrepeso en el aeropuerto.','Évitez les suppléments à l’aéroport.','Avoid excess baggage fees.','Evita di pagare il sovrappeso.','Evite pagar excesso de peso.'],q:'bascula equipaje digital'},
+ {name:['Adaptador de viaje universal','Adaptateur de voyage universel','Universal travel adapter','Adattatore da viaggio universale','Adaptador de viagem universal'],desc:['Carga todo en cualquier país.','Rechargez tout dans n’importe quel pays.','Charge everything in any country.','Ricarica tutto in qualsiasi paese.','Carregue tudo em qualquer país.'],q:'adaptador viaje universal usb'},
+ {name:['Organizadores de maleta','Cubes de rangement','Packing cubes','Organizer da valigia','Organizadores de mala'],desc:['Cabe el doble y todo ordenado.','Deux fois plus de place, tout rangé.','Fit twice as much, all tidy.','Ci sta il doppio, tutto in ordine.','Cabe o dobro, tudo arrumado.'],q:'organizadores maleta cubos'},
+ {name:['Juegos de cartas para grupos','Jeux de cartes entre amis','Party card games','Giochi di carte di gruppo','Jogos de cartas para grupos'],desc:['Para las noches del viaje o del piso.','Pour les soirées en voyage ou en coloc.','For evenings on the trip or at home.','Per le serate in viaggio o in casa.','Para as noites da viagem ou de casa.'],q:'juego de cartas para grupos amigos'}
+];
+
+applyI18n(D);
+let G=null;
 try{G=JSON.parse(localStorage.getItem('cuentas-grupos')||'null')}catch(e){}
+function example(){const p=['Ana','Luis','Marta','Gonzalo'];return{name:T(EX.name),people:p,exp:EX.exp.map(e=>({d:T(e[0]),a:e[1],p:p[e[2]],s:e[3].map(i=>p[i])}))}}
 if(!G||!Array.isArray(G.groups)||!G.groups.length){
   let old=null;try{old=JSON.parse(localStorage.getItem('apartes')||'null')}catch(e){}
-  G={cur:0,groups:[old&&Array.isArray(old.people)?{name:"Mi grupo",people:old.people,exp:old.exp||[]}:EXAMPLE]};
+  G={cur:0,groups:[old&&Array.isArray(old.people)?{name:t('myGroup'),people:old.people,exp:old.exp||[]}:example()]};
 }
 if(!window.PRO)G.cur=0;
 let S=G.groups[G.cur]||G.groups[0];
-const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR'});
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function save(){try{localStorage.setItem('cuentas-grupos',JSON.stringify(G))}catch(e){}}
-function balances(){
-  const b={};S.people.forEach(p=>b[p]=0);
-  S.exp.forEach(e=>{const share=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=share})});
-  return b;
-}
-function settle(b){
-  const cred=[],deb=[];
-  Object.entries(b).forEach(([p,v])=>{v=Math.round(v*100)/100;if(v>0.004)cred.push([p,v]);else if(v<-0.004)deb.push([p,-v])});
-  cred.sort((a,b)=>b[1]-a[1]);deb.sort((a,b)=>b[1]-a[1]);
-  const out=[];let i=0,j=0;
-  while(i<deb.length&&j<cred.length){const m=Math.min(deb[i][1],cred[j][1]);out.push([deb[i][0],cred[j][0],m]);deb[i][1]-=m;cred[j][1]-=m;if(deb[i][1]<0.005)i++;if(cred[j][1]<0.005)j++}
-  return out;
-}
+function balances(){const b={};S.people.forEach(p=>b[p]=0);S.exp.forEach(e=>{const sh=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=sh})});return b}
+function settle(b){const cr=[],db=[];Object.entries(b).forEach(([p,v])=>{v=Math.round(v*100)/100;if(v>.004)cr.push([p,v]);else if(v<-.004)db.push([p,-v])});
+  cr.sort((a,b)=>b[1]-a[1]);db.sort((a,b)=>b[1]-a[1]);const out=[];let i=0,j=0;
+  while(i<db.length&&j<cr.length){const m=Math.min(db[i][1],cr[j][1]);out.push([db[i][0],cr[j][0],m]);db[i][1]-=m;cr[j][1]-=m;if(db[i][1]<.005)i++;if(cr[j][1]<.005)j++}return out}
 function render(){
-  const b=balances();
-  document.getElementById('people').innerHTML=S.people.map((p,i)=>{const v=b[p];return `<span class="pill">${esc(p)} <small class="${v>=0?'p':'n'}">${v>=0?'+':''}${eur(v)}</small><button data-i="${i}" aria-label="Quitar ${esc(p)}">×</button></span>`}).join('')||'<span class="empty">Añade a la primera persona.</span>';
-  document.querySelectorAll('#people button').forEach(bt=>bt.onclick=()=>{const p=S.people[bt.dataset.i];S.people.splice(bt.dataset.i,1);S.exp=S.exp.filter(e=>e.p!==p).map(e=>({...e,s:e.s.filter(x=>x!==p)})).filter(e=>e.s.length);save();render()});
-  const t=settle(b);
-  document.getElementById('settle').innerHTML=t.length?t.map(([f,to,m])=>`<div class="tx"><span class="who">${esc(f)}</span><span class="arrow">paga a →</span><span class="who">${esc(to)}</span><span class="amt">${eur(m)}</span></div>`).join(''):'<p class="empty">Todo cuadrado. Nadie debe nada.</p>';
-  const tot=S.exp.reduce((s,e)=>s+e.a,0);
-  document.getElementById('totals').innerHTML=`<span>Gasto total: <b>${eur(tot)}</b></span><span>Por persona (media): <b>${eur(S.people.length?tot/S.people.length:0)}</b></span><span>Pagos necesarios: <b>${t.length}</b></span>`;
+  const b=balances(),tr=settle(b),tot=S.exp.reduce((x,e)=>x+e.a,0);
+  document.getElementById('settle').innerHTML=tr.length?tr.map(([f,to,m])=>`<div class="tx"><span class="who">${esc(f)}</span><span class="arrow">${t('pays')} →<span class="amt">${fmtEUR(m)}</span></span><span class="who">${esc(to)}</span></div>`).join(''):`<p class="ok">${t('allOk')}</p>`;
+  document.getElementById('totals').innerHTML=`<div><span class="lbl">${t('total')}</span><b>${fmtEUR(tot)}</b></div><div><span class="lbl">${t('avg')}</span><b>${fmtEUR(S.people.length?tot/S.people.length:0)}</b></div><div><span class="lbl">${t('payments')}</span><b>${tr.length}</b></div>`;
+  document.getElementById('people').innerHTML=S.people.length?S.people.map((p,i)=>{const v=b[p];return `<span class="pill">${esc(p)} <small class="${v>=0?'p':'m'}">${v>=0?'+':''}${fmtEUR(v)}</small><button class="x" data-i="${i}" aria-label="${t('remove')} ${esc(p)}">×</button></span>`}).join(''):`<span class="muted">${t('noPeople')}</span>`;
+  document.querySelectorAll('#people .x').forEach(x=>x.onclick=()=>{const p=S.people[x.dataset.i];S.people.splice(x.dataset.i,1);S.exp=S.exp.filter(e=>e.p!==p).map(e=>Object.assign({},e,{s:e.s.filter(y=>y!==p)})).filter(e=>e.s.length);save();render()});
   document.getElementById('expPayer').innerHTML=S.people.map(p=>`<option>${esc(p)}</option>`).join('');
   document.getElementById('expSplit').innerHTML=S.people.map((p,i)=>`<label><input type="checkbox" id="sp${i}" value="${esc(p)}" checked>${esc(p)}</label>`).join('');
-  document.getElementById('expenses').innerHTML=S.exp.length?S.exp.map((e,i)=>`<div class="exp"><span>${esc(e.d)}</span><span class="v">${eur(e.a)}</span><button data-i="${i}" aria-label="Borrar gasto">×</button><span class="meta">Pagó ${esc(e.p)} · entre ${e.s.map(esc).join(', ')}</span></div>`).reverse().join(''):'<p class="empty">Aún no hay gastos.</p>';
-  document.querySelectorAll('#expenses button').forEach(bt=>bt.onclick=()=>{S.exp.splice(bt.dataset.i,1);save();render()});
+  document.getElementById('expenses').innerHTML=S.exp.length?S.exp.map((e,i)=>`<div class="exp"><span class="d">${esc(e.d)}</span><span class="v">${fmtEUR(e.a)}</span><button class="x" data-i="${i}" aria-label="${t('remove')}">×</button><span class="meta">${t('meta',{p:esc(e.p),s:e.s.map(esc).join(', ')})}</span></div>`).reverse().join(''):`<p class="muted">${t('noExp')}</p>`;
+  document.querySelectorAll('#expenses .x').forEach(x=>x.onclick=()=>{S.exp.splice(+x.dataset.i,1);save();render()});
+  renderGroups();
 }
-document.getElementById('personForm').onsubmit=e=>{e.preventDefault();const n=document.getElementById('personName').value.trim();if(n&&!S.people.includes(n)){S.people.push(n);save();render()}document.getElementById('personName').value=''};
-document.getElementById('expForm').onsubmit=e=>{e.preventDefault();
-  const s=[...document.querySelectorAll('#expSplit input:checked')].map(x=>x.value);
-  const a=parseFloat(document.getElementById('expAmt').value);
-  if(!s.length||!(a>0))return;
-  S.exp.push({d:document.getElementById('expDesc').value.trim()||'Gasto',a,p:document.getElementById('expPayer').value,s});
-  save();document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';render()};
-render();
-
-// ===== Grupos (Pro: varios grupos y exportar) =====
-function renderGroups(){
-  const sel=document.getElementById('groupSel');
-  sel.innerHTML=G.groups.map((g,i)=>`<option value="${i}" ${i===G.cur?'selected':''} ${!window.PRO&&i>0?'disabled':''}>${esc(g.name)}${!window.PRO&&i>0?' (Pro)':''}</option>`).join('');
-}
-function showPro(text){document.getElementById('groupPro').innerHTML=window.PRO?'':window.proBanner(text)}
-document.getElementById('groupSel').onchange=e=>{G.cur=+e.target.value;S=G.groups[G.cur];save();renderGroups();render()};
-document.getElementById('renameBtn').onclick=()=>{const f=document.getElementById('renameForm');f.hidden=!f.hidden;document.getElementById('renameInput').value=S.name;if(!f.hidden)document.getElementById('renameInput').focus()};
+function renderGroups(){document.getElementById('groupSel').innerHTML=G.groups.map((g,i)=>`<option value="${i}"${i===G.cur?' selected':''}${!window.PRO&&i>0?' disabled':''}>${esc(g.name)}${!window.PRO&&i>0?' '+t('locked'):''}</option>`).join('')}
+function showPro(k){document.getElementById('groupPro').innerHTML=window.PRO?'':proBanner(t(k))}
+document.getElementById('groupSel').onchange=e=>{G.cur=+e.target.value;S=G.groups[G.cur];save();render()};
+document.getElementById('rename').onclick=()=>{const f=document.getElementById('renameForm');f.hidden=!f.hidden;document.getElementById('renameInput').value=S.name;if(!f.hidden)document.getElementById('renameInput').focus()};
 document.getElementById('renameForm').onsubmit=e=>{e.preventDefault();const v=document.getElementById('renameInput').value.trim();if(v){S.name=v;save();renderGroups()}e.target.hidden=true};
-document.getElementById('newGroupBtn').onclick=()=>{
-  if(!window.PRO){showPro('Con Pro puedes tener <b>varios grupos</b> a la vez: el piso, el viaje, la cena de empresa…');return}
-  G.groups.push({name:'Grupo '+(G.groups.length+1),people:[],exp:[]});G.cur=G.groups.length-1;S=G.groups[G.cur];save();renderGroups();render();
-  document.getElementById('renameBtn').click();
-};
-document.getElementById('exportBtn').onclick=async e=>{
-  if(!window.PRO){showPro('Con Pro puedes <b>copiar el resumen</b> del grupo y mandarlo por WhatsApp en un toque.');return}
-  const b=balances(),t=settle(b),tot=S.exp.reduce((x,y)=>x+y.a,0);
-  const txt=`💸 ${S.name}\nGasto total: ${eur(tot)}\n\nPara quedar en paz:\n`+(t.length?t.map(([f,to,m])=>`• ${f} paga ${eur(m)} a ${to}`).join('\n'):'• Todo cuadrado')+`\n\nGastos:\n`+S.exp.map(x=>`• ${x.d}: ${eur(x.a)} (pagó ${x.p})`).join('\n')+`\n\nHecho con Cuentas Claras · gonza0297.github.io/microapps/cuentas-claras/`;
-  const btn=e.target;try{await navigator.clipboard.writeText(txt);btn.textContent='Copiado ✓'}catch(err){btn.textContent='No se pudo copiar'}
-  setTimeout(()=>btn.textContent='Copiar resumen',2000);
-};
-renderGroups();
-
-// ===== Amazon: viajes y piso compartido =====
-window.renderAmazon&&renderAmazon('amz','Para tu próximo viaje en grupo',[
-  {name:'Mochila de cabina 40x20x25',desc:'Entra gratis como equipaje de mano en las low cost.',q:'mochila cabina 40x20x25'},
-  {name:'Báscula de equipaje',desc:'Pesa la maleta en casa y evita pagar sobrepeso.',q:'bascula equipaje digital'},
-  {name:'Adaptador de viaje universal',desc:'Un solo enchufe para cargar todo en cualquier país.',q:'adaptador viaje universal usb'},
-  {name:'Neceser transparente para avión',desc:'Pasa el control de seguridad sin sacar nada.',q:'neceser transparente avion'},
-  {name:'Juegos de cartas para grupos',desc:'Para las noches del viaje o del piso.',q:'juego de cartas para grupos amigos'},
-  {name:'Organizadores de maleta',desc:'Cabe el doble de ropa y todo ordenado.',q:'organizadores maleta cubos'}
-]);
+document.getElementById('newGroup').onclick=()=>{if(!window.PRO){showPro('proGroups');return}G.groups.push({name:t('groupN',{n:G.groups.length+1}),people:[],exp:[]});G.cur=G.groups.length-1;S=G.groups[G.cur];save();render();document.getElementById('rename').click()};
+document.getElementById('exportBtn').onclick=async e=>{const btn=e.currentTarget;if(!window.PRO){showPro('proCopy');return}
+  const b=balances(),tr=settle(b),tot=S.exp.reduce((x,y)=>x+y.a,0);
+  const txt=`💸 ${S.name}\n${t('total')}: ${fmtEUR(tot)}\n\n${t('sumTitle')}\n`+(tr.length?tr.map(([f,to,m])=>`• ${f} ${t('pays')} ${to}: ${fmtEUR(m)}`).join('\n'):t('allOk'))+`\n\n${t('sumExp')}\n`+S.exp.map(x=>`• ${x.d}: ${fmtEUR(x.a)} (${t('sumBy')} ${x.p})`).join('\n')+`\n\nCuentas Claras · gonza0297.github.io/microapps/cuentas-claras/`;
+  try{await navigator.clipboard.writeText(txt);btn.textContent=t('copied')}catch(err){btn.textContent=t('copyFail')}setTimeout(()=>btn.textContent=t('copySum'),2000)};
+document.getElementById('personForm').onsubmit=e=>{e.preventDefault();const n=document.getElementById('personName').value.trim();if(n&&!S.people.includes(n)){S.people.push(n);save();render()}document.getElementById('personName').value=''};
+document.getElementById('expForm').onsubmit=e=>{e.preventDefault();const s=[...document.querySelectorAll('#expSplit input:checked')].map(x=>x.value);const a=parseFloat(String(document.getElementById('expAmt').value).replace(',','.'));
+  if(!s.length||!(a>0))return;S.exp.push({d:document.getElementById('expDesc').value.trim()||t('expense'),a,p:document.getElementById('expPayer').value,s});save();document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';render()};
+document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
+renderAmazon('amz',D.amzH,AMZ);
+render();
 </script>
-
 </body>
 </html>

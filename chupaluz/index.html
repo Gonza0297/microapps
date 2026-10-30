@@ -3,318 +3,309 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Descubre qué electrodoméstico se come tu factura de luz. Gratis.">
-</head>
-<body>
 <title>Chupaluz</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Figtree:wght@400;500;600&display=swap">
-<style>
-/* Layout: contador grande arriba (como un contador de luz), lista de aparatos debajo con barras de coste */
-:root{
-  --bg:#f3f5f2; --surface:#ffffff; --ink:#18221c; --muted:#5e6b63; --line:#d9dfd9;
-  --accent:#1f6b45; --volt:#f2c230; --bar:#2f8a5a; --warn:#c2412d;
-  --display:"Archivo","Arial Narrow",system-ui,sans-serif; --body:"Figtree",system-ui,sans-serif;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1512;--surface:#17201b;--ink:#e6ece7;--muted:#97a69d;--line:#2a362f;--accent:#6fd09c;--volt:#f2c230;--bar:#4fb37f;--warn:#ef7a63;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0f1512;--surface:#17201b;--ink:#e6ece7;--muted:#97a69d;--line:#2a362f;--accent:#6fd09c;--volt:#f2c230;--bar:#4fb37f;--warn:#ef7a63;color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
-.wrap{max-width:760px;margin:0 auto;display:grid;gap:24px}
-h1{font-family:var(--display);font-stretch:75%;font-weight:800;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;text-wrap:balance}
-.sub{color:var(--muted);margin:6px 0 0}
-.meter{background:var(--ink);color:var(--bg);border-radius:14px;padding:20px;display:grid;gap:14px}
-.meter .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
-.digits{font-family:var(--display);font-stretch:90%;font-weight:700;font-size:clamp(44px,12vw,72px);line-height:1;font-variant-numeric:tabular-nums;color:var(--volt)}
-.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.row3 b{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
-.price{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.price input{width:90px}
-input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.list{display:grid;gap:10px}
-.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
-.item .top{display:flex;gap:8px;align-items:center}
-.item .top input.name{flex:1;font-weight:600}
-.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.fields label{font-size:12px;color:var(--muted);display:grid;gap:2px}
-.fields input{width:100%}
-.barline{display:flex;align-items:center;gap:10px}
-.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--bar)}
-.item.top1 .bar i{background:var(--warn)}
-.cost{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}
-button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 12px}
-.del{border:none;background:none;color:var(--muted);font-size:20px;padding:4px 8px}
-.add{display:flex;flex-wrap:wrap;gap:8px}
-.add select{flex:1;min-width:0}
-.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
-.tip{background:var(--surface);border-left:4px solid var(--volt);border-radius:8px;padding:12px 14px}
-.report{display:grid;gap:10px}
-.report .msg{font-size:13px;color:var(--muted)}
-.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
-.howto summary{cursor:pointer;font-weight:700}
-.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
-.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
-.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
-.led{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px}
-.led h2{font-family:var(--display);font-stretch:80%;font-size:26px;margin:0}
-.led .calc{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.led .calc label{font-size:12px;color:var(--muted);display:grid;gap:3px}
-.led .calc input,.led .calc select{width:100%}
-.led .res{background:var(--ink);color:var(--bg);border-radius:12px;padding:14px;display:grid;gap:4px}
-.led .res b{font-family:var(--display);font-size:34px;color:var(--volt);font-variant-numeric:tabular-nums}
-.led table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.led th,.led td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
-.led th{font-size:12px;color:var(--muted);font-weight:600}
-.led .tw{overflow-x:auto}
-.lamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
-.lamp{display:grid;gap:4px;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0}
-.lamp:hover,.lamp:focus-visible{border-color:#ff9900;outline:none}
-.lamp small{color:var(--muted)}
-.lamp i{font-style:normal;font-weight:700;font-size:13px;color:#c45500}
-.lamp .w{font-size:12px;font-weight:700;color:var(--accent)}
-@media (max-width:480px){.led .calc{grid-template-columns:1fr 1fr}}
-.uses h2{font-size:20px;margin:0 0 10px}
-.uses .ug{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.uses .u{border:1px solid var(--line,#ddd);border-radius:12px;padding:12px;display:grid;gap:4px;align-content:start;background:var(--surface,#fff)}
-.uses .u b{font-size:15px}.uses .u span{font-size:13px;opacity:.75}.uses .u i{font-style:normal;font-size:22px}
-footer{color:var(--muted);font-size:13px;text-align:center}
-@media (max-width:480px){.fields{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr}}
-</style>
-
-<div class="wrap">
-  <header>
-    <h1>Chupaluz</h1>
-    <p class="sub">¿Qué aparato se come tu factura? Apunta tus electrodomésticos y cuántas horas los usas, y descúbrelo.</p>
-  </header>
-  <details class="howto" open><summary>¿Cómo funciona Chupaluz?</summary><ol><li>Elige tus aparatos de la lista (o añade uno tuyo) y pon su potencia en vatios: viene en la etiqueta del aparato.</li><li>Indica cuántas horas al día y cuántos días a la semana lo usas.</li><li>Pon el precio de tu kWh (lo ves en tu factura; si no lo sabes, deja 0,35 €).</li><li>Chupaluz calcula al momento el gasto de cada aparato al mes y al año, y marca en rojo el que más consume.</li></ol><ul class="feat"><li>Gasto mensual y anual de cada aparato</li><li>Consumo total en kWh</li><li>Consejo de ahorro personalizado</li><li>Calculadora de ahorro al cambiar a bombillas LED</li><li>Pro: informe de ahorro en PDF</li></ul></details>
-
-
-  <section class="meter" aria-live="polite">
-    <div>
-      <div class="lbl">Tu gasto estimado al mes</div>
-      <div class="digits" id="total">0,00 €</div>
-    </div>
-    <div class="row3">
-      <div><span class="lbl">Al año</span><b id="year">0 €</b></div>
-      <div><span class="lbl">Consumo/mes</span><b id="kwh">0 kWh</b></div>
-      <div><span class="lbl">El que más gasta</span><b id="top">—</b></div>
-    </div>
-    <div class="price">
-      <label for="price" class="lbl">Precio del kWh</label>
-      <input id="price" type="number" step="0.01" min="0" value="0.35"> <span>€/kWh</span>
-    </div>
-  </section>
-
-  <div class="tip" id="tip"></div>
-
-  <section class="list" id="list"></section>
-
-  <div class="add">
-    <select id="preset" aria-label="Añadir aparato"></select>
-    <button class="primary" id="addBtn">Añadir aparato</button>
-  </div>
-
-  <section class="report" id="report"></section>
-
-  <section class="led" id="led"></section>
-
-
-  <section class="uses"><h2>¿Para qué te sirve?</h2><div class="ug"><div class="u"><i aria-hidden="true">🧾</i><b>Entender tu factura</b><span>Descubre por qué pagas tanto y qué aparato tiene la culpa.</span></div><div class="u"><i aria-hidden="true">🏠</i><b>Antes de mudarte</b><span>Calcula cuánto gastarás de luz en tu nuevo piso con tus aparatos.</span></div><div class="u"><i aria-hidden="true">🛒</i><b>Antes de comprar un aparato</b><span>Compara lo que gasta una secadora, un radiador o un aire acondicionado antes de comprarlo.</span></div><div class="u"><i aria-hidden="true">💡</i><b>Cambiar a LED</b><span>Calcula cuánto ahorras cambiando tus bombillas y cuáles comprar.</span></div><div class="u"><i aria-hidden="true">👥</i><b>Piso compartido</b><span>Reparte la luz de forma justa: quien usa el radiador eléctrico gasta más.</span></div><div class="u"><i aria-hidden="true">🔌</i><b>Teletrabajo</b><span>Mira cuánto te cuesta trabajar desde casa con el ordenador y la calefacción.</span></div><div class="u"><i aria-hidden="true">🚗</i><b>Coche eléctrico</b><span>Calcula cuánto te cuesta cargarlo en casa al mes.</span></div><div class="u"><i aria-hidden="true">⏰</i><b>Cambiar de tarifa</b><span>Prueba distintos precios del kWh y comprueba si te conviene otra compañía.</span></div></div></section>
-
-  <section id="amz"></section>
-
-  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a> · Estimación orientativa: el consumo real depende del modelo y del uso.</footer>
-</div>
-
+<meta name="description" content="Descubre qué aparato se come tu factura de luz. Gratis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="../ui.css">
+<script src="../i18n.js"></script>
 <script src="../pro.js"></script>
 <script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--hero:#16181f;--hero-ink:#fff;--accent:#ffcc1f;--accent-ink:#16181f;--soft:#fff6d6}
+@media (prefers-color-scheme:dark){:root{--soft:#2d2716}}
+.ap{border:1px solid var(--line);border-radius:16px;padding:12px;display:grid;gap:10px;background:var(--bg)}
+.ap.top1{border:2px solid var(--bad)}
+.ap-h{display:flex;gap:8px;align-items:center}
+.ap-h input{font-weight:700;flex:1}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;flex:1;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
+.ap.top1 .bar i{background:var(--bad)}
+.cost{font-family:var(--display);font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.badge{font-size:12px;font-weight:800;color:#fff;background:var(--bad);border-radius:999px;padding:2px 10px}
+.addrow{display:grid;grid-template-columns:1fr auto;gap:10px}
+.saveled{background:var(--hero);color:var(--hero-ink);border-radius:16px;padding:16px;display:grid;gap:4px}
+.saveled b{font-family:var(--display);font-size:42px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.price{display:grid;grid-template-columns:1fr 120px;gap:10px;align-items:center;font-weight:600}
+.price small{grid-column:1/-1;opacity:.7;font-weight:400}
+</style>
+</head>
+<body>
+<header class="top"><a href="../" data-i18n="back">← Apps Útiles</a><select class="lang"></select></header>
+<section class="hero">
+  <div class="hero-in">
+    <div class="brand">
+      <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 5 13.5h6l-1.5 8.5L19 10h-6z"/></svg></div>
+      <h1>Chupaluz</h1>
+    </div>
+    <p class="tagline" data-i18n="tagline">¿Qué aparato se come tu factura de luz?</p>
+    <ol class="steps">
+      <li><b>1</b><span data-i18n="s1">Añade tus aparatos</span></li>
+      <li><b>2</b><span data-i18n="s2">Pon las horas de uso</span></li>
+      <li><b>3</b><span data-i18n="s3">Mira cuánto pagas</span></li>
+    </ol>
+  </div>
+</section>
+
+<main class="wrap">
+  <section class="card result" aria-live="polite">
+    <span class="lbl" data-i18n="monthLbl">Tu gasto estimado al mes</span>
+    <div class="big" id="total">0 €</div>
+    <div class="stats">
+      <div><span class="lbl" data-i18n="yearLbl">Al año</span><b id="year">0 €</b></div>
+      <div><span class="lbl" data-i18n="kwhLbl">Consumo/mes</span><b id="kwh">0 kWh</b></div>
+      <div><span class="lbl" data-i18n="topLbl">El que más gasta</span><b id="top">—</b></div>
+    </div>
+    <label class="price"><span data-i18n="priceLbl">Precio del kWh (€)</span><input id="price" type="number" step="0.01" min="0" inputmode="decimal"><small data-i18n="priceHelp">Lo encuentras en tu factura.</small></label>
+  </section>
+
+  <section class="tip" id="tip" aria-live="polite"></section>
+
+  <section class="card">
+    <h2><span class="n">1</span><span data-i18n="listH">Tus aparatos</span></h2>
+    <p class="help" data-i18n="listHelp">Toca un número para cambiarlo.</p>
+    <div id="list" style="display:grid;gap:10px"></div>
+    <div class="addrow"><select id="preset" data-i18n-aria="addBtn"></select><button class="btn" id="addBtn" data-i18n="addBtn">Añadir</button></div>
+  </section>
+
+  <section class="card" id="led"></section>
+
+  <section id="report"></section>
+
+  <section class="card"><h2 data-i18n="usesH">¿Para qué te sirve?</h2><div class="uses" id="uses"></div></section>
+
+  <section class="card" id="amz"></section>
+</main>
+<footer data-auto data-note="note"></footer>
+
 <script>
-const PRESETS=[
- ["Frigorífico",150,10,7],["Congelador",120,10,7],["Lavadora",500,1,4],["Secadora",2500,1,3],["Lavavajillas",1200,1.5,5],
- ["Horno eléctrico",2200,0.7,3],["Placa de inducción",2000,1,7],["Microondas",1000,0.2,7],["Hervidor",2000,0.15,7],
- ["Cafetera",1000,0.2,7],["Televisor",100,4,7],["Ordenador de sobremesa",250,4,5],["Portátil",60,4,7],["Consola",150,2,5],
- ["Radiador eléctrico",2000,4,7],["Aire acondicionado",1200,4,7],["Termo eléctrico",2000,3,7],["Bombilla LED",9,5,7],
- ["Bombilla antigua",60,5,7],["Secador de pelo",1800,0.2,7],["Router wifi",10,24,7],["Cargador de coche eléctrico",7400,2,3]
+const D={
+ tagline:['¿Qué aparato se come tu factura de luz?','Quel appareil fait exploser votre facture d’électricité ?','Which appliance is eating your electricity bill?','Quale elettrodomestico si mangia la tua bolletta?','Que aparelho está a comer a sua fatura da luz?'],
+ s1:['Añade tus aparatos','Ajoutez vos appareils','Add your appliances','Aggiungi i tuoi apparecchi','Adicione os seus aparelhos'],
+ s2:['Pon las horas de uso','Indiquez les heures d’utilisation','Set the hours of use','Indica le ore di utilizzo','Indique as horas de uso'],
+ s3:['Mira cuánto pagas','Voyez combien vous payez','See what you pay','Scopri quanto paghi','Veja quanto paga'],
+ monthLbl:['Tu gasto estimado al mes','Votre dépense estimée par mois','Your estimated monthly cost','La tua spesa stimata al mese','O seu gasto estimado por mês'],
+ yearLbl:['Al año','Par an','Per year','All’anno','Por ano'],
+ kwhLbl:['Consumo/mes','Conso./mois','Usage/month','Consumo/mese','Consumo/mês'],
+ topLbl:['El que más gasta','Le plus gourmand','Biggest consumer','Il più energivoro','O que mais gasta'],
+ priceLbl:['Precio del kWh (€)','Prix du kWh (€)','Price per kWh (€)','Prezzo del kWh (€)','Preço do kWh (€)'],
+ priceHelp:['Lo encuentras en tu factura. Si no lo sabes, deja 0,35.','Il figure sur votre facture. Sinon, laissez 0,35.','It’s on your bill. If unsure, keep 0.35.','Lo trovi in bolletta. Se non lo sai, lascia 0,35.','Está na sua fatura. Se não souber, deixe 0,35.'],
+ listH:['Tus aparatos','Vos appareils','Your appliances','I tuoi apparecchi','Os seus aparelhos'],
+ listHelp:['Toca un número para cambiarlo. La potencia (W) viene en la etiqueta del aparato.','Touchez un chiffre pour le modifier. La puissance (W) figure sur l’étiquette de l’appareil.','Tap a number to change it. The power (W) is on the appliance label.','Tocca un numero per modificarlo. La potenza (W) è sull’etichetta dell’apparecchio.','Toque num número para o alterar. A potência (W) vem na etiqueta do aparelho.'],
+ fW:['Potencia (W)','Puissance (W)','Power (W)','Potenza (W)','Potência (W)'],
+ fH:['Horas/día','Heures/jour','Hours/day','Ore/giorno','Horas/dia'],
+ fD:['Días/semana','Jours/semaine','Days/week','Giorni/sett.','Dias/semana'],
+ perMonth:['/mes','/mois','/month','/mese','/mês'],
+ addBtn:['Añadir','Ajouter','Add','Aggiungi','Adicionar'],
+ other:['Otro aparato…','Autre appareil…','Other appliance…','Altro apparecchio…','Outro aparelho…'],
+ myAp:['Mi aparato','Mon appareil','My appliance','Il mio apparecchio','O meu aparelho'],
+ remove:['Quitar','Retirer','Remove','Rimuovi','Remover'],
+ most:['El que más gasta','Le plus gourmand','Biggest consumer','Il più energivoro','O que mais gasta'],
+ share:['<b>{n}</b> es el {p}% de tu gasto.','<b>{n}</b> représente {p} % de votre facture.','<b>{n}</b> is {p}% of your bill.','<b>{n}</b> è il {p}% della tua spesa.','<b>{n}</b> representa {p}% do seu gasto.'],
+ canSave:['Ahorro posible: <b>{s} al año</b>.','Économie possible : <b>{s} par an</b>.','Possible saving: <b>{s} a year</b>.','Risparmio possibile: <b>{s} all’anno</b>.','Poupança possível: <b>{s} por ano</b>.'],
+ ledH:['¿Cuánto ahorras pasándote a LED?','Combien économisez-vous avec des LED ?','How much do you save with LED?','Quanto risparmi passando al LED?','Quanto poupa ao mudar para LED?'],
+ ledN:['Nº de bombillas','Nombre d’ampoules','Number of bulbs','N. di lampadine','N.º de lâmpadas'],
+ ledFrom:['Bombilla actual','Ampoule actuelle','Current bulb','Lampadina attuale','Lâmpada atual'],
+ ledSave:['Ahorro estimado al año','Économie estimée par an','Estimated yearly saving','Risparmio stimato all’anno','Poupança estimada por ano'],
+ ledDet:['Cambiando {n} bombillas de {a} W por LED de {b} W ({p}% menos consumo).','En remplaçant {n} ampoules de {a} W par des LED de {b} W ({p} % de consommation en moins).','Replacing {n} bulbs of {a} W with {b} W LEDs ({p}% less energy).','Sostituendo {n} lampadine da {a} W con LED da {b} W ({p}% di consumo in meno).','Trocando {n} lâmpadas de {a} W por LED de {b} W (menos {p}% de consumo).'],
+ thType:['Tipo','Type','Type','Tipo','Tipo'],thW:['Vatios','Watts','Watts','Watt','Watts'],thCost:['Coste/año*','Coût/an*','Cost/year*','Costo/anno*','Custo/ano*'],thLife:['Duración','Durée de vie','Lifespan','Durata','Duração'],
+ ledNote:['*Una bombilla encendida {h} h al día con tu precio del kWh.','*Une ampoule allumée {h} h par jour, à votre prix du kWh.','*One bulb on {h} h a day at your kWh price.','*Una lampadina accesa {h} h al giorno al tuo prezzo del kWh.','*Uma lâmpada acesa {h} h por dia ao seu preço do kWh.'],
+ b_inc:['Incandescente','Incandescente','Incandescent','Incandescenza','Incandescente'],b_hal:['Halógena','Halogène','Halogen','Alogena','Halogéneo'],b_cfl:['Bajo consumo','Fluocompacte','Energy-saving (CFL)','Basso consumo','Baixo consumo'],
+ reportBtn:['Descargar informe de ahorro (PDF)','Télécharger le rapport d’économies (PDF)','Download savings report (PDF)','Scarica il report di risparmio (PDF)','Descarregar relatório de poupança (PDF)'],
+ reportPro:['Consigue tu <b>informe de ahorro en PDF</b>: gasto de cada aparato, consejos y cuánto puedes ahorrar.','Obtenez votre <b>rapport d’économies en PDF</b> : coût de chaque appareil, conseils et économies possibles.','Get your <b>PDF savings report</b>: cost per appliance, tips and how much you can save.','Ottieni il tuo <b>report di risparmio in PDF</b>: costo di ogni apparecchio, consigli e risparmio possibile.','Obtenha o seu <b>relatório de poupança em PDF</b>: custo de cada aparelho, dicas e quanto pode poupar.'],
+ pdfDone:['Informe descargado.','Rapport téléchargé.','Report downloaded.','Report scaricato.','Relatório descarregado.'],
+ pdfErr:['No se pudo cargar el generador de PDF. Recarga la página.','Impossible de charger le générateur de PDF. Rechargez la page.','Could not load the PDF generator. Reload the page.','Impossibile caricare il generatore di PDF. Ricarica la pagina.','Não foi possível carregar o gerador de PDF. Recarregue a página.'],
+ usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ amzH:['Productos que te ayudan a pagar menos luz','Des produits pour payer moins d’électricité','Products that cut your electricity bill','Prodotti per pagare meno luce','Produtos que ajudam a pagar menos luz'],
+ note:['Estimación orientativa: el consumo real depende del modelo y del uso.','Estimation indicative : la consommation réelle dépend du modèle et de l’usage.','Rough estimate: real consumption depends on the model and how you use it.','Stima indicativa: il consumo reale dipende dal modello e dall’uso.','Estimativa indicativa: o consumo real depende do modelo e do uso.'],
+ pdfT:['CHUPALUZ · Informe de ahorro','CHUPALUZ · Rapport d’économies','CHUPALUZ · Savings report','CHUPALUZ · Report di risparmio','CHUPALUZ · Relatório de poupança'],
+ pdfH:['Tu factura de luz, aparato por aparato','Votre facture, appareil par appareil','Your bill, appliance by appliance','La tua bolletta, apparecchio per apparecchio','A sua fatura, aparelho a aparelho'],
+ pdfDate:['Fecha','Date','Date','Data','Data'],
+ pdfTot:['Gasto estimado: {m} al mes · {y} al año','Dépense estimée : {m} par mois · {y} par an','Estimated cost: {m} a month · {y} a year','Spesa stimata: {m} al mese · {y} all’anno','Gasto estimado: {m} por mês · {y} por ano'],
+ pdfCol:[['APARATO','kWh/MES','€/MES','% TOTAL'],['APPAREIL','kWh/MOIS','€/MOIS','% TOTAL'],['APPLIANCE','kWh/MONTH','€/MONTH','% TOTAL'],['APPARECCHIO','kWh/MESE','€/MESE','% TOTALE'],['APARELHO','kWh/MÊS','€/MÊS','% TOTAL']],
+ pdfTop3:['Tus 3 mejores oportunidades de ahorro','Vos 3 meilleures pistes d’économie','Your top 3 savings opportunities','Le tue 3 migliori occasioni di risparmio','As suas 3 melhores oportunidades de poupança'],
+ pdfLine:['ahorro posible: {s}/año','économie possible : {s}/an','possible saving: {s}/year','risparmio possibile: {s}/anno','poupança possível: {s}/ano'],
+ pdfAll:['Ahorro total estimado: {s} al año','Économie totale estimée : {s} par an','Total estimated saving: {s} a year','Risparmio totale stimato: {s} all’anno','Poupança total estimada: {s} por ano'],
+ pdfDisc:['Estimación orientativa basada en tus datos. Creado por Gonzalo Leon · gonza0297.github.io/microapps','Estimation indicative basée sur vos données. Créé par Gonzalo Leon · gonza0297.github.io/microapps','Rough estimate based on your data. Made by Gonzalo Leon · gonza0297.github.io/microapps','Stima indicativa basata sui tuoi dati. Creato da Gonzalo Leon · gonza0297.github.io/microapps','Estimativa indicativa com base nos seus dados. Criado por Gonzalo Leon · gonza0297.github.io/microapps']
+};
+const t=(k,v)=>T(D[k],v);
+
+// Aparatos: id, vatios, horas/día, días/semana, nombre
+const AP=[
+ ['fridge',150,10,7,['Frigorífico','Réfrigérateur','Fridge','Frigorifero','Frigorífico']],
+ ['freezer',120,10,7,['Congelador','Congélateur','Freezer','Congelatore','Congelador']],
+ ['washer',500,1,4,['Lavadora','Lave-linge','Washing machine','Lavatrice','Máquina de lavar roupa']],
+ ['dryer',2500,1,3,['Secadora','Sèche-linge','Tumble dryer','Asciugatrice','Máquina de secar roupa']],
+ ['dish',1200,1.5,5,['Lavavajillas','Lave-vaisselle','Dishwasher','Lavastoviglie','Máquina de lavar loiça']],
+ ['oven',2200,0.7,3,['Horno eléctrico','Four électrique','Electric oven','Forno elettrico','Forno elétrico']],
+ ['hob',2000,1,7,['Placa de inducción','Plaque à induction','Induction hob','Piano a induzione','Placa de indução']],
+ ['micro',1000,0.2,7,['Microondas','Micro-ondes','Microwave','Microonde','Micro-ondas']],
+ ['kettle',2000,0.15,7,['Hervidor de agua','Bouilloire','Kettle','Bollitore','Chaleira elétrica']],
+ ['coffee',1000,0.2,7,['Cafetera','Cafetière','Coffee machine','Macchina del caffè','Máquina de café']],
+ ['tv',100,4,7,['Televisor','Télévision','TV','Televisore','Televisão']],
+ ['pc',250,4,5,['Ordenador de sobremesa','Ordinateur fixe','Desktop computer','Computer fisso','Computador fixo']],
+ ['laptop',60,4,7,['Portátil','Ordinateur portable','Laptop','Portatile','Portátil']],
+ ['console',150,2,5,['Consola','Console de jeux','Games console','Console','Consola de jogos']],
+ ['heater',2000,4,7,['Radiador eléctrico','Radiateur électrique','Electric heater','Stufa elettrica','Aquecedor elétrico']],
+ ['ac',1200,4,7,['Aire acondicionado','Climatisation','Air conditioning','Condizionatore','Ar condicionado']],
+ ['boiler',2000,3,7,['Termo eléctrico','Chauffe-eau électrique','Electric water heater','Scaldabagno elettrico','Termoacumulador']],
+ ['led',9,5,7,['Bombilla LED','Ampoule LED','LED bulb','Lampadina LED','Lâmpada LED']],
+ ['oldbulb',60,5,7,['Bombilla antigua','Ampoule classique','Old light bulb','Lampadina tradizionale','Lâmpada antiga']],
+ ['hair',1800,0.2,7,['Secador de pelo','Sèche-cheveux','Hair dryer','Asciugacapelli','Secador de cabelo']],
+ ['router',10,24,7,['Router wifi','Box internet','Wi-Fi router','Router wifi','Router wi-fi']],
+ ['ev',7400,2,3,['Cargador de coche eléctrico','Borne de recharge voiture','EV charger','Wallbox auto elettrica','Carregador de carro elétrico']]
 ];
-const sel=document.getElementById('preset');
-PRESETS.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p[0]+' ('+p[1]+' W)';sel.appendChild(o)});
-const o=document.createElement('option');o.value='custom';o.textContent='Otro aparato…';sel.appendChild(o);
+const APN=Object.fromEntries(AP.map(a=>[a[0],a]));
+const TIPS={
+ dryer:[.5,['Tiende la ropa al aire cuando puedas y usa el programa con sensor de humedad.','Faites sécher le linge à l’air libre quand c’est possible et utilisez le programme avec capteur d’humidité.','Air-dry clothes when you can and use the moisture-sensor programme.','Stendi i panni all’aria quando puoi e usa il programma con sensore di umidità.','Seque a roupa ao ar sempre que puder e use o programa com sensor de humidade.']],
+ heater:[.15,['Baja 1 °C el termostato y programa la calefacción para no calentar habitaciones vacías.','Baissez le thermostat de 1 °C et programmez le chauffage pour ne pas chauffer les pièces vides.','Lower the thermostat by 1 °C and schedule the heating so empty rooms stay off.','Abbassa il termostato di 1 °C e programma il riscaldamento per non scaldare stanze vuote.','Baixe o termóstato 1 °C e programe o aquecimento para não aquecer divisões vazias.']],
+ boiler:[.25,['Ponle un temporizador para calentar solo en horas valle y baja la temperatura a 55 °C.','Ajoutez une minuterie pour chauffer en heures creuses et réglez l’eau à 55 °C.','Add a timer so it only heats off-peak, and set it to 55 °C.','Metti un timer per scaldare solo nelle ore economiche e imposta 55 °C.','Use um temporizador para aquecer só nas horas de vazio e regule para 55 °C.']],
+ ac:[.2,['Ajústalo a 25–26 °C y limpia los filtros cada mes.','Réglez-la sur 25–26 °C et nettoyez les filtres chaque mois.','Set it to 25–26 °C and clean the filters every month.','Impostalo a 25–26 °C e pulisci i filtri ogni mese.','Regule-o para 25–26 °C e limpe os filtros todos os meses.']],
+ oldbulb:[.85,['Cámbiala por LED: gasta un 85% menos y dura 15 veces más.','Remplacez-la par une LED : 85 % de consommation en moins et 15 fois plus de durée de vie.','Swap it for an LED: 85% less energy and it lasts 15 times longer.','Sostituiscila con un LED: consuma l’85% in meno e dura 15 volte di più.','Troque-a por LED: gasta menos 85% e dura 15 vezes mais.']],
+ cold:[.1,['Sepáralo 10 cm de la pared, revisa las gomas de la puerta y descongela si hay más de 3 mm de hielo.','Éloignez-le de 10 cm du mur, vérifiez les joints et dégivrez au-delà de 3 mm de glace.','Keep it 10 cm from the wall, check the door seals and defrost above 3 mm of ice.','Tienilo a 10 cm dal muro, controlla le guarnizioni e sbrina oltre 3 mm di ghiaccio.','Afaste-o 10 cm da parede, verifique as borrachas e descongele acima de 3 mm de gelo.']],
+ wash:[.3,['Usa programas eco a baja temperatura y ponla siempre llena.','Utilisez les programmes éco à basse température et lancez-la toujours pleine.','Use eco programmes at low temperature and always run full loads.','Usa i programmi eco a bassa temperatura e avviala sempre a pieno carico.','Use programas eco a baixa temperatura e ponha-a sempre cheia.']],
+ oven:[.15,['Apágalo 10 minutos antes y no abras la puerta mientras cocina.','Éteignez-le 10 minutes avant la fin et n’ouvrez pas la porte pendant la cuisson.','Switch it off 10 minutes early and keep the door shut while cooking.','Spegnilo 10 minuti prima e non aprire lo sportello durante la cottura.','Desligue-o 10 minutos antes e não abra a porta durante a cozedura.']],
+ standby:[.1,['Usa una regleta con interruptor para cortar el consumo en espera.','Utilisez une multiprise à interrupteur pour couper la veille.','Use a switched power strip to cut standby power.','Usa una ciabatta con interruttore per eliminare lo standby.','Use uma extensão com interruptor para cortar o consumo em standby.']],
+ ev:[.3,['Carga en horario valle si tu tarifa lo permite.','Rechargez en heures creuses si votre contrat le permet.','Charge off-peak if your tariff allows it.','Ricarica nelle fasce economiche se la tua tariffa lo prevede.','Carregue nas horas de vazio se o seu tarifário o permitir.']],
+ def:[.1,['Úsalo menos o compáralo con un modelo de clase energética A.','Utilisez-le moins ou comparez avec un modèle de classe A.','Use it less or compare with an A-rated model.','Usalo meno o confrontalo con un modello in classe A.','Use-o menos ou compare com um modelo de classe A.']]
+};
+const TIPMAP={dryer:'dryer',heater:'heater',boiler:'boiler',ac:'ac',oldbulb:'oldbulb',fridge:'cold',freezer:'cold',washer:'wash',dish:'wash',oven:'oven',tv:'standby',pc:'standby',console:'standby',router:'standby',ev:'ev'};
+const USES=[
+ [['Entender tu factura','Comprendre votre facture','Understand your bill','Capire la bolletta','Perceber a sua fatura'],['Descubre qué aparato tiene la culpa de que pagues tanto.','Découvrez quel appareil fait grimper la note.','Find out which appliance is to blame.','Scopri quale apparecchio ti fa pagare di più.','Descubra que aparelho tem a culpa.']],
+ [['Antes de comprar un aparato','Avant d’acheter un appareil','Before buying an appliance','Prima di comprare un elettrodomestico','Antes de comprar um aparelho'],['Compara lo que gastará una secadora, un radiador o un aire acondicionado.','Comparez la consommation d’un sèche-linge, d’un radiateur ou d’une clim.','Compare what a dryer, heater or air conditioner will cost.','Confronta quanto consumerà un’asciugatrice, una stufa o un condizionatore.','Compare quanto vai gastar uma máquina de secar, um aquecedor ou um ar condicionado.']],
+ [['Pasarte a LED','Passer aux LED','Switch to LED','Passare al LED','Mudar para LED'],['Calcula cuánto ahorras cambiando tus bombillas y cuáles comprar.','Calculez vos économies en changeant vos ampoules et lesquelles acheter.','Work out how much new bulbs save you and which to buy.','Calcola quanto risparmi cambiando lampadine e quali comprare.','Calcule quanto poupa a trocar as lâmpadas e quais comprar.']],
+ [['Piso compartido','Colocation','Shared flat','Casa condivisa','Casa partilhada'],['Reparte la luz de forma justa: quien usa el radiador gasta más.','Partagez l’électricité équitablement : qui utilise le radiateur consomme plus.','Split electricity fairly: whoever uses the heater uses more.','Dividi la luce in modo giusto: chi usa la stufa consuma di più.','Divida a luz de forma justa: quem usa o aquecedor gasta mais.']],
+ [['Teletrabajo','Télétravail','Working from home','Smart working','Teletrabalho'],['Mira cuánto te cuesta trabajar desde casa.','Voyez combien vous coûte le travail à domicile.','See what working from home really costs.','Scopri quanto ti costa lavorare da casa.','Veja quanto lhe custa trabalhar a partir de casa.']],
+ [['Coche eléctrico','Voiture électrique','Electric car','Auto elettrica','Carro elétrico'],['Calcula cuánto te cuesta cargarlo en casa al mes.','Calculez combien coûte la recharge à domicile par mois.','Find out what charging at home costs each month.','Calcola quanto ti costa ricaricarla a casa al mese.','Calcule quanto custa carregá-lo em casa por mês.']]
+];
+const AMZ=[
+ {id:'oldbulb',name:['Bombillas LED E27','Ampoules LED E27','E27 LED bulbs','Lampadine LED E27','Lâmpadas LED E27'],desc:['9 W dan la misma luz que 60 W. Elige luz cálida (2700 K).','9 W éclairent comme 60 W. Choisissez une lumière chaude (2700 K).','9 W give the light of 60 W. Pick warm white (2700 K).','9 W fanno la luce di 60 W. Scegli luce calda (2700 K).','9 W dão a luz de 60 W. Escolha luz quente (2700 K).'],q:'bombilla led e27 9w 2700k pack'},
+ {name:['Focos LED GU10','Spots LED GU10','GU10 LED spotlights','Faretti LED GU10','Focos LED GU10'],desc:['Para techos de cocina y baño: 5 W en vez de 50 W.','Pour plafonds de cuisine et salle de bain : 5 W au lieu de 50 W.','For kitchen and bathroom ceilings: 5 W instead of 50 W.','Per soffitti di cucina e bagno: 5 W invece di 50 W.','Para tetos de cozinha e casa de banho: 5 W em vez de 50 W.'],q:'bombilla led gu10 5w pack'},
+ {name:['Bombillas inteligentes','Ampoules connectées','Smart bulbs','Lampadine smart','Lâmpadas inteligentes'],desc:['Se apagan solas con horarios desde el móvil.','Elles s’éteignent seules grâce aux horaires sur le téléphone.','They switch off on a schedule from your phone.','Si spengono da sole con orari dal telefono.','Desligam-se sozinhas com horários no telemóvel.'],q:'bombilla inteligente wifi e27'},
+ {name:['Enchufe con medidor de consumo','Prise avec mesure de consommation','Smart plug with energy meter','Presa smart con misuratore','Tomada com medidor de consumo'],desc:['Mide lo que gasta de verdad cada aparato.','Mesure ce que consomme vraiment chaque appareil.','Measures what each appliance really uses.','Misura quanto consuma davvero ogni apparecchio.','Mede o que cada aparelho gasta de verdade.'],q:'enchufe inteligente medidor consumo',hot:true},
+ {id:'standby',name:['Regleta con interruptores','Multiprise à interrupteurs','Switched power strip','Ciabatta con interruttori','Extensão com interruptores'],desc:['Corta el consumo en espera de tele, ordenador y consola.','Coupe la veille de la télé, de l’ordinateur et de la console.','Cuts standby power from TV, computer and console.','Elimina lo standby di TV, computer e console.','Corta o standby da TV, computador e consola.'],q:'regleta interruptor individual'},
+ {id:'boiler',name:['Temporizador de enchufe','Minuterie de prise','Plug-in timer','Timer da presa','Temporizador de tomada'],desc:['Calienta el termo solo en las horas más baratas.','Chauffe l’eau seulement aux heures les moins chères.','Heats water only during the cheapest hours.','Scalda l’acqua solo nelle ore più economiche.','Aquece a água só nas horas mais baratas.'],q:'temporizador enchufe programable'},
+ {id:'heater',name:['Termostato programable','Thermostat programmable','Programmable thermostat','Termostato programmabile','Termóstato programável'],desc:['No calientes la casa cuando no estás.','Ne chauffez pas la maison quand vous êtes absent.','Don’t heat the house when you’re out.','Non scaldare casa quando non ci sei.','Não aqueça a casa quando não está.'],q:'termostato programable wifi'},
+ {id:'dryer',name:['Tendedero plegable','Étendoir pliable','Folding clothes airer','Stendibiancheria pieghevole','Estendal dobrável'],desc:['La forma más barata de secar la ropa: gratis.','La façon la moins chère de sécher le linge : gratuite.','The cheapest way to dry clothes: free.','Il modo più economico di asciugare i panni: gratis.','A forma mais barata de secar a roupa: grátis.'],q:'tendedero plegable'}
+];
 
-let items=[];
+applyI18n(D);
+const priceEl=document.getElementById('price');
+let items=null;
 try{items=JSON.parse(localStorage.getItem('watios')||'null')}catch(e){}
-if(!Array.isArray(items)||!items.length){items=[0,2,3,10,16,20].map(i=>({n:PRESETS[i][0],w:PRESETS[i][1],h:PRESETS[i][2],d:PRESETS[i][3]}))}
-try{const p=localStorage.getItem('watios-price');if(p)document.getElementById('price').value=p}catch(e){}
-
-const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+if(!Array.isArray(items)||!items.length) items=['fridge','washer','dryer','tv','heater','router'].map(id=>({id,w:APN[id][1],h:APN[id][2],d:APN[id][3]}));
+try{priceEl.value=localStorage.getItem('watios-price')||'0.35'}catch(e){priceEl.value='0.35'}
+const nameOf=it=>it.n||(it.id&&APN[it.id]?T(APN[it.id][4]):T(D.myAp));
+const price=()=>parseFloat(String(priceEl.value).replace(',','.'))||0;
 const monthly=it=>(it.w/1000)*it.h*it.d*(52/12);
+function save(){try{localStorage.setItem('watios',JSON.stringify(items));localStorage.setItem('watios-price',priceEl.value)}catch(e){}}
 
-function save(){try{localStorage.setItem('watios',JSON.stringify(items));localStorage.setItem('watios-price',document.getElementById('price').value)}catch(e){}}
+const sel=document.getElementById('preset');
+sel.innerHTML=AP.map(a=>`<option value="${a[0]}">${esc(T(a[4]))} · ${a[1]} W</option>`).join('')+`<option value="custom">${t('other')}</option>`;
 
 function render(){
-  const list=document.getElementById('list');list.innerHTML='';
-  const price=parseFloat(document.getElementById('price').value)||0;
-  const costs=items.map(it=>monthly(it)*price);
-  const max=Math.max(...costs,0.01);
-  const topIdx=costs.indexOf(Math.max(...costs));
-  items.forEach((it,i)=>{
-    const el=document.createElement('div');el.className='item'+(i===topIdx&&costs[i]>0?' top1':'');
-    el.innerHTML=`<div class="top"><input class="name" id="n${i}" value="${it.n.replace(/"/g,'&quot;')}" aria-label="Nombre"><button class="del" aria-label="Quitar">×</button></div>
-    <div class="fields">
-      <label>Potencia (W)<input id="w${i}" type="number" min="0" value="${it.w}"></label>
-      <label>Horas al día<input id="h${i}" type="number" min="0" max="24" step="0.1" value="${it.h}"></label>
-      <label>Días/semana<input id="d${i}" type="number" min="0" max="7" value="${it.d}"></label>
+  const box=document.getElementById('list');
+  const costs=items.map(it=>monthly(it)*price());
+  const max=Math.max(...costs,0.01),topI=costs.indexOf(Math.max(...costs));
+  box.innerHTML=items.map((it,i)=>`<div class="ap${i===topI&&costs[i]>0?' top1':''}">
+    <div class="ap-h"><input id="n${i}" class="nm" value="${esc(nameOf(it))}" aria-label="${esc(nameOf(it))}"><button class="x" data-del="${i}" aria-label="${t('remove')}">×</button></div>
+    <div class="grid3 keep">
+      <label class="f">${t('fW')}<input id="w${i}" data-k="w" data-i="${i}" type="number" min="0" inputmode="decimal" value="${it.w}"></label>
+      <label class="f">${t('fH')}<input id="h${i}" data-k="h" data-i="${i}" type="number" min="0" max="24" step="0.1" inputmode="decimal" value="${it.h}"></label>
+      <label class="f">${t('fD')}<input id="d${i}" data-k="d" data-i="${i}" type="number" min="0" max="7" inputmode="numeric" value="${it.d}"></label>
     </div>
-    <div class="barline"><div class="bar"><i style="width:${(costs[i]/max*100).toFixed(1)}%"></i></div><span class="cost">${eur(costs[i])}/mes</span></div>`;
-    el.querySelector('.del').onclick=()=>{items.splice(i,1);save();render()};
-    el.querySelector('.name').oninput=e=>{it.n=e.target.value;save();summary()};
-    ['w','h','d'].forEach(k=>el.querySelector('#'+k+i).onchange=e=>{it[k]=parseFloat(e.target.value)||0;save();render()});
-    list.appendChild(el);
-  });
+    <div class="row">${i===topI&&costs[i]>0?`<span class="badge">${t('most')}</span>`:''}<div class="bar"><i style="width:${(costs[i]/max*100).toFixed(1)}%"></i></div><span class="cost">${fmtEUR(costs[i])}${t('perMonth')}</span></div>
+  </div>`).join('');
+  box.querySelectorAll('[data-k]').forEach(e=>e.onchange=()=>{items[e.dataset.i][e.dataset.k]=parseFloat(e.value)||0;save();render()});
+  box.querySelectorAll('.nm').forEach((e,i)=>e.oninput=()=>{items[i].n=e.value;save();summary()});
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{items.splice(+b.dataset.del,1);save();render()});
   summary();
 }
 function summary(){
-  const price=parseFloat(document.getElementById('price').value)||0;
-  const kwh=items.reduce((s,it)=>s+monthly(it),0);
-  const total=kwh*price;
-  document.getElementById('total').textContent=eur(total);
-  document.getElementById('year').textContent=eur(total*12);
-  document.getElementById('kwh').textContent=Math.round(kwh)+' kWh';
+  const p=price(),kwh=items.reduce((s,it)=>s+monthly(it),0),total=kwh*p;
+  document.getElementById('total').textContent=fmtEUR(total);
+  document.getElementById('year').textContent=fmtEUR(total*12,0);
+  document.getElementById('kwh').textContent=fmtNum(kwh)+' kWh';
   let top=null;items.forEach(it=>{if(!top||monthly(it)>monthly(top))top=it});
-  document.getElementById('top').textContent=top?top.n:'—';
+  document.getElementById('top').textContent=top?nameOf(top):'—';
   const tip=document.getElementById('tip');
   if(top&&total>0){
-    const share=Math.round(monthly(top)*price/total*100);
-    let t=`<b>${top.n}</b> es el ${share}% de tu gasto. `;
-    if(/secadora/i.test(top.n))t+='Tender la ropa dos veces por semana te ahorraría unos '+eur(monthly(top)*price*0.6*12)+' al año.';
-    else if(/radiador|termo|aire/i.test(top.n))t+='Bajar 1 hora de uso al día ahorra unos '+eur(top.w/1000*top.d*(52/12)*price*12)+' al año.';
-    else if(/bombilla antigua/i.test(top.n))t+='Cambiarla por LED reduce su gasto casi un 85%.';
-    else t+='Reducir su uso un 20% te ahorraría '+eur(monthly(top)*price*0.2*12)+' al año.';
-    tip.innerHTML=t;tip.hidden=false;
+    const tp=TIPS[TIPMAP[top.id]||'def'],m=monthly(top)*p;
+    tip.innerHTML=`${t('share',{n:esc(nameOf(top)),p:Math.round(m/total*100)})} ${T(tp[1]).replace(/ °C/g,'\u00a0°C')} ${t('canSave',{s:fmtEUR(m*tp[0]*12,0)})}`;tip.hidden=false;
   }else tip.hidden=true;
+  calcLed();renderAmz();
 }
-document.getElementById('price').oninput=()=>{save();render()};
+priceEl.oninput=()=>{save();render()};
 document.getElementById('addBtn').onclick=()=>{
-  const v=sel.value;
-  items.push(v==='custom'?{n:'Mi aparato',w:100,h:1,d:7}:{n:PRESETS[v][0],w:PRESETS[v][1],h:PRESETS[v][2],d:PRESETS[v][3]});
-  save();render();
+  const v=sel.value;items.push(v==='custom'?{n:T(D.myAp),w:100,h:1,d:7}:{id:v,w:APN[v][1],h:APN[v][2],d:APN[v][3]});save();render();
+  const last=document.getElementById('list').lastElementChild;if(last)last.scrollIntoView({behavior:'smooth',block:'center'});
 };
-render();
 
-// ===== PRO: informe de ahorro en PDF =====
-const TIPS=[
- [/secadora/i,'Tiende la ropa al aire cuando puedas y usa el programa con sensor de humedad.',0.5],
- [/radiador|calefac/i,'Baja 1 °C el termostato (≈7% menos) y usa un programador para no calentar habitaciones vacías.',0.15],
- [/termo/i,'Ponle un temporizador o enchufe programable para calentar solo en horas valle, y baja la temperatura a 55 °C.',0.25],
- [/aire acondicionado/i,'Ajústalo a 25-26 °C y limpia los filtros cada mes.',0.2],
- [/bombilla antigua/i,'Cámbiala por LED: gasta casi un 85% menos y dura 15 veces más.',0.85],
- [/frigor|congelador/i,'Sepáralo 10 cm de la pared, revisa las gomas de la puerta y descongela si tiene más de 3 mm de hielo.',0.1],
- [/lavadora|lavavajillas/i,'Usa programas eco a baja temperatura y ponla siempre llena.',0.3],
- [/horno/i,'Aprovecha el calor residual: apágalo 10 minutos antes y no abras la puerta mientras cocina.',0.15],
- [/televisor|ordenador|consola|router/i,'Usa una regleta con interruptor para cortar el consumo en espera (standby).',0.1],
- [/cargador de coche/i,'Carga en horario valle si tu contrato tiene discriminación horaria.',0.3]
-];
-function tipFor(n){for(const t of TIPS)if(t[0].test(n))return t;return [null,'Reduce el tiempo de uso o compara con un modelo de mayor eficiencia energética (etiqueta A).',0.1]}
-function renderReport(){
-  const box=document.getElementById('report');
-  if(window.PRO){box.innerHTML='<button class="primary" id="pdfBtn">Descargar informe de ahorro (PDF)</button><div class="msg" id="pdfMsg" aria-live="polite"></div>';document.getElementById('pdfBtn').onclick=makePdf}
-  else box.innerHTML=window.proBanner('Consigue tu <b>informe de ahorro en PDF</b>: gasto de cada aparato, consejos personalizados y cuánto puedes ahorrar al año.');
+// ----- LED -----
+const LS={n:10,h:4,from:60};
+try{Object.assign(LS,JSON.parse(localStorage.getItem('chupaluz-led')||'{}'))}catch(e){}
+document.getElementById('led').innerHTML=`<h2><span class="n">2</span>${t('ledH')}</h2>
+ <div class="grid3">
+  <label class="f">${t('ledN')}<input id="ledN" type="number" min="1" inputmode="numeric" value="${LS.n}"></label>
+  <label class="f">${t('fH')}<input id="ledH" type="number" min="0" max="24" step="0.5" inputmode="decimal" value="${LS.h}"></label>
+  <label class="f wide">${t('ledFrom')}<select id="ledFrom">
+   <option value="60">${t('b_inc')} 60 W</option><option value="40">${t('b_inc')} 40 W</option><option value="50">${t('b_hal')} 50 W</option><option value="15">${t('b_cfl')} 15 W</option></select></label>
+ </div>
+ <div class="saveled" aria-live="polite"><span>${t('ledSave')}</span><b id="ledSave"></b><span id="ledDet"></span></div>
+ <div class="tw"><table><thead><tr><th>${t('thType')}</th><th>${t('thW')}</th><th>${t('thCost')}</th><th>${t('thLife')}</th></tr></thead><tbody id="ledTab"></tbody></table></div>
+ <small class="muted" id="ledNote"></small>`;
+document.getElementById('ledFrom').value=String(LS.from);
+['ledN','ledH','ledFrom'].forEach(id=>document.getElementById(id).oninput=()=>{LS.n=+document.getElementById('ledN').value||0;LS.h=+document.getElementById('ledH').value||0;LS.from=+document.getElementById('ledFrom').value;try{localStorage.setItem('chupaluz-led',JSON.stringify(LS))}catch(e){};calcLed()});
+function calcLed(){
+  if(!document.getElementById('ledSave'))return;
+  const p=price(),to=LS.from===50||LS.from===40?5:9,yr=w=>w/1000*LS.h*365*p;
+  document.getElementById('ledSave').textContent=fmtEUR((yr(LS.from)-yr(to))*LS.n,0);
+  document.getElementById('ledDet').textContent=t('ledDet',{n:LS.n,a:LS.from,b:to,p:Math.round((1-to/LS.from)*100)});
+  const rows=[[t('b_inc'),60,'1.000 h'],[t('b_hal'),50,'2.000 h'],[t('b_cfl'),15,'8.000 h'],['LED',9,'15.000–25.000 h']];
+  document.getElementById('ledTab').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]} W</td><td>${fmtEUR(yr(r[1]))}</td><td>${r[2]}</td></tr>`).join('');
+  document.getElementById('ledNote').textContent=t('ledNote',{h:LS.h});
 }
+
+// ----- Amazon -----
+function renderAmz(){
+  const ids=new Set(items.map(i=>i.id).filter(Boolean)),big=new Set();
+  [...items].sort((a,b)=>monthly(b)-monthly(a)).slice(0,3).forEach(i=>i.id&&big.add(TIPMAP[i.id]||i.id));
+  const list=AMZ.map(a=>Object.assign({},a,{hot:a.hot||(a.id&&(big.has(a.id)||(a.id==='oldbulb'&&ids.has('oldbulb'))))}));
+  renderAmazon('amz',D.amzH,list);
+}
+
+// ----- Usos -----
+document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
+
+// ----- Pro: informe PDF -----
+const R=document.getElementById('report');
+if(window.PRO){R.className='card';R.innerHTML=`<button class="btn" id="pdfBtn">⬇ ${t('reportBtn')}</button><div class="msg" id="pdfMsg" aria-live="polite"></div>`;document.getElementById('pdfBtn').onclick=makePdf}
+else R.innerHTML=proBanner(t('reportPro'));
+const P=s=>String(s).replace(/[  ]/g,' ').replace(/[’]/g,"'");
 function makePdf(){
   const msg=document.getElementById('pdfMsg');
-  if(!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
-  const price=parseFloat(document.getElementById('price').value)||0;
-  const rows=items.map(it=>({n:it.n,m:monthly(it)*price,kwh:monthly(it)})).sort((a,b)=>b.m-a.m);
-  const total=rows.reduce((s,r)=>s+r.m,0);
-  const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'mm',format:'a4'});
-  const green=[31,107,69];let y=22;
-  d.setFillColor(...green);d.rect(0,0,210,14,'F');d.setTextColor(255);d.setFontSize(11);d.text('CHUPALUZ · Informe de ahorro',14,9.5);
-  d.setTextColor(24,34,28);d.setFontSize(22);d.text('Tu factura de luz, aparato por aparato',14,y+6);y+=16;
-  d.setFontSize(11);d.setTextColor(94,107,99);d.text('Precio del kWh: '+price.toFixed(2).replace('.',',')+' €  ·  Fecha: '+new Date().toLocaleDateString('es-ES'),14,y);y+=10;
-  d.setTextColor(24,34,28);d.setFontSize(14);d.text('Gasto estimado: '+eur(total)+' al mes  ·  '+eur(total*12)+' al año',14,y);y+=12;
-  d.setFontSize(10);d.setTextColor(94,107,99);d.text('APARATO',14,y);d.text('kWh/MES',120,y,{align:'right'});d.text('€/MES',150,y,{align:'right'});d.text('% TOTAL',190,y,{align:'right'});y+=3;
-  d.setDrawColor(217,223,217);d.line(14,y,196,y);y+=6;d.setTextColor(24,34,28);d.setFontSize(11);
-  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(String(r.n).slice(0,45),14,y);d.text(String(Math.round(r.kwh)),120,y,{align:'right'});d.text(eur(r.m),150,y,{align:'right'});d.text((total?Math.round(r.m/total*100):0)+'%',190,y,{align:'right'});y+=7});
-  y+=6;if(y>240){d.addPage();y=20}
-  d.setFontSize(16);d.text('Tus 3 mejores oportunidades de ahorro',14,y);y+=9;
-  let save=0;
-  rows.slice(0,3).forEach((r,i)=>{const t=tipFor(r.n);const a=r.m*t[2]*12;save+=a;if(y>255){d.addPage();y=20}
-    d.setFontSize(12);d.setTextColor(...green);d.text((i+1)+'. '+r.n+' — ahorro posible: '+eur(a)+'/año',14,y);y+=6;
-    d.setFontSize(10.5);d.setTextColor(24,34,28);const lines=d.splitTextToSize(t[1],180);d.text(lines,14,y);y+=lines.length*5+5});
+  if(!window.jspdf){msg.textContent=t('pdfErr');return}
+  const p=price(),rows=items.map(it=>({n:nameOf(it),m:monthly(it)*p,kwh:monthly(it),id:it.id})).sort((a,b)=>b.m-a.m),total=rows.reduce((s,r)=>s+r.m,0);
+  const {jsPDF}=window.jspdf,d=new jsPDF({unit:'mm',format:'a4'}),cols=T(D.pdfCol);let y=22;
+  d.setFillColor(22,24,31);d.rect(0,0,210,16,'F');d.setTextColor(255,204,31);d.setFontSize(11);d.text(P(t('pdfT')),14,10.5);
+  d.setTextColor(22,24,31);d.setFontSize(20);d.text(P(t('pdfH')),14,y+8);y+=18;
+  d.setFontSize(10.5);d.setTextColor(95,95,107);d.text(P(T(D.priceLbl)+': '+p.toFixed(2)+'  ·  '+t('pdfDate')+': '+new Date().toLocaleDateString(LOCALE)),14,y);y+=10;
+  d.setTextColor(22,24,31);d.setFontSize(13);d.text(P(t('pdfTot',{m:fmtEUR(total),y:fmtEUR(total*12)})),14,y);y+=12;
+  d.setFontSize(9);d.setTextColor(95,95,107);d.text(cols[0],14,y);d.text(cols[1],120,y,{align:'right'});d.text(cols[2],152,y,{align:'right'});d.text(cols[3],196,y,{align:'right'});y+=3;
+  d.setDrawColor(220,220,215);d.line(14,y,196,y);y+=6;d.setTextColor(22,24,31);d.setFontSize(11);
+  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(P(r.n).slice(0,46),14,y);d.text(P(fmtNum(r.kwh)),120,y,{align:'right'});d.text(P(fmtEUR(r.m)),152,y,{align:'right'});d.text((total?Math.round(r.m/total*100):0)+'%',196,y,{align:'right'});y+=7});
+  y+=6;if(y>235){d.addPage();y=20}
+  d.setFontSize(15);d.text(P(t('pdfTop3')),14,y);y+=9;let sv=0;
+  rows.slice(0,3).forEach((r,i)=>{const tp=TIPS[TIPMAP[r.id]||'def'],a=r.m*tp[0]*12;sv+=a;if(y>255){d.addPage();y=20}
+    d.setFontSize(12);d.setTextColor(170,120,0);d.text(P((i+1)+'. '+r.n+' - '+t('pdfLine',{s:fmtEUR(a,0)})),14,y);y+=6;
+    d.setFontSize(10.5);d.setTextColor(22,24,31);const L=d.splitTextToSize(P(T(tp[1])),180);d.text(L,14,y);y+=L.length*5+5});
   if(y>250){d.addPage();y=20}
-  d.setFillColor(242,194,48);d.roundedRect(14,y,182,18,3,3,'F');d.setTextColor(24,34,28);d.setFontSize(13);d.text('Ahorro total estimado: '+eur(save)+' al año',20,y+11);y+=28;
-  d.setFontSize(9);d.setTextColor(94,107,99);d.text(d.splitTextToSize('Estimación orientativa basada en los datos introducidos. El consumo real depende del modelo, la antigüedad y los hábitos de uso. Creado por Gonzalo Leon · gonza0297.github.io/microapps',182),14,285);
-  d.save('Informe Chupaluz.pdf');msg.textContent='Informe descargado.';
+  d.setFillColor(255,204,31);d.roundedRect(14,y,182,18,3,3,'F');d.setTextColor(22,24,31);d.setFontSize(13);d.text(P(t('pdfAll',{s:fmtEUR(sv,0)})),20,y+11);
+  d.setFontSize(8.5);d.setTextColor(95,95,107);d.text(d.splitTextToSize(P(t('pdfDisc')),182),14,286);
+  d.save('Chupaluz.pdf');msg.textContent=t('pdfDone');
 }
-renderReport();
-
-// ===== Amazon: productos para ahorrar luz =====
-function renderAmz(){
-  const names=items.map(i=>i.n.toLowerCase()).join(' ');
-  const has=r=>r.test(names);
-  window.renderAmazon&&renderAmazon('amz','Productos que te ayudan a pagar menos luz',[
-    {name:'Bombillas LED E27',desc:'Gastan hasta un 85% menos que las antiguas y duran años.',q:'bombillas led e27 pack',hot:has(/bombilla antigua/)},
-    {name:'Enchufe con medidor de consumo',desc:'Mide lo que gasta de verdad cada aparato, en euros.',q:'enchufe inteligente medidor consumo',hot:true},
-    {name:'Regleta con interruptores',desc:'Corta el consumo en espera de la tele, el ordenador y la consola.',q:'regleta interruptor individual',hot:has(/televisor|ordenador|consola|router/)},
-    {name:'Temporizador de enchufe',desc:'Calienta el termo solo en las horas más baratas.',q:'temporizador enchufe programable',hot:has(/termo|cargador de coche/)},
-    {name:'Termostato programable',desc:'Programa la calefacción para no calentar la casa vacía.',q:'termostato programable wifi',hot:has(/radiador|calefac/)},
-    {name:'Tendedero plegable',desc:'La forma más barata de secar la ropa: gratis.',q:'tendedero plegable',hot:has(/secadora/)}
-  ]);
-}
-const _summary=summary;summary=function(){_summary();renderAmz()};
-renderAmz();
-
-// ===== Lámparas LED: calculadora + referencias de Amazon =====
-const LAMPS=[
- {n:'Bombillas LED E27 (rosca gorda)',d:'Para lámparas de techo y de pie. Elige luz cálida (2700 K) para casa.',w:'9 W = 60 W antigua',q:'bombilla led e27 9w 2700k pack'},
- {n:'Bombillas LED E14 (rosca fina)',d:'Para lámparas de mesa, apliques y lámparas de araña.',w:'5 W = 40 W antigua',q:'bombilla led e14 5w pack'},
- {n:'Focos LED GU10',d:'Para focos empotrados en techos de cocina y baño.',w:'5 W = 50 W halógena',q:'bombilla led gu10 5w pack'},
- {n:'Bombillas LED inteligentes',d:'Se encienden desde el móvil y con horarios: no te las dejas encendidas.',w:'9 W, regulables',q:'bombilla inteligente wifi e27'},
- {n:'Tubo LED T8',d:'Sustituye los fluorescentes del garaje, trastero o cocina.',w:'18 W = 36 W fluorescente',q:'tubo led t8 120 cm'},
- {n:'Plafón LED de techo',d:'Para pasillos, baños y dormitorios. Muy fino y fácil de instalar.',w:'18–24 W',q:'plafon led techo'},
- {n:'Lámpara LED de escritorio',d:'Luz regulable para trabajar o estudiar sin cansar la vista.',w:'6–10 W',q:'lampara escritorio led regulable'},
- {n:'Luz LED con sensor de movimiento',d:'Para armarios, escaleras y pasillos: solo se enciende cuando pasas.',w:'Pilas o USB',q:'luz led sensor movimiento recargable'},
- {n:'Luces solares de jardín',d:'Se cargan con el sol: luz en la terraza o el jardín sin pagar nada.',w:'0 € de luz',q:'luces solares jardin exterior'}
-];
-function lampLink(q){let u=(window.AMAZON_HOST||'https://www.amazon.es')+'/s?k='+encodeURIComponent(q);if(window.AMAZON_TAG)u+='&tag='+encodeURIComponent(window.AMAZON_TAG);return u}
-const LS={n:10,h:4,from:60,to:9};
-try{Object.assign(LS,JSON.parse(localStorage.getItem('chupaluz-led')||'{}'))}catch(e){}
-function renderLed(){
-  const box=document.getElementById('led');
-  box.innerHTML=`<h2>¿Cuánto ahorras pasándote a LED?</h2>
-  <div class="calc">
-    <label>Nº de bombillas<input id="ledN" type="number" min="1" value="${LS.n}"></label>
-    <label>Horas al día<input id="ledH" type="number" min="0" max="24" step="0.5" value="${LS.h}"></label>
-    <label>Bombilla actual<select id="ledFrom">
-      <option value="60" ${LS.from==60?'selected':''}>Incandescente 60 W</option>
-      <option value="40" ${LS.from==40?'selected':''}>Incandescente 40 W</option>
-      <option value="50" ${LS.from==50?'selected':''}>Halógena 50 W</option>
-      <option value="15" ${LS.from==15?'selected':''}>Bajo consumo 15 W</option></select></label>
-  </div>
-  <div class="res" aria-live="polite"><span>Ahorro estimado al año</span><b id="ledSave"></b><span id="ledDet"></span></div>
-  <div class="tw"><table><thead><tr><th>Tipo de bombilla</th><th>Vatios</th><th>Coste/año*</th><th>Duración</th></tr></thead><tbody id="ledTab"></tbody></table></div>
-  <small style="color:var(--muted)">*Una bombilla encendida ${LS.h} h al día con tu precio del kWh.</small>
-  <h2>Lámparas y bombillas recomendadas</h2>
-  <div class="lamps">${LAMPS.map(l=>`<a class="lamp" href="${lampLink(l.q)}" target="_blank" rel="sponsored nofollow noopener"><span class="w">${l.w}</span><b>${l.n}</b><small>${l.d}</small><i>Ver en Amazon →</i></a>`).join('')}</div>
-  <small style="color:var(--muted)">En calidad de Afiliado de Amazon, obtengo ingresos por las compras adscritas que cumplen los requisitos aplicables.</small>`;
-  ['ledN','ledH','ledFrom'].forEach(id=>document.getElementById(id).oninput=()=>{LS.n=+document.getElementById('ledN').value||0;LS.h=+document.getElementById('ledH').value||0;LS.from=+document.getElementById('ledFrom').value;try{localStorage.setItem('chupaluz-led',JSON.stringify(LS))}catch(e){};calcLed()});
-  calcLed();
-}
-function calcLed(){
-  const price=parseFloat(document.getElementById('price').value)||0;
-  const to=LS.from>=50?(LS.from==50?5:9):(LS.from==40?5:9);
-  const yr=w=>w/1000*LS.h*365*price;
-  const save=(yr(LS.from)-yr(to))*LS.n;
-  document.getElementById('ledSave').textContent=eur(save);
-  document.getElementById('ledDet').textContent=`Cambiando ${LS.n} bombillas de ${LS.from} W por LED de ${to} W (${Math.round((1-to/LS.from)*100)}% menos consumo).`;
-  const rows=[['Incandescente',60,'1.000 h'],['Halógena',50,'2.000 h'],['Bajo consumo (CFL)',15,'8.000 h'],['LED',9,'15.000–25.000 h']];
-  document.getElementById('ledTab').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]} W</td><td>${eur(yr(r[1]))}</td><td>${r[2]}</td></tr>`).join('');
-}
-const _summary2=summary;summary=function(){_summary2();if(document.getElementById('ledSave'))calcLed()};
-renderLed();
+render();
 </script>
-
 </body>
 </html>
