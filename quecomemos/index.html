@@ -45,6 +45,11 @@ button.go{background:var(--accent);border-color:var(--accent);color:var(--surfac
 .it.done span{text-decoration:line-through;color:var(--muted)}
 .count{color:var(--muted);font-size:14px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
+.howto summary{cursor:pointer;font-weight:700}
+.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
+.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
+.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
 footer{color:var(--muted);font-size:13px;text-align:center}
 </style>
 
@@ -53,6 +58,8 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <h1>QuéComemos</h1>
     <p class="sub">Elige qué comes cada día y la lista de la compra se hace sola, ordenada por pasillos del súper.</p>
   </header>
+  <details class="howto" open><summary>¿Cómo funciona QuéComemos?</summary><ol><li>Elige cuántas personas sois.</li><li>Escoge la comida y la cena de cada día, o pulsa "Sorpréndeme" para que lo haga la app.</li><li>La lista de la compra se crea sola, con las cantidades sumadas y ordenada por pasillos del súper.</li><li>En el súper, marca lo que ya has cogido y copia la lista para mandarla por WhatsApp.</li></ol><ul class="feat"><li>Menú de 7 días (comida y cena)</li><li>Cantidades ajustadas a las personas</li><li>Lista por pasillos</li><li>Marcar productos mientras compras</li><li>Pro: 14 recetas extra</li></ul></details>
+
 
   <div class="bar">
     <label for="ppl">Personas <select id="ppl"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>

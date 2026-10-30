@@ -59,6 +59,11 @@ button.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--sur
 .glbl{font-weight:700}
 button.ghost{font:inherit;font-size:14px;font-weight:600;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
 #groupPro:not(:empty){margin-top:10px}
+.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
+.howto summary{cursor:pointer;font-weight:700}
+.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
+.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
+.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
 footer{color:var(--muted);font-size:13px;text-align:center}
 </style>
 
@@ -67,6 +72,8 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <h1>Cuentas Claras</h1>
     <p class="sub">Apunta quién pagó qué en el viaje o en el piso. La app te dice quién debe a quién, con el mínimo de pagos.</p>
   </header>
+  <details class="howto" open><summary>¿Cómo funciona Cuentas Claras?</summary><ol><li>Añade a las personas del grupo (amigos de viaje, compañeros de piso…).</li><li>Apunta cada gasto: qué fue, cuánto costó, quién pagó y entre quiénes se reparte.</li><li>La app calcula el saldo de cada uno: en verde quien debe recibir, en rojo quien debe pagar.</li><li>En "Para quedar en paz" te dice quién paga a quién, con el mínimo de transferencias.</li></ol><ul class="feat"><li>Gastos repartidos entre todos o solo entre algunos</li><li>Saldo de cada persona</li><li>Mínimo número de pagos</li><li>Sin registro: todo se guarda en tu móvil</li><li>Pro: varios grupos y copiar resumen para WhatsApp</li></ul></details>
+
 
   <section class="card groups">
     <div class="gbar">

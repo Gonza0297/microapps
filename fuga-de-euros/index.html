@@ -48,6 +48,11 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.5vw,44px);l
 .plan{display:grid;gap:10px}
 .plan .go{justify-self:start;font:inherit;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer}
 .plan .msg{font-size:13px;color:var(--muted)}
+.howto{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:12px;padding:12px 16px}
+.howto summary{cursor:pointer;font-weight:700}
+.howto ol{margin:10px 0 6px;padding-left:20px;display:grid;gap:6px}
+.howto .feat{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;padding:0;list-style:none}
+.howto .feat li{font-size:13px;border:1px solid var(--line,#ddd);border-radius:999px;padding:3px 10px}
 footer{color:var(--muted);font-size:13px;text-align:center}
 </style>
 
@@ -56,6 +61,8 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <div class="eyebrow">Fuga de Euros</div>
     <h1>Los pequeños gastos que se llevan tu dinero</h1>
   </header>
+  <details class="howto" open><summary>¿Cómo funciona Fuga de Euros?</summary><ol><li>Apunta tus pequeños gastos repetidos: café, tabaco, suscripciones, comida a domicilio…</li><li>Elige cada cuánto los haces: al día, cada día laborable, a la semana, al mes o al año.</li><li>Mueve la barra de años y mira cuánto suman a largo plazo, y a qué equivale (un móvil, un viaje, un coche…).</li><li>Activa "si lo invirtieras" para ver cuánto tendrías con un 5% anual.</li></ol><ul class="feat"><li>Total de 1 a 40 años</li><li>Comparación con cosas reales</li><li>Simulación de inversión al 5%</li><li>Texto listo para compartir</li><li>Pro: plan de ahorro en PDF</li></ul></details>
+
 
   <section class="hero" aria-live="polite">
     <div class="eyebrow" id="lead">En 10 años habrás gastado</div>
