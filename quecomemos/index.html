@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Planifica tus comidas de la semana y genera la lista de la compra.">
+</head>
+<body>
+<title>QuéComemos</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Karla:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: pizarra de 7 días (comida/cena) y debajo la lista de la compra agrupada por pasillo */
+:root{
+  --bg:#f6f4ec;--surface:#fffefa;--ink:#24291f;--muted:#666d5e;--line:#dcd9c9;
+  --accent:#3f6b2a;--tomato:#c8502e;--slot:#eef0e2;
+  --display:"Young Serif",Georgia,serif;--body:"Karla",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13160f;--surface:#1b1f16;--ink:#e9ecdf;--muted:#a3aa94;--line:#30362a;--accent:#9ccc7a;--tomato:#ef8a64;--slot:#232a1c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13160f;--surface:#1b1f16;--ink:#e9ecdf;--muted:#a3aa94;--line:#30362a;--accent:#9ccc7a;--tomato:#ef8a64;--slot:#232a1c;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:960px;margin:0 auto;display:grid;gap:22px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,6vw,46px);margin:0;line-height:1.05}
+h2{font-family:var(--display);font-weight:400;font-size:24px;margin:0}
+.sub{color:var(--muted);margin:6px 0 0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar label{color:var(--muted);font-size:14px;display:flex;gap:6px;align-items:center}
+select,input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 12px}
+button.go{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.week{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;min-width:0}
+.day h3{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--tomato)}
+.slot{display:grid;gap:2px;font-size:12px;color:var(--muted)}
+.slot select{width:100%;background:var(--slot);border-color:transparent;font-size:14px}
+.shop{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px}
+.shop .head{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+.aisles{columns:2 260px;column-gap:24px}
+.aisle{break-inside:avoid;margin-bottom:14px}
+.aisle h4{margin:0 0 4px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.it{display:flex;gap:8px;align-items:baseline;padding:3px 0}
+.it input{margin:0;accent-color:var(--accent)}
+.it .q{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.it.done span{text-decoration:line-through;color:var(--muted)}
+.count{color:var(--muted);font-size:14px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{color:var(--muted);font-size:13px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>QuéComemos</h1>
+    <p class="sub">Elige qué comes cada día y la lista de la compra se hace sola, ordenada por pasillos del súper.</p>
+  </header>
+
+  <div class="bar">
+    <label for="ppl">Personas <select id="ppl"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    <button class="go" id="rand">Sorpréndeme</button>
+    <button id="clear">Vaciar semana</button>
+  </div>
+
+  <section class="week" id="week"></section>
+
+  <section class="shop">
+    <div class="head"><h2>Lista de la compra</h2><span class="count" id="count"></span><button id="copy">Copiar lista</button></div>
+    <div class="aisles" id="aisles"></div>
+  </section>
+
+  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon</footer>
+</div>
+
+<script>
+// Cantidades por persona. Pasillos: Fruta y verdura, Carne y pescado, Lácteos y huevos, Despensa, Panadería, Congelados
+const R={
+ "Espaguetis a la boloñesa":[["Espaguetis",100,"g","Despensa"],["Carne picada",120,"g","Carne y pescado"],["Tomate triturado",100,"g","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Queso rallado",15,"g","Lácteos y huevos"]],
+ "Pollo al horno con patatas":[["Muslos de pollo",2,"ud","Carne y pescado"],["Patatas",200,"g","Fruta y verdura"],["Limón",0.5,"ud","Fruta y verdura"],["Ajo",1,"diente","Fruta y verdura"]],
+ "Tortilla de patatas":[["Huevos",2,"ud","Lácteos y huevos"],["Patatas",200,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"]],
+ "Salmón con arroz":[["Salmón",150,"g","Carne y pescado"],["Arroz",80,"g","Despensa"],["Brócoli",100,"g","Fruta y verdura"],["Limón",0.5,"ud","Fruta y verdura"]],
+ "Ensalada César":[["Lechuga romana",0.5,"ud","Fruta y verdura"],["Pechuga de pollo",120,"g","Carne y pescado"],["Pan",50,"g","Panadería"],["Parmesano",15,"g","Lácteos y huevos"]],
+ "Lentejas con verduras":[["Lentejas",80,"g","Despensa"],["Zanahoria",1,"ud","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Pimiento",0.5,"ud","Fruta y verdura"]],
+ "Tacos de carne":[["Tortillas de trigo",3,"ud","Panadería"],["Carne picada",120,"g","Carne y pescado"],["Tomate",1,"ud","Fruta y verdura"],["Aguacate",0.5,"ud","Fruta y verdura"],["Queso rallado",20,"g","Lácteos y huevos"]],
+ "Pizza casera":[["Masa de pizza",0.5,"ud","Panadería"],["Tomate triturado",60,"g","Despensa"],["Mozzarella",60,"g","Lácteos y huevos"],["Jamón cocido",40,"g","Carne y pescado"]],
+ "Crema de calabaza":[["Calabaza",250,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Nata para cocinar",50,"ml","Lácteos y huevos"]],
+ "Arroz con verduras y huevo":[["Arroz",80,"g","Despensa"],["Huevos",1,"ud","Lácteos y huevos"],["Guisantes",50,"g","Congelados"],["Zanahoria",1,"ud","Fruta y verdura"]],
+ "Hamburguesas caseras":[["Carne picada",150,"g","Carne y pescado"],["Pan de hamburguesa",1,"ud","Panadería"],["Tomate",0.5,"ud","Fruta y verdura"],["Lechuga romana",0.25,"ud","Fruta y verdura"],["Queso en lonchas",1,"ud","Lácteos y huevos"]],
+ "Merluza a la plancha":[["Merluza",180,"g","Carne y pescado"],["Patatas",150,"g","Fruta y verdura"],["Judías verdes",100,"g","Fruta y verdura"]],
+ "Wok de pollo y fideos":[["Fideos de arroz",80,"g","Despensa"],["Pechuga de pollo",130,"g","Carne y pescado"],["Pimiento",0.5,"ud","Fruta y verdura"],["Salsa de soja",15,"ml","Despensa"]],
+ "Tostadas con aguacate y huevo":[["Pan",80,"g","Panadería"],["Aguacate",0.5,"ud","Fruta y verdura"],["Huevos",1,"ud","Lácteos y huevos"]],
+ "Garbanzos con espinacas":[["Garbanzos cocidos",200,"g","Despensa"],["Espinacas",80,"g","Fruta y verdura"],["Ajo",1,"diente","Fruta y verdura"]],
+ "Macarrones con atún":[["Macarrones",100,"g","Despensa"],["Atún en lata",1,"lata","Despensa"],["Tomate triturado",80,"g","Despensa"]]
+};
+const DAYS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
+const AISLES=["Fruta y verdura","Carne y pescado","Lácteos y huevos","Panadería","Despensa","Congelados"];
+const names=Object.keys(R);
+let plan,checked={};
+try{plan=JSON.parse(localStorage.getItem('menu-plan')||'null');checked=JSON.parse(localStorage.getItem('menu-check')||'{}')}catch(e){}
+if(!Array.isArray(plan)||plan.length!==14)plan=["Espaguetis a la boloñesa","Crema de calabaza","Pollo al horno con patatas","Tortilla de patatas","Lentejas con verduras","Ensalada César","Salmón con arroz","Tostadas con aguacate y huevo","Garbanzos con espinacas","Pizza casera","Tacos de carne","",  "Wok de pollo y fideos",""];
+function save(){try{localStorage.setItem('menu-plan',JSON.stringify(plan));localStorage.setItem('menu-check',JSON.stringify(checked))}catch(e){}}
+const opts=sel=>'<option value="">— Nada —</option>'+names.map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
+function renderWeek(){
+  document.getElementById('week').innerHTML=DAYS.map((d,i)=>`<div class="day"><h3>${d}</h3>
+   <label class="slot">Comida<select id="s${i*2}" data-k="${i*2}">${opts(plan[i*2])}</select></label>
+   <label class="slot">Cena<select id="s${i*2+1}" data-k="${i*2+1}">${opts(plan[i*2+1])}</select></label></div>`).join('');
+  document.querySelectorAll('#week select').forEach(s=>s.onchange=()=>{plan[s.dataset.k]=s.value;save();renderList()});
+}
+function fmt(q,u){
+  if(u==='g'&&q>=1000)return (q/1000).toLocaleString('es-ES',{maximumFractionDigits:2})+' kg';
+  if(u==='ml'&&q>=1000)return (q/1000).toLocaleString('es-ES',{maximumFractionDigits:2})+' l';
+  if(u==='g'||u==='ml')return Math.ceil(q/10)*10+' '+u;
+  const n=Math.ceil(q*2)/2;return n.toLocaleString('es-ES')+' '+(u==='ud'?'':u+(n>1?'s':''));
+}
+function list(){
+  const ppl=+document.getElementById('ppl').value,agg={};
+  plan.filter(Boolean).forEach(r=>R[r].forEach(([n,q,u,a])=>{const k=n+'|'+u;agg[k]=agg[k]||{n,u,a,q:0};agg[k].q+=q*ppl}));
+  return agg;
+}
+function renderList(){
+  const agg=list();
+  const by={};Object.values(agg).forEach(x=>(by[x.a]=by[x.a]||[]).push(x));
+  const total=Object.keys(agg).length,done=Object.keys(agg).filter(k=>checked[k]).length;
+  document.getElementById('count').textContent=total?`${done} de ${total} cogidos`:'';
+  document.getElementById('aisles').innerHTML=total?AISLES.filter(a=>by[a]).map(a=>`<div class="aisle"><h4>${a}</h4>${by[a].sort((x,y)=>x.n.localeCompare(y.n)).map(x=>{const k=x.n+'|'+x.u;return `<label class="it ${checked[k]?'done':''}"><input type="checkbox" data-k="${k}" ${checked[k]?'checked':''}><span>${x.n}</span><span class="q">${fmt(x.q,x.u)}</span></label>`}).join('')}</div>`).join(''):'<p class="count">Elige algún plato arriba y aquí aparecerá tu lista.</p>';
+  document.querySelectorAll('#aisles input').forEach(c=>c.onchange=()=>{checked[c.dataset.k]=c.checked;save();renderList()});
+}
+document.getElementById('ppl').onchange=renderList;
+document.getElementById('rand').onclick=()=>{const pool=[...names].sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList()};
+document.getElementById('clear').onclick=()=>{plan=Array(14).fill('');checked={};save();renderWeek();renderList()};
+document.getElementById('copy').onclick=async e=>{
+  const agg=list(),by={};Object.values(agg).forEach(x=>(by[x.a]=by[x.a]||[]).push(x));
+  const txt='Lista de la compra\n'+AISLES.filter(a=>by[a]).map(a=>'\n'+a.toUpperCase()+'\n'+by[a].map(x=>'- '+x.n+' ('+fmt(x.q,x.u).trim()+')').join('\n')).join('\n');
+  try{await navigator.clipboard.writeText(txt);e.target.textContent='Copiada'}catch(err){e.target.textContent='No se pudo copiar'}
+  setTimeout(()=>e.target.textContent='Copiar lista',2000)};
+renderWeek();renderList();
+</script>
+
+</body>
+</html>

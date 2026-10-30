@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Calcula cuánto dinero se te escapa en pequeños gastos a lo largo de los años.">
+</head>
+<body>
+<title>Fuga de Euros</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: una gran cifra-impacto que crece con los años; hábitos como "gotas" editables debajo */
+:root{
+  --bg:#fbf7f2;--surface:#ffffff;--ink:#231a2b;--muted:#6f6577;--line:#e7dfe8;
+  --accent:#7b2fbe;--hot:#e2493b;--soft:#efe4f7;
+  --display:"Bricolage Grotesque",system-ui,sans-serif;--body:"Instrument Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#140f18;--surface:#1e1724;--ink:#f1eaf4;--muted:#a99db1;--line:#33293b;--accent:#c18bff;--hot:#ff7a6b;--soft:#2a2033;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#140f18;--surface:#1e1724;--ink:#f1eaf4;--muted:#a99db1;--line:#33293b;--accent:#c18bff;--hot:#ff7a6b;--soft:#2a2033;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px}
+.wrap{max-width:720px;margin:0 auto;display:grid;gap:22px}
+.eyebrow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.5vw,44px);line-height:1.02;margin:4px 0 0;text-wrap:balance}
+.hero{background:var(--soft);border-radius:18px;padding:22px;display:grid;gap:10px}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(48px,14vw,92px);line-height:.95;color:var(--hot);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.equiv{font-size:18px;font-weight:600}
+.years{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.years input[type=range]{flex:1;min-width:160px;accent-color:var(--accent)}
+.years b{font-family:var(--display);font-size:22px;min-width:84px}
+.check{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px}
+.habits{display:grid;gap:10px}
+.h{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.h .f{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.h input,.h select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-width:0}
+.h .nm{flex:1 1 160px;font-weight:600}
+.h .pr{width:84px}
+.h .yr{grid-column:1/-1;font-size:13px;color:var(--muted)}
+.h .yr b{color:var(--ink);font-variant-numeric:tabular-nums}
+.del{border:none;background:none;color:var(--muted);font-size:20px;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:14px;border:1px dashed var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:6px 12px;cursor:pointer}
+.share{background:var(--ink);color:var(--bg);border-radius:14px;padding:16px;display:grid;gap:10px}
+.share p{margin:0;font-weight:500}
+.share button{justify-self:start;font:inherit;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{color:var(--muted);font-size:13px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Fuga de Euros</div>
+    <h1>Los pequeños gastos que se llevan tu dinero</h1>
+  </header>
+
+  <section class="hero" aria-live="polite">
+    <div class="eyebrow" id="lead">En 10 años habrás gastado</div>
+    <div class="big" id="big">0 €</div>
+    <div class="equiv" id="equiv"></div>
+    <div class="years"><label for="yrs">Años</label><input id="yrs" type="range" min="1" max="40" value="10"><b id="yrsLbl">10 años</b></div>
+    <label class="check"><input type="checkbox" id="inv"> Mostrar cuánto tendrías si lo invirtieras (5% anual)</label>
+  </section>
+
+  <section class="habits" id="habits"></section>
+
+  <div class="chips" id="chips"></div>
+
+  <section class="share">
+    <p id="shareText"></p>
+    <button id="copy">Copiar para compartir</button>
+  </section>
+
+  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Cálculo orientativo, no es asesoramiento financiero.</footer>
+</div>
+
+<script>
+const FREQ={dia:365,"laborable":250,semana:52,mes:12,"año":1};
+const FREQ_LBL={dia:"al día",laborable:"cada día laborable",semana:"a la semana",mes:"al mes","año":"al año"};
+const IDEAS=[["Café para llevar",2.5,"laborable"],["Paquete de tabaco",8,"dia"],["Streaming que no usas",12.99,"mes"],["Comida a domicilio",18,"semana"],["Refresco de máquina",1.8,"laborable"],["Lotería",5,"semana"],["Gimnasio sin ir",35,"mes"],["Cerveza en el bar",3,"dia"],["Apps de pago olvidadas",4.99,"mes"]];
+const EQUIV=[[300,"un móvil de gama media"],[900,"un viaje de una semana a Canarias"],[2500,"un MacBook"],[6000,"la entrada de un coche"],[15000,"un coche de segunda mano"],[30000,"un coche nuevo"],[60000,"la entrada de un piso"],[150000,"medio piso"]];
+let habits;
+try{habits=JSON.parse(localStorage.getItem('goteo')||'null')}catch(e){}
+if(!Array.isArray(habits)||!habits.length)habits=[{n:"Café para llevar",p:2.5,f:"laborable"},{n:"Comida a domicilio",p:18,f:"semana"},{n:"Streaming que no usas",p:12.99,f:"mes"}];
+const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+const yearly=h=>(parseFloat(h.p)||0)*FREQ[h.f];
+function save(){try{localStorage.setItem('goteo',JSON.stringify(habits))}catch(e){}}
+function future(annual,yrs,invest){if(!invest)return annual*yrs;const r=0.05;return annual*((Math.pow(1+r,yrs)-1)/r)}
+function render(){
+  const box=document.getElementById('habits');box.innerHTML='';
+  habits.forEach((h,i)=>{
+    const d=document.createElement('div');d.className='h';
+    d.innerHTML=`<div class="f"><input class="nm" id="hn${i}" aria-label="Gasto" value="${h.n.replace(/"/g,'&quot;')}">
+      <input class="pr" id="hp${i}" type="number" step="0.01" min="0" aria-label="Precio" value="${h.p}"> €
+      <select id="hf${i}" aria-label="Frecuencia">${Object.keys(FREQ).map(k=>`<option value="${k}" ${k===h.f?'selected':''}>${FREQ_LBL[k]}</option>`).join('')}</select></div>
+      <button class="del" aria-label="Quitar">×</button><div class="yr"></div>`;
+    d.querySelector('.nm').oninput=e=>{h.n=e.target.value;save();calc()};
+    d.querySelector('.pr').oninput=e=>{h.p=e.target.value;save();calc()};
+    d.querySelector('select').onchange=e=>{h.f=e.target.value;save();calc()};
+    d.querySelector('.del').onclick=()=>{habits.splice(i,1);save();render()};
+    box.appendChild(d);
+  });
+  calc();
+}
+function calc(){
+  const yrs=+document.getElementById('yrs').value, inv=document.getElementById('inv').checked;
+  document.getElementById('yrsLbl').textContent=yrs+(yrs===1?' año':' años');
+  document.querySelectorAll('.h').forEach((el,i)=>{el.querySelector('.yr').innerHTML=`Al año: <b>${eur(yearly(habits[i]))}</b> · En ${yrs} años: <b>${eur(future(yearly(habits[i]),yrs,inv))}</b>`});
+  const annual=habits.reduce((s,h)=>s+yearly(h),0);
+  const total=future(annual,yrs,inv);
+  document.getElementById('lead').textContent=inv?`Si lo invirtieras, en ${yrs} años tendrías`:`En ${yrs} años habrás gastado`;
+  document.getElementById('big').textContent=eur(total);
+  let eq=null;EQUIV.forEach(e=>{if(total>=e[0])eq=e});
+  document.getElementById('equiv').textContent=eq?`Eso es ${eq[1]}${total>=eq[0]*2?' (¡'+Math.floor(total/eq[0])+' veces!)':''}.`:'Sigue sumando gastos para ver el impacto.';
+  document.getElementById('shareText').textContent=`Mis pequeños gastos suman ${eur(annual)} al año. En ${yrs} años: ${eur(total)}${eq?' — '+eq[1]:''}. ¿Y los tuyos?`;
+}
+const chips=document.getElementById('chips');
+IDEAS.forEach(x=>{const b=document.createElement('button');b.className='chip';b.textContent='+ '+x[0];b.onclick=()=>{habits.push({n:x[0],p:x[1],f:x[2]});save();render()};chips.appendChild(b)});
+const own=document.createElement('button');own.className='chip';own.textContent='+ Otro gasto';own.onclick=()=>{habits.push({n:'Mi gasto',p:5,f:'semana'});save();render()};chips.appendChild(own);
+document.getElementById('yrs').oninput=calc;document.getElementById('inv').onchange=calc;
+document.getElementById('copy').onclick=async e=>{const t=document.getElementById('shareText').textContent;try{await navigator.clipboard.writeText(t);e.target.textContent='Copiado'}catch(err){const r=document.createRange();r.selectNodeContents(document.getElementById('shareText'));getSelection().removeAllRanges();getSelection().addRange(r);e.target.textContent='Texto seleccionado'}setTimeout(()=>e.target.textContent='Copiar para compartir',2000)};
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Descubre qué electrodoméstico se come tu factura de luz. Gratis.">
+</head>
+<body>
+<title>Chupaluz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: contador grande arriba (como un contador de luz), lista de aparatos debajo con barras de coste */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --ink:#18221c; --muted:#5e6b63; --line:#d9dfd9;
+  --accent:#1f6b45; --volt:#f2c230; --bar:#2f8a5a; --warn:#c2412d;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif; --body:"Figtree",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1512;--surface:#17201b;--ink:#e6ece7;--muted:#97a69d;--line:#2a362f;--accent:#6fd09c;--volt:#f2c230;--bar:#4fb37f;--warn:#ef7a63;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1512;--surface:#17201b;--ink:#e6ece7;--muted:#97a69d;--line:#2a362f;--accent:#6fd09c;--volt:#f2c230;--bar:#4fb37f;--warn:#ef7a63;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:760px;margin:0 auto;display:grid;gap:24px}
+h1{font-family:var(--display);font-stretch:75%;font-weight:800;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:6px 0 0}
+.meter{background:var(--ink);color:var(--bg);border-radius:14px;padding:20px;display:grid;gap:14px}
+.meter .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.digits{font-family:var(--display);font-stretch:90%;font-weight:700;font-size:clamp(44px,12vw,72px);line-height:1;font-variant-numeric:tabular-nums;color:var(--volt)}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.row3 b{display:block;font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.price{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.price input{width:90px}
+input,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.list{display:grid;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px}
+.item .top{display:flex;gap:8px;align-items:center}
+.item .top input.name{flex:1;font-weight:600}
+.fields{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fields label{font-size:12px;color:var(--muted);display:grid;gap:2px}
+.fields input{width:100%}
+.barline{display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--bar)}
+.item.top1 .bar i{background:var(--warn)}
+.cost{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;min-width:86px;text-align:right}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 12px}
+.del{border:none;background:none;color:var(--muted);font-size:20px;padding:4px 8px}
+.add{display:flex;flex-wrap:wrap;gap:8px}
+.add select{flex:1;min-width:0}
+.primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
+.tip{background:var(--surface);border-left:4px solid var(--volt);border-radius:8px;padding:12px 14px}
+footer{color:var(--muted);font-size:13px;text-align:center}
+@media (max-width:480px){.fields{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Chupaluz</h1>
+    <p class="sub">¿Qué aparato se come tu factura? Apunta tus electrodomésticos y cuántas horas los usas. y descúbrelo.</p>
+  </header>
+
+  <section class="meter" aria-live="polite">
+    <div>
+      <div class="lbl">Tu gasto estimado al mes</div>
+      <div class="digits" id="total">0,00 €</div>
+    </div>
+    <div class="row3">
+      <div><span class="lbl">Al año</span><b id="year">0 €</b></div>
+      <div><span class="lbl">Consumo/mes</span><b id="kwh">0 kWh</b></div>
+      <div><span class="lbl">El que más gasta</span><b id="top">—</b></div>
+    </div>
+    <div class="price">
+      <label for="price" class="lbl">Precio del kWh</label>
+      <input id="price" type="number" step="0.01" min="0" value="0.35"> <span>€/kWh</span>
+    </div>
+  </section>
+
+  <div class="tip" id="tip"></div>
+
+  <section class="list" id="list"></section>
+
+  <div class="add">
+    <select id="preset" aria-label="Añadir aparato"></select>
+    <button class="primary" id="addBtn">Añadir aparato</button>
+  </div>
+
+  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Estimación orientativa: el consumo real depende del modelo y del uso.</footer>
+</div>
+
+<script>
+const PRESETS=[
+ ["Frigorífico",150,10,7],["Congelador",120,10,7],["Lavadora",500,1,4],["Secadora",2500,1,3],["Lavavajillas",1200,1.5,5],
+ ["Horno eléctrico",2200,0.7,3],["Placa de inducción",2000,1,7],["Microondas",1000,0.2,7],["Hervidor",2000,0.15,7],
+ ["Cafetera",1000,0.2,7],["Televisor",100,4,7],["Ordenador de sobremesa",250,4,5],["Portátil",60,4,7],["Consola",150,2,5],
+ ["Radiador eléctrico",2000,4,7],["Aire acondicionado",1200,4,7],["Termo eléctrico",2000,3,7],["Bombilla LED",9,5,7],
+ ["Bombilla antigua",60,5,7],["Secador de pelo",1800,0.2,7],["Router wifi",10,24,7],["Cargador de coche eléctrico",7400,2,3]
+];
+const sel=document.getElementById('preset');
+PRESETS.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p[0]+' ('+p[1]+' W)';sel.appendChild(o)});
+const o=document.createElement('option');o.value='custom';o.textContent='Otro aparato…';sel.appendChild(o);
+
+let items=[];
+try{items=JSON.parse(localStorage.getItem('watios')||'null')}catch(e){}
+if(!Array.isArray(items)||!items.length){items=[0,2,3,10,16,20].map(i=>({n:PRESETS[i][0],w:PRESETS[i][1],h:PRESETS[i][2],d:PRESETS[i][3]}))}
+try{const p=localStorage.getItem('watios-price');if(p)document.getElementById('price').value=p}catch(e){}
+
+const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+const monthly=it=>(it.w/1000)*it.h*it.d*(52/12);
+
+function save(){try{localStorage.setItem('watios',JSON.stringify(items));localStorage.setItem('watios-price',document.getElementById('price').value)}catch(e){}}
+
+function render(){
+  const list=document.getElementById('list');list.innerHTML='';
+  const price=parseFloat(document.getElementById('price').value)||0;
+  const costs=items.map(it=>monthly(it)*price);
+  const max=Math.max(...costs,0.01);
+  const topIdx=costs.indexOf(Math.max(...costs));
+  items.forEach((it,i)=>{
+    const el=document.createElement('div');el.className='item'+(i===topIdx&&costs[i]>0?' top1':'');
+    el.innerHTML=`<div class="top"><input class="name" id="n${i}" value="${it.n.replace(/"/g,'&quot;')}" aria-label="Nombre"><button class="del" aria-label="Quitar">×</button></div>
+    <div class="fields">
+      <label>Potencia (W)<input id="w${i}" type="number" min="0" value="${it.w}"></label>
+      <label>Horas al día<input id="h${i}" type="number" min="0" max="24" step="0.1" value="${it.h}"></label>
+      <label>Días/semana<input id="d${i}" type="number" min="0" max="7" value="${it.d}"></label>
+    </div>
+    <div class="barline"><div class="bar"><i style="width:${(costs[i]/max*100).toFixed(1)}%"></i></div><span class="cost">${eur(costs[i])}/mes</span></div>`;
+    el.querySelector('.del').onclick=()=>{items.splice(i,1);save();render()};
+    el.querySelector('.name').oninput=e=>{it.n=e.target.value;save();summary()};
+    ['w','h','d'].forEach(k=>el.querySelector('#'+k+i).onchange=e=>{it[k]=parseFloat(e.target.value)||0;save();render()});
+    list.appendChild(el);
+  });
+  summary();
+}
+function summary(){
+  const price=parseFloat(document.getElementById('price').value)||0;
+  const kwh=items.reduce((s,it)=>s+monthly(it),0);
+  const total=kwh*price;
+  document.getElementById('total').textContent=eur(total);
+  document.getElementById('year').textContent=eur(total*12);
+  document.getElementById('kwh').textContent=Math.round(kwh)+' kWh';
+  let top=null;items.forEach(it=>{if(!top||monthly(it)>monthly(top))top=it});
+  document.getElementById('top').textContent=top?top.n:'—';
+  const tip=document.getElementById('tip');
+  if(top&&total>0){
+    const share=Math.round(monthly(top)*price/total*100);
+    let t=`<b>${top.n}</b> es el ${share}% de tu gasto. `;
+    if(/secadora/i.test(top.n))t+='Tender la ropa dos veces por semana te ahorraría unos '+eur(monthly(top)*price*0.6*12)+' al año.';
+    else if(/radiador|termo|aire/i.test(top.n))t+='Bajar 1 hora de uso al día ahorra unos '+eur(top.w/1000*top.d*(52/12)*price*12)+' al año.';
+    else if(/bombilla antigua/i.test(top.n))t+='Cambiarla por LED reduce su gasto casi un 85%.';
+    else t+='Reducir su uso un 20% te ahorraría '+eur(monthly(top)*price*0.2*12)+' al año.';
+    tip.innerHTML=t;tip.hidden=false;
+  }else tip.hidden=true;
+}
+document.getElementById('price').oninput=()=>{save();render()};
+document.getElementById('addBtn').onclick=()=>{
+  const v=sel.value;
+  items.push(v==='custom'?{n:'Mi aparato',w:100,h:1,d:7}:{n:PRESETS[v][0],w:PRESETS[v][1],h:PRESETS[v][2],d:PRESETS[v][3]});
+  save();render();
+};
+render();
+</script>
+
+</body>
+</html>

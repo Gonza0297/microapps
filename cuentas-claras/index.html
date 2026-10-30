@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Reparte gastos entre amigos y descubre quién debe a quién.">
+</head>
+<body>
+<title>Cuentas Claras</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: arriba "quién paga a quién" (lo importante), debajo gastos y personas */
+:root{
+  --bg:#eef3f7;--surface:#ffffff;--ink:#14212b;--muted:#5d6d79;--line:#d6e0e8;
+  --accent:#0e7c86;--pos:#1d8a4e;--neg:#c2452f;--tint:#dff0f1;
+  --display:"Syne",system-ui,sans-serif;--body:"Manrope",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1419;--surface:#152028;--ink:#e3ecf2;--muted:#93a4b0;--line:#26343e;--accent:#4fc4cd;--pos:#5cd08f;--neg:#ff8a72;--tint:#12313a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1419;--surface:#152028;--ink:#e3ecf2;--muted:#93a4b0;--line:#26343e;--accent:#4fc4cd;--pos:#5cd08f;--neg:#ff8a72;--tint:#12313a;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:720px;margin:0 auto;display:grid;gap:20px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,7vw,44px);margin:0;line-height:1}
+h2{font-family:var(--display);font-size:18px;margin:0 0 10px}
+.sub{color:var(--muted);margin:6px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+.settle{background:var(--tint);border:none}
+.tx{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tx:last-child{border-bottom:none}
+.tx .who{font-weight:700}
+.tx .arrow{color:var(--accent);font-weight:700}
+.tx .amt{margin-left:auto;font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.total{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-top:8px}
+.total b{color:var(--ink);font-variant-numeric:tabular-nums}
+.people{display:flex;flex-wrap:wrap;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px;font-weight:600}
+.pill small{font-variant-numeric:tabular-nums;font-weight:700}
+.pill small.p{color:var(--pos)} .pill small.n{color:var(--neg)}
+.pill button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1}
+.inline{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.inline input{flex:1}
+button.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--surface);border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
+.form{display:grid;gap:10px}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.split{display:flex;flex-wrap:wrap;gap:6px}
+.split label{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink);font-size:14px}
+.exp{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.exp:last-child{border-bottom:none}
+.exp .meta{grid-column:1/2;font-size:13px;color:var(--muted)}
+.exp .v{font-weight:700;font-variant-numeric:tabular-nums}
+.exp button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:18px}
+.empty{color:var(--muted)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+footer{color:var(--muted);font-size:13px;text-align:center}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Cuentas Claras</h1>
+    <p class="sub">Apunta quién pagó qué en el viaje o en el piso. La app te dice quién debe a quién, con el mínimo de pagos.</p>
+  </header>
+
+  <section class="card settle" aria-live="polite">
+    <h2>Para quedar en paz</h2>
+    <div id="settle"></div>
+    <div class="total" id="totals"></div>
+  </section>
+
+  <section class="card">
+    <h2>Personas</h2>
+    <div class="people" id="people"></div>
+    <form class="inline" id="personForm"><input id="personName" placeholder="Nombre" aria-label="Nombre"><button class="btn">Añadir</button></form>
+  </section>
+
+  <section class="card">
+    <h2>Nuevo gasto</h2>
+    <form class="form" id="expForm">
+      <label>Concepto<input id="expDesc" placeholder="Ej.: Supermercado" required></label>
+      <div class="two">
+        <label>Importe (€)<input id="expAmt" type="number" step="0.01" min="0.01" required></label>
+        <label>Pagó<select id="expPayer"></select></label>
+      </div>
+      <div><div style="font-size:13px;color:var(--muted);margin-bottom:4px">Entre quiénes se reparte</div><div class="split" id="expSplit"></div></div>
+      <button class="btn" style="justify-self:start">Guardar gasto</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Gastos</h2>
+    <div id="expenses"></div>
+  </section>
+
+  <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon</footer>
+</div>
+
+<script>
+let S;
+try{S=JSON.parse(localStorage.getItem('apartes')||'null')}catch(e){}
+if(!S||!Array.isArray(S.people))S={people:["Ana","Luis","Marta","Gonzalo"],exp:[
+ {d:"Alquiler apartamento (ejemplo)",a:480,p:"Ana",s:["Ana","Luis","Marta","Gonzalo"]},
+ {d:"Gasolina (ejemplo)",a:96,p:"Luis",s:["Ana","Luis","Marta","Gonzalo"]},
+ {d:"Cena del sábado (ejemplo)",a:124,p:"Gonzalo",s:["Ana","Luis","Gonzalo"]},
+ {d:"Supermercado (ejemplo)",a:63.4,p:"Marta",s:["Ana","Luis","Marta","Gonzalo"]}]};
+const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR'});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function save(){try{localStorage.setItem('apartes',JSON.stringify(S))}catch(e){}}
+function balances(){
+  const b={};S.people.forEach(p=>b[p]=0);
+  S.exp.forEach(e=>{const share=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=share})});
+  return b;
+}
+function settle(b){
+  const cred=[],deb=[];
+  Object.entries(b).forEach(([p,v])=>{v=Math.round(v*100)/100;if(v>0.004)cred.push([p,v]);else if(v<-0.004)deb.push([p,-v])});
+  cred.sort((a,b)=>b[1]-a[1]);deb.sort((a,b)=>b[1]-a[1]);
+  const out=[];let i=0,j=0;
+  while(i<deb.length&&j<cred.length){const m=Math.min(deb[i][1],cred[j][1]);out.push([deb[i][0],cred[j][0],m]);deb[i][1]-=m;cred[j][1]-=m;if(deb[i][1]<0.005)i++;if(cred[j][1]<0.005)j++}
+  return out;
+}
+function render(){
+  const b=balances();
+  document.getElementById('people').innerHTML=S.people.map((p,i)=>{const v=b[p];return `<span class="pill">${esc(p)} <small class="${v>=0?'p':'n'}">${v>=0?'+':''}${eur(v)}</small><button data-i="${i}" aria-label="Quitar ${esc(p)}">×</button></span>`}).join('')||'<span class="empty">Añade a la primera persona.</span>';
+  document.querySelectorAll('#people button').forEach(bt=>bt.onclick=()=>{const p=S.people[bt.dataset.i];S.people.splice(bt.dataset.i,1);S.exp=S.exp.filter(e=>e.p!==p).map(e=>({...e,s:e.s.filter(x=>x!==p)})).filter(e=>e.s.length);save();render()});
+  const t=settle(b);
+  document.getElementById('settle').innerHTML=t.length?t.map(([f,to,m])=>`<div class="tx"><span class="who">${esc(f)}</span><span class="arrow">paga a →</span><span class="who">${esc(to)}</span><span class="amt">${eur(m)}</span></div>`).join(''):'<p class="empty">Todo cuadrado. Nadie debe nada.</p>';
+  const tot=S.exp.reduce((s,e)=>s+e.a,0);
+  document.getElementById('totals').innerHTML=`<span>Gasto total: <b>${eur(tot)}</b></span><span>Por persona (media): <b>${eur(S.people.length?tot/S.people.length:0)}</b></span><span>Pagos necesarios: <b>${t.length}</b></span>`;
+  document.getElementById('expPayer').innerHTML=S.people.map(p=>`<option>${esc(p)}</option>`).join('');
+  document.getElementById('expSplit').innerHTML=S.people.map((p,i)=>`<label><input type="checkbox" id="sp${i}" value="${esc(p)}" checked>${esc(p)}</label>`).join('');
+  document.getElementById('expenses').innerHTML=S.exp.length?S.exp.map((e,i)=>`<div class="exp"><span>${esc(e.d)}</span><span class="v">${eur(e.a)}</span><button data-i="${i}" aria-label="Borrar gasto">×</button><span class="meta">Pagó ${esc(e.p)} · entre ${e.s.map(esc).join(', ')}</span></div>`).reverse().join(''):'<p class="empty">Aún no hay gastos.</p>';
+  document.querySelectorAll('#expenses button').forEach(bt=>bt.onclick=()=>{S.exp.splice(bt.dataset.i,1);save();render()});
+}
+document.getElementById('personForm').onsubmit=e=>{e.preventDefault();const n=document.getElementById('personName').value.trim();if(n&&!S.people.includes(n)){S.people.push(n);save();render()}document.getElementById('personName').value=''};
+document.getElementById('expForm').onsubmit=e=>{e.preventDefault();
+  const s=[...document.querySelectorAll('#expSplit input:checked')].map(x=>x.value);
+  const a=parseFloat(document.getElementById('expAmt').value);
+  if(!s.length||!(a>0))return;
+  S.exp.push({d:document.getElementById('expDesc').value.trim()||'Gasto',a,p:document.getElementById('expPayer').value,s});
+  save();document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';render()};
+render();
+</script>
+
+</body>
+</html>
