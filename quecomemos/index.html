@@ -32,6 +32,12 @@
 .it.done span:not(.q){text-decoration:line-through;color:var(--muted)}
 .prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
 .prog i{display:block;height:100%;background:var(--accent)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--bg);border:1.5px solid var(--line);border-radius:14px;padding:4px}
+.seg button{font:inherit;font-weight:800;font-size:14px;border:none;border-radius:10px;background:transparent;color:var(--ink);min-height:42px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.scope{display:grid;gap:6px}
+.meal-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.meal-h button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:6px 10px;min-height:36px;cursor:pointer;white-space:nowrap}
 .daychips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
 .daychips button{font:inherit;font-weight:700;font-size:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:42px;white-space:nowrap;cursor:pointer}
 .daychips button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -68,6 +74,7 @@
     <p class="help" data-i18n="todayHelp"></p>
     <div class="daychips" id="daychips"></div>
     <div id="todayBody" style="display:grid;gap:10px"></div>
+    <button class="btn" id="sendDay" data-i18n="sendDay">📤 Enviar el menú de este día</button>
   </section>
 
   <section class="card" id="weekCard">
@@ -82,7 +89,10 @@
 
   <section class="card" id="listCard">
     <h2><span class="n">2</span><span data-i18n="listH">Lista de la compra</span></h2>
-    <div class="row" style="justify-content:space-between"><span class="muted" id="count"></span><button class="btn small ghost" id="copy" data-i18n="copy">Copiar lista</button></div>
+    <div class="scope"><span class="f" data-i18n="scopeH">Calcular la compra para:</span>
+      <div class="seg" id="scope"><button data-s="day" data-i18n="scDay">Un día</button><button data-s="week" data-i18n="scWeek">La semana</button><button data-s="month" data-i18n="scMonth">El mes</button></div>
+      <small class="muted" id="scopeInfo"></small></div>
+    <div class="row" style="justify-content:space-between"><span class="muted" id="count"></span><span class="row"><button class="btn small" id="sendList" data-i18n="sendList">📤 Enviar lista</button><button class="btn small ghost" id="copy" data-i18n="copy">Copiar lista</button></span></div>
     <div class="prog"><i id="progbar" style="width:0"></i></div>
     <div class="aisles" id="aisles"></div>
   </section>
@@ -119,6 +129,16 @@ const D={
  copyFail:['No se pudo copiar','Copie impossible','Couldn’t copy','Impossibile copiare','Não foi possível copiar'],
  pro:['Desbloquea <b>14 recetas extra</b>: paella, curry, poke, lasaña, ramen… y "Sorpréndeme" las incluirá.','Débloquez <b>14 recettes de plus</b> : paella, curry, poke, lasagnes, ramen… et "Surprenez-moi" les utilisera.','Unlock <b>14 more recipes</b>: paella, curry, poke, lasagne, ramen… and "Surprise me" will use them.','Sblocca <b>14 ricette in più</b>: paella, curry, poke, lasagne, ramen… e "Sorprendimi" le userà.','Desbloqueie <b>mais 14 receitas</b>: paella, caril, poke, lasanha, ramen… e "Surpreenda-me" vai usá-las.'],
  usesH:['¿Para qué te sirve?','À quoi ça sert ?','What can you use it for?','A cosa ti serve?','Para que lhe serve?'],
+ scopeH:['Calcular la compra para:','Calculer les courses pour :','Work out the shopping for:','Calcola la spesa per:','Calcular as compras para:'],
+ scDay:['Un día','Un jour','One day','Un giorno','Um dia'],scWeek:['La semana','La semaine','The week','La settimana','A semana'],scMonth:['El mes','Le mois','The month','Il mese','O mês'],
+ scDayInfo:['Solo lo que cocinas el {d}.','Seulement ce que vous cuisinez {d}.','Only what you cook on {d}.','Solo quello che cucini {d}.','Só o que cozinha {d}.'],
+ scWeekInfo:['Todo lo del menú de 7 días.','Tout le menu des 7 jours.','Everything on the 7-day menu.','Tutto il menu dei 7 giorni.','Tudo do menu dos 7 dias.'],
+ scMonthInfo:['El menú de la semana repetido 4 semanas.','Le menu de la semaine répété sur 4 semaines.','The weekly menu repeated for 4 weeks.','Il menu della settimana ripetuto per 4 settimane.','O menu da semana repetido 4 semanas.'],
+ sendDay:['📤 Enviar el menú de este día','📤 Envoyer le menu de ce jour','📤 Send this day’s menu','📤 Invia il menu di questo giorno','📤 Enviar o menu deste dia'],
+ sendDish:['📤 Enviar','📤 Envoyer','📤 Send','📤 Invia','📤 Enviar'],
+ sendList:['📤 Enviar lista','📤 Envoyer la liste','📤 Send list','📤 Invia lista','📤 Enviar lista'],
+ sent:['Listo ✓','C’est fait ✓','Done ✓','Fatto ✓','Feito ✓'],
+ ingr:['Ingredientes','Ingrédients','Ingredients','Ingredienti','Ingredientes'],
  todayH:['Hoy cocinas','Aujourd’hui, vous cuisinez','Today you’re cooking','Oggi cucini','Hoje cozinha'],
  todayHelp:['Toca un día para ver qué necesitas sacar de la nevera.','Touchez un jour pour voir ce qu’il faut sortir du frigo.','Tap a day to see what to take out of the fridge.','Tocca un giorno per vedere cosa tirare fuori dal frigo.','Toque num dia para ver o que tirar do frigorífico.'],
  nothing:['Nada planeado. Elige un plato en el menú de abajo.','Rien de prévu. Choisissez un plat dans le menu ci-dessous.','Nothing planned. Pick a meal in the menu below.','Niente in programma. Scegli un piatto nel menu qui sotto.','Nada planeado. Escolha um prato no menu abaixo.'],
@@ -132,7 +152,7 @@ const t=(k,v)=>T(D[k],v);
 const DAYS=[['Lunes','Lundi','Monday','Lunedì','Segunda'],['Martes','Mardi','Tuesday','Martedì','Terça'],['Miércoles','Mercredi','Wednesday','Mercoledì','Quarta'],['Jueves','Jeudi','Thursday','Giovedì','Quinta'],['Viernes','Vendredi','Friday','Venerdì','Sexta'],['Sábado','Samedi','Saturday','Sabato','Sábado'],['Domingo','Dimanche','Sunday','Domenica','Domingo']];
 const AISLE={fv:['🥬 Fruta y verdura','🥬 Fruits et légumes','🥬 Fruit & veg','🥬 Frutta e verdura','🥬 Fruta e legumes'],cp:['🥩 Carne y pescado','🥩 Viande et poisson','🥩 Meat & fish','🥩 Carne e pesce','🥩 Carne e peixe'],lh:['🥚 Lácteos y huevos','🥚 Produits laitiers et œufs','🥚 Dairy & eggs','🥚 Latticini e uova','🥚 Lacticínios e ovos'],pa:['🥖 Panadería','🥖 Boulangerie','🥖 Bakery','🥖 Panetteria','🥖 Padaria'],de:['🥫 Despensa','🥫 Épicerie','🥫 Pantry','🥫 Dispensa','🥫 Mercearia'],co:['🧊 Congelados','🧊 Surgelés','🧊 Frozen','🧊 Surgelati','🧊 Congelados']};
 const AORD=['fv','cp','lh','pa','de','co'];
-const UNIT={diente:['diente','gousse','clove','spicchio','dente'],lata:['lata','boîte','can','scatoletta','lata']};
+const UNIT={diente:['diente','gousse','clove','spicchio','dente'],lata:['lata','boîte','can','scatoletta','lata']},UNITS={diente:['dientes','gousses','cloves','spicchi','dentes'],lata:['latas','boîtes','cans','scatolette','latas']};
 // ingrediente: [pasillo, es, fr, en, it, pt]
 const ING={
  spaghetti:['de','Espaguetis','Spaghettis','Spaghetti','Spaghetti','Esparguete'],mince:['cp','Carne picada','Viande hachée','Minced beef','Carne macinata','Carne picada'],tomsauce:['de','Tomate triturado','Tomates concassées','Crushed tomatoes','Polpa di pomodoro','Tomate triturado'],onion:['fv','Cebolla','Oignon','Onion','Cipolla','Cebola'],cheese:['lh','Queso rallado','Fromage râpé','Grated cheese','Formaggio grattugiato','Queijo ralado'],
@@ -236,12 +256,24 @@ function renderWeek(){
 function fmtQ(q,u){
   if(u==='g'){return q>=1000?fmtNum(q/1000,2)+' kg':Math.ceil(q/10)*10+' g'}
   if(u==='ml'){return q>=1000?fmtNum(q/1000,2)+' l':Math.ceil(q/10)*10+' ml'}
-  const n=Math.ceil(q*2)/2;return fmtNum(n,1)+(u==='ud'?'':' '+T(UNIT[u]));
+  const n=Math.ceil(q*2)/2;return fmtNum(n,1)+(u==='ud'?'':' '+T(n>1?UNITS[u]:UNIT[u]));
 }
-function agg(){const ppl=+document.getElementById('ppl').value,a={};
-  plan.filter(Boolean).forEach(r=>R[r][1].forEach(([id,q,u])=>{const k=id+'|'+u;a[k]=a[k]||{id,u,q:0};a[k].q+=q*ppl}));return a}
+var selDay=(new Date().getDay()+6)%7,scope='week';
+try{scope=localStorage.getItem('qc-scope')||'week'}catch(e){}
+function agg(){const ppl=+document.getElementById('ppl').value,a={},mult=scope==='month'?4:1;
+  const slots=scope==='day'?[plan[selDay*2],plan[selDay*2+1]]:plan;
+  slots.filter(Boolean).forEach(r=>R[r][1].forEach(([id,q,u])=>{const k=id+'|'+u;a[k]=a[k]||{id,u,q:0};a[k].q+=q*ppl*mult}));return a}
+function scopeTitle(){return scope==='day'?T(DAYS[selDay]):scope==='month'?t('scMonth'):t('scWeek')}
+async function sendText(txt,btn,label){
+  try{if(navigator.share){await navigator.share({text:txt});btn.textContent=t('sent');setTimeout(()=>btn.textContent=label,2000);return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(txt);btn.textContent=t('copied')}catch(err){btn.textContent=t('copyFail')}setTimeout(()=>btn.textContent=label,2000)}
+function listText(){const a=agg(),by={};Object.values(a).forEach(x=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push(x));
+  return '🛒 '+t('listH')+' · '+scopeTitle()+'\n'+AORD.filter(s=>by[s]).map(s=>'\n'+T(AISLE[s])+'\n'+by[s].map(x=>'- '+iname(x.id)+' ('+fmtQ(x.q,x.u)+')').join('\n')).join('\n')+'\n\nQuéComemos · gonza0297.github.io/microapps/quecomemos/'}
+function dishText(k,lbl){const ppl=+document.getElementById('ppl').value;return `🍽 ${lbl?lbl+': ':''}${rn(k)}\n`+R[k][1].map(([id,q,u])=>`- ${iname(id)} (${fmtQ(q*ppl,u)})`).join('\n')}
 const iname=id=>ING[id][1+LI]||ING[id][1];
 var renderList=function(){
+  document.querySelectorAll('#scope button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===scope));
+  document.getElementById('scopeInfo').textContent=scope==='day'?t('scDayInfo',{d:LANG==='en'?T(DAYS[selDay]):T(DAYS[selDay]).toLowerCase()}):scope==='month'?t('scMonthInfo'):t('scWeekInfo');
   const a=agg(),by={};Object.entries(a).forEach(([k,x])=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push([k,x]));
   const total=Object.keys(a).length,done=Object.keys(a).filter(k=>checked[k]).length;
   document.getElementById('count').textContent=total?t('count',{d:done,t:total}):'';
@@ -252,21 +284,23 @@ var renderList=function(){
 document.getElementById('ppl').onchange=()=>{save();renderList()};
 document.getElementById('rand').onclick=()=>{const pool=Object.keys(R).filter(usable).sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList()};
 document.getElementById('clear').onclick=()=>{plan=Array(14).fill('');checked={};save();renderWeek();renderList()};
-document.getElementById('copy').onclick=async e=>{const b=e.currentTarget,a=agg(),by={};Object.values(a).forEach(x=>(by[ING[x.id][0]]=by[ING[x.id][0]]||[]).push(x));
-  const txt='🛒 '+t('listH')+'\n'+AORD.filter(s=>by[s]).map(s=>'\n'+T(AISLE[s])+'\n'+by[s].map(x=>'- '+iname(x.id)+' ('+fmtQ(x.q,x.u)+')').join('\n')).join('\n');
-  try{await navigator.clipboard.writeText(txt);b.textContent=t('copied')}catch(err){b.textContent=t('copyFail')}setTimeout(()=>b.textContent=t('copy'),2000)};
+document.getElementById('copy').onclick=async e=>{const b=e.currentTarget;try{await navigator.clipboard.writeText(listText());b.textContent=t('copied')}catch(err){b.textContent=t('copyFail')}setTimeout(()=>b.textContent=t('copy'),2000)};
+document.getElementById('sendList').onclick=e=>sendText(listText(),e.currentTarget,t('sendList'));
+document.querySelectorAll('#scope button').forEach(b=>b.onclick=()=>{scope=b.dataset.s;try{localStorage.setItem('qc-scope',scope)}catch(e){}renderList()});
 document.getElementById('pro').innerHTML=window.PRO?'':proBanner(t('pro'));
 document.getElementById('uses').innerHTML=USES.map(u=>`<div class="use"><b>${T(u[0])}</b><span>${T(u[1])}</span></div>`).join('');
 renderAmazon('amz',D.amzH,AMZ);
 
 // ----- Hoy cocinas -----
-let selDay=(new Date().getDay()+6)%7;
 function renderToday(){
   const today=(new Date().getDay()+6)%7,ppl=+document.getElementById('ppl').value;
   document.getElementById('daychips').innerHTML=DAYS.map((d,i)=>`<button data-d="${i}" aria-pressed="${i===selDay}">${i===today?t('today'):T(d).slice(0,3)+'.'}</button>`).join('');
-  document.querySelectorAll('#daychips button').forEach(b=>b.onclick=()=>{selDay=+b.dataset.d;renderToday()});
+  document.querySelectorAll('#daychips button').forEach(b=>b.onclick=()=>{selDay=+b.dataset.d;if(scope==='day')renderList();else renderToday()});
   const meals=[[t('lunch'),plan[selDay*2]],[t('dinner'),plan[selDay*2+1]]];
-  document.getElementById('todayBody').innerHTML=`<p class="muted" style="margin:0">${T(DAYS[selDay])} · ${ppl===1?t('forOne'):t('forN',{n:ppl})}</p>`+meals.map(([lbl,k])=>`<div class="meal"><span class="mt">${lbl}</span>${k&&R[k]?`<b>${esc(rn(k))}</b><ul>${R[k][1].map(([id,q,u])=>`<li><span>${esc(iname(id))}</span><span>${fmtQ(q*ppl,u)}</span></li>`).join('')}</ul>`:`<span class="muted">${t('nothing')}</span>`}</div>`).join('');
+  document.getElementById('todayBody').innerHTML=`<p class="muted" style="margin:0">${T(DAYS[selDay])} · ${ppl===1?t('forOne'):t('forN',{n:ppl})}</p>`+meals.map(([lbl,k],mi)=>`<div class="meal"><div class="meal-h"><span class="mt">${lbl}</span>${k&&R[k]?`<button class="no-export" data-send="${mi}">${t('sendDish')}</button>`:''}</div>${k&&R[k]?`<b>${esc(rn(k))}</b><ul>${R[k][1].map(([id,q,u])=>`<li><span>${esc(iname(id))}</span><span>${fmtQ(q*ppl,u)}</span></li>`).join('')}</ul>`:`<span class="muted">${t('nothing')}</span>`}</div>`).join('');
+  document.querySelectorAll('#todayBody [data-send]').forEach(b=>b.onclick=()=>{const [lbl,k]=meals[+b.dataset.send];sendText(`📅 ${T(DAYS[selDay])} · ${ppl===1?t('forOne'):t('forN',{n:ppl})}\n\n`+dishText(k,lbl),b,t('sendDish'))});
+  document.getElementById('sendDay').hidden=!meals.some(m=>m[1]&&R[m[1]]);
+  document.getElementById('sendDay').onclick=e=>sendText(`📅 ${T(DAYS[selDay])} · ${ppl===1?t('forOne'):t('forN',{n:ppl})}\n\n`+meals.filter(m=>m[1]&&R[m[1]]).map(([lbl,k])=>dishText(k,lbl)).join('\n\n')+'\n\nQuéComemos · gonza0297.github.io/microapps/quecomemos/',e.currentTarget,t('sendDay'));
 }
 const _rl=renderList;renderList=function(){_rl();renderToday()};
 exampleCard('example',D.exStory,()=>{document.getElementById('ppl').value='2';const pool=Object.keys(R).filter(usable).sort(()=>Math.random()-.5);plan=plan.map((_,i)=>pool[i%pool.length]);checked={};save();renderWeek();renderList();document.getElementById('todayCard').scrollIntoView({behavior:'smooth'})},
