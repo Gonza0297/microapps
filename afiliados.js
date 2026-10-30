@@ -1,6 +1,6 @@
 // ===== RECOMENDACIONES DE AMAZON (afiliados) =====
 // Pega aquí tu ID de afiliado de Amazon.es (lo ves arriba en afiliados.amazon.es, termina en -21)
-window.AMAZON_TAG = "";
+window.AMAZON_TAG = "appsutiles-21";
 window.AMAZON_HOST = "https://www.amazon.es";
 
 (function () {
