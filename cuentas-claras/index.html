@@ -54,6 +54,11 @@ button.btn{font:inherit;font-weight:700;background:var(--accent);color:var(--sur
 .exp button{border:none;background:none;color:var(--muted);cursor:pointer;font-size:18px}
 .empty{color:var(--muted)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.gbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.gbar select{flex:1 1 160px}
+.glbl{font-weight:700}
+button.ghost{font:inherit;font-size:14px;font-weight:600;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+#groupPro:not(:empty){margin-top:10px}
 footer{color:var(--muted);font-size:13px;text-align:center}
 </style>
 
@@ -62,6 +67,18 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <h1>Cuentas Claras</h1>
     <p class="sub">Apunta quién pagó qué en el viaje o en el piso. La app te dice quién debe a quién, con el mínimo de pagos.</p>
   </header>
+
+  <section class="card groups">
+    <div class="gbar">
+      <label for="groupSel" class="glbl">Grupo</label>
+      <select id="groupSel"></select>
+      <button type="button" class="ghost" id="renameBtn">Renombrar</button>
+      <button type="button" class="ghost" id="newGroupBtn">+ Nuevo grupo</button>
+      <button type="button" class="ghost" id="exportBtn">Copiar resumen</button>
+    </div>
+    <form class="inline" id="renameForm" hidden><input id="renameInput" aria-label="Nombre del grupo"><button class="btn">Guardar</button></form>
+    <div id="groupPro" aria-live="polite"></div>
+  </section>
 
   <section class="card settle" aria-live="polite">
     <h2>Para quedar en paz</h2>
@@ -96,17 +113,24 @@ footer{color:var(--muted);font-size:13px;text-align:center}
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon</footer>
 </div>
 
+<script src="../pro.js"></script>
 <script>
-let S;
-try{S=JSON.parse(localStorage.getItem('apartes')||'null')}catch(e){}
-if(!S||!Array.isArray(S.people))S={people:["Ana","Luis","Marta","Gonzalo"],exp:[
+const EXAMPLE={name:"Viaje a Lisboa (ejemplo)",people:["Ana","Luis","Marta","Gonzalo"],exp:[
  {d:"Alquiler apartamento (ejemplo)",a:480,p:"Ana",s:["Ana","Luis","Marta","Gonzalo"]},
  {d:"Gasolina (ejemplo)",a:96,p:"Luis",s:["Ana","Luis","Marta","Gonzalo"]},
  {d:"Cena del sábado (ejemplo)",a:124,p:"Gonzalo",s:["Ana","Luis","Gonzalo"]},
  {d:"Supermercado (ejemplo)",a:63.4,p:"Marta",s:["Ana","Luis","Marta","Gonzalo"]}]};
+let G;
+try{G=JSON.parse(localStorage.getItem('cuentas-grupos')||'null')}catch(e){}
+if(!G||!Array.isArray(G.groups)||!G.groups.length){
+  let old=null;try{old=JSON.parse(localStorage.getItem('apartes')||'null')}catch(e){}
+  G={cur:0,groups:[old&&Array.isArray(old.people)?{name:"Mi grupo",people:old.people,exp:old.exp||[]}:EXAMPLE]};
+}
+if(!window.PRO)G.cur=0;
+let S=G.groups[G.cur]||G.groups[0];
 const eur=v=>v.toLocaleString('es-ES',{style:'currency',currency:'EUR'});
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function save(){try{localStorage.setItem('apartes',JSON.stringify(S))}catch(e){}}
+function save(){try{localStorage.setItem('cuentas-grupos',JSON.stringify(G))}catch(e){}}
 function balances(){
   const b={};S.people.forEach(p=>b[p]=0);
   S.exp.forEach(e=>{const share=e.a/e.s.length;if(b[e.p]!==undefined)b[e.p]+=e.a;e.s.forEach(p=>{if(b[p]!==undefined)b[p]-=share})});
@@ -141,6 +165,29 @@ document.getElementById('expForm').onsubmit=e=>{e.preventDefault();
   S.exp.push({d:document.getElementById('expDesc').value.trim()||'Gasto',a,p:document.getElementById('expPayer').value,s});
   save();document.getElementById('expDesc').value='';document.getElementById('expAmt').value='';render()};
 render();
+
+// ===== Grupos (Pro: varios grupos y exportar) =====
+function renderGroups(){
+  const sel=document.getElementById('groupSel');
+  sel.innerHTML=G.groups.map((g,i)=>`<option value="${i}" ${i===G.cur?'selected':''} ${!window.PRO&&i>0?'disabled':''}>${esc(g.name)}${!window.PRO&&i>0?' (Pro)':''}</option>`).join('');
+}
+function showPro(text){document.getElementById('groupPro').innerHTML=window.PRO?'':window.proBanner(text)}
+document.getElementById('groupSel').onchange=e=>{G.cur=+e.target.value;S=G.groups[G.cur];save();renderGroups();render()};
+document.getElementById('renameBtn').onclick=()=>{const f=document.getElementById('renameForm');f.hidden=!f.hidden;document.getElementById('renameInput').value=S.name;if(!f.hidden)document.getElementById('renameInput').focus()};
+document.getElementById('renameForm').onsubmit=e=>{e.preventDefault();const v=document.getElementById('renameInput').value.trim();if(v){S.name=v;save();renderGroups()}e.target.hidden=true};
+document.getElementById('newGroupBtn').onclick=()=>{
+  if(!window.PRO){showPro('Con Pro puedes tener <b>varios grupos</b> a la vez: el piso, el viaje, la cena de empresa…');return}
+  G.groups.push({name:'Grupo '+(G.groups.length+1),people:[],exp:[]});G.cur=G.groups.length-1;S=G.groups[G.cur];save();renderGroups();render();
+  document.getElementById('renameBtn').click();
+};
+document.getElementById('exportBtn').onclick=async e=>{
+  if(!window.PRO){showPro('Con Pro puedes <b>copiar el resumen</b> del grupo y mandarlo por WhatsApp en un toque.');return}
+  const b=balances(),t=settle(b),tot=S.exp.reduce((x,y)=>x+y.a,0);
+  const txt=`💸 ${S.name}\nGasto total: ${eur(tot)}\n\nPara quedar en paz:\n`+(t.length?t.map(([f,to,m])=>`• ${f} paga ${eur(m)} a ${to}`).join('\n'):'• Todo cuadrado')+`\n\nGastos:\n`+S.exp.map(x=>`• ${x.d}: ${eur(x.a)} (pagó ${x.p})`).join('\n')+`\n\nHecho con Cuentas Claras · gonza0297.github.io/microapps/cuentas-claras/`;
+  const btn=e.target;try{await navigator.clipboard.writeText(txt);btn.textContent='Copiado ✓'}catch(err){btn.textContent='No se pudo copiar'}
+  setTimeout(()=>btn.textContent='Copiar resumen',2000);
+};
+renderGroups();
 </script>
 
 </body>

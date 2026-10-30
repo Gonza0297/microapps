@@ -50,6 +50,8 @@ button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line
 .add select{flex:1;min-width:0}
 .primary{background:var(--accent);color:var(--bg);border-color:var(--accent);font-weight:600}
 .tip{background:var(--surface);border-left:4px solid var(--volt);border-radius:8px;padding:12px 14px}
+.report{display:grid;gap:10px}
+.report .msg{font-size:13px;color:var(--muted)}
 footer{color:var(--muted);font-size:13px;text-align:center}
 @media (max-width:480px){.fields{grid-template-columns:1fr 1fr}.row3{grid-template-columns:1fr 1fr}}
 </style>
@@ -57,7 +59,7 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 <div class="wrap">
   <header>
     <h1>Chupaluz</h1>
-    <p class="sub">¿Qué aparato se come tu factura? Apunta tus electrodomésticos y cuántas horas los usas. y descúbrelo.</p>
+    <p class="sub">¿Qué aparato se come tu factura? Apunta tus electrodomésticos y cuántas horas los usas, y descúbrelo.</p>
   </header>
 
   <section class="meter" aria-live="polite">
@@ -85,9 +87,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <button class="primary" id="addBtn">Añadir aparato</button>
   </div>
 
+  <section class="report" id="report"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Estimación orientativa: el consumo real depende del modelo y del uso.</footer>
 </div>
 
+<script src="../pro.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const PRESETS=[
  ["Frigorífico",150,10,7],["Congelador",120,10,7],["Lavadora",500,1,4],["Secadora",2500,1,3],["Lavavajillas",1200,1.5,5],
@@ -159,6 +165,53 @@ document.getElementById('addBtn').onclick=()=>{
   save();render();
 };
 render();
+
+// ===== PRO: informe de ahorro en PDF =====
+const TIPS=[
+ [/secadora/i,'Tiende la ropa al aire cuando puedas y usa el programa con sensor de humedad.',0.5],
+ [/radiador|calefac/i,'Baja 1 °C el termostato (≈7% menos) y usa un programador para no calentar habitaciones vacías.',0.15],
+ [/termo/i,'Ponle un temporizador o enchufe programable para calentar solo en horas valle, y baja la temperatura a 55 °C.',0.25],
+ [/aire acondicionado/i,'Ajústalo a 25-26 °C y limpia los filtros cada mes.',0.2],
+ [/bombilla antigua/i,'Cámbiala por LED: gasta casi un 85% menos y dura 15 veces más.',0.85],
+ [/frigor|congelador/i,'Sepáralo 10 cm de la pared, revisa las gomas de la puerta y descongela si tiene más de 3 mm de hielo.',0.1],
+ [/lavadora|lavavajillas/i,'Usa programas eco a baja temperatura y ponla siempre llena.',0.3],
+ [/horno/i,'Aprovecha el calor residual: apágalo 10 minutos antes y no abras la puerta mientras cocina.',0.15],
+ [/televisor|ordenador|consola|router/i,'Usa una regleta con interruptor para cortar el consumo en espera (standby).',0.1],
+ [/cargador de coche/i,'Carga en horario valle si tu contrato tiene discriminación horaria.',0.3]
+];
+function tipFor(n){for(const t of TIPS)if(t[0].test(n))return t;return [null,'Reduce el tiempo de uso o compara con un modelo de mayor eficiencia energética (etiqueta A).',0.1]}
+function renderReport(){
+  const box=document.getElementById('report');
+  if(window.PRO){box.innerHTML='<button class="primary" id="pdfBtn">Descargar informe de ahorro (PDF)</button><div class="msg" id="pdfMsg" aria-live="polite"></div>';document.getElementById('pdfBtn').onclick=makePdf}
+  else box.innerHTML=window.proBanner('Consigue tu <b>informe de ahorro en PDF</b>: gasto de cada aparato, consejos personalizados y cuánto puedes ahorrar al año.');
+}
+function makePdf(){
+  const msg=document.getElementById('pdfMsg');
+  if(!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
+  const price=parseFloat(document.getElementById('price').value)||0;
+  const rows=items.map(it=>({n:it.n,m:monthly(it)*price,kwh:monthly(it)})).sort((a,b)=>b.m-a.m);
+  const total=rows.reduce((s,r)=>s+r.m,0);
+  const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'mm',format:'a4'});
+  const green=[31,107,69];let y=22;
+  d.setFillColor(...green);d.rect(0,0,210,14,'F');d.setTextColor(255);d.setFontSize(11);d.text('CHUPALUZ · Informe de ahorro',14,9.5);
+  d.setTextColor(24,34,28);d.setFontSize(22);d.text('Tu factura de luz, aparato por aparato',14,y+6);y+=16;
+  d.setFontSize(11);d.setTextColor(94,107,99);d.text('Precio del kWh: '+price.toFixed(2).replace('.',',')+' €  ·  Fecha: '+new Date().toLocaleDateString('es-ES'),14,y);y+=10;
+  d.setTextColor(24,34,28);d.setFontSize(14);d.text('Gasto estimado: '+eur(total)+' al mes  ·  '+eur(total*12)+' al año',14,y);y+=12;
+  d.setFontSize(10);d.setTextColor(94,107,99);d.text('APARATO',14,y);d.text('kWh/MES',120,y,{align:'right'});d.text('€/MES',150,y,{align:'right'});d.text('% TOTAL',190,y,{align:'right'});y+=3;
+  d.setDrawColor(217,223,217);d.line(14,y,196,y);y+=6;d.setTextColor(24,34,28);d.setFontSize(11);
+  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(String(r.n).slice(0,45),14,y);d.text(String(Math.round(r.kwh)),120,y,{align:'right'});d.text(eur(r.m),150,y,{align:'right'});d.text((total?Math.round(r.m/total*100):0)+'%',190,y,{align:'right'});y+=7});
+  y+=6;if(y>240){d.addPage();y=20}
+  d.setFontSize(16);d.text('Tus 3 mejores oportunidades de ahorro',14,y);y+=9;
+  let save=0;
+  rows.slice(0,3).forEach((r,i)=>{const t=tipFor(r.n);const a=r.m*t[2]*12;save+=a;if(y>255){d.addPage();y=20}
+    d.setFontSize(12);d.setTextColor(...green);d.text((i+1)+'. '+r.n+' — ahorro posible: '+eur(a)+'/año',14,y);y+=6;
+    d.setFontSize(10.5);d.setTextColor(24,34,28);const lines=d.splitTextToSize(t[1],180);d.text(lines,14,y);y+=lines.length*5+5});
+  if(y>250){d.addPage();y=20}
+  d.setFillColor(242,194,48);d.roundedRect(14,y,182,18,3,3,'F');d.setTextColor(24,34,28);d.setFontSize(13);d.text('Ahorro total estimado: '+eur(save)+' al año',20,y+11);y+=28;
+  d.setFontSize(9);d.setTextColor(94,107,99);d.text(d.splitTextToSize('Estimación orientativa basada en los datos introducidos. El consumo real depende del modelo, la antigüedad y los hábitos de uso. Creado por Gonzalo Leon · gonza0297.github.io/microapps',182),14,285);
+  d.save('Informe Chupaluz.pdf');msg.textContent='Informe descargado.';
+}
+renderReport();
 </script>
 
 </body>

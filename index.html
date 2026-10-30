@@ -24,6 +24,7 @@ a.app:hover,a.app:focus-visible{transform:translateY(-2px);border-color:var(--ac
 footer{color:var(--muted);font-size:14px;text-align:center}
 @media (prefers-reduced-motion:reduce){a.app{transition:none}}
 </style>
+<script src="pro.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -38,7 +39,16 @@ footer{color:var(--muted);font-size:14px;text-align:center}
     <a class="app" href="quecomemos/"><b>QuéComemos</b><span>Planifica la semana y llévate la lista de la compra ordenada por pasillos.</span><i>Planificar menú →</i></a>
     <a class="app" href="cv-flash/"><b>CV Flash</b><span>Tu currículum con diseño profesional, listo en PDF en 5 minutos.</span><i>Crear mi CV →</i></a>
   </div>
+  <section id="pro" aria-live="polite"></section>
   <footer>Creado por Gonzalo Leon</footer>
 </div>
+<script>
+var box=document.getElementById('pro');
+if(window.PRO){
+  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>'+(window.PRO_JUST_UNLOCKED?'¡Gracias por tu compra! ':'')+'Pack Pro activado</b> en este navegador. Ya tienes desbloqueadas las 5 apps.</p></div>';
+}else{
+  box.innerHTML='<div class="pro-box"><span class="pro-tag">PRO</span><p><b>Pack Pro:</b> CV sin marca de agua · informe de ahorro de luz en PDF · plan de ahorro en PDF · varios grupos en Cuentas Claras · recetas extra en QuéComemos. Un solo pago de '+window.PRECIO_PRO+', para siempre.</p>'+(window.PAGO_URL?'<a class="pro-buy" href="'+window.PAGO_URL+'">Desbloquear Pack Pro</a>':'<span class="pro-soon">Disponible muy pronto</span>')+'</div>';
+}
+</script>
 </body>
 </html>

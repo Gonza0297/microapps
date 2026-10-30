@@ -45,6 +45,9 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,6.5vw,44px);l
 .share p{margin:0;font-weight:500}
 .share button{justify-self:start;font:inherit;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.plan{display:grid;gap:10px}
+.plan .go{justify-self:start;font:inherit;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;cursor:pointer}
+.plan .msg{font-size:13px;color:var(--muted)}
 footer{color:var(--muted);font-size:13px;text-align:center}
 </style>
 
@@ -71,9 +74,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <button id="copy">Copiar para compartir</button>
   </section>
 
+  <section class="plan" id="plan"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Cálculo orientativo, no es asesoramiento financiero.</footer>
 </div>
 
+<script src="../pro.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const FREQ={dia:365,"laborable":250,semana:52,mes:12,"año":1};
 const FREQ_LBL={dia:"al día",laborable:"cada día laborable",semana:"a la semana",mes:"al mes","año":"al año"};
@@ -120,6 +127,42 @@ const own=document.createElement('button');own.className='chip';own.textContent=
 document.getElementById('yrs').oninput=calc;document.getElementById('inv').onchange=calc;
 document.getElementById('copy').onclick=async e=>{const t=document.getElementById('shareText').textContent;try{await navigator.clipboard.writeText(t);e.target.textContent='Copiado'}catch(err){const r=document.createRange();r.selectNodeContents(document.getElementById('shareText'));getSelection().removeAllRanges();getSelection().addRange(r);e.target.textContent='Texto seleccionado'}setTimeout(()=>e.target.textContent='Copiar para compartir',2000)};
 render();
+
+// ===== PRO: plan de ahorro en PDF =====
+function renderPlan(){
+  const box=document.getElementById('plan');
+  if(window.PRO){box.innerHTML='<button class="go" id="planBtn">Descargar mi plan de ahorro (PDF)</button><div class="msg" id="planMsg" aria-live="polite"></div>';document.getElementById('planBtn').onclick=makePlan}
+  else box.innerHTML=window.proBanner('Consigue tu <b>plan de ahorro en PDF</b>: qué recortar primero, cuánto ahorras al mes y cuánto tendrías en 5, 10 y 20 años.');
+}
+function makePlan(){
+  const msg=document.getElementById('planMsg');
+  if(!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
+  const rows=habits.map(h=>({n:h.n,p:parseFloat(h.p)||0,f:h.f,y:yearly(h)})).filter(r=>r.y>0).sort((a,b)=>b.y-a.y);
+  const annual=rows.reduce((s,r)=>s+r.y,0);
+  const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'mm',format:'a4'});
+  const purple=[123,47,190],red=[226,73,59],ink=[35,26,43],mut=[111,101,119];let y=22;
+  d.setFillColor(...purple);d.rect(0,0,210,14,'F');d.setTextColor(255);d.setFontSize(11);d.text('FUGA DE EUROS · Plan de ahorro',14,9.5);
+  d.setTextColor(...ink);d.setFontSize(22);d.text('Tu plan para tapar la fuga',14,y+6);y+=16;
+  d.setFontSize(11);d.setTextColor(...mut);d.text('Fecha: '+new Date().toLocaleDateString('es-ES'),14,y);y+=10;
+  d.setFontSize(14);d.setTextColor(...red);d.text('Hoy se te escapan '+eur(annual)+' al año ('+eur(annual/12)+' al mes)',14,y);y+=12;
+  d.setFontSize(10);d.setTextColor(...mut);d.text('GASTO',14,y);d.text('PRECIO',115,y,{align:'right'});d.text('FRECUENCIA',120,y);d.text('AL AÑO',196,y,{align:'right'});y+=3;
+  d.setDrawColor(231,223,232);d.line(14,y,196,y);y+=6;d.setTextColor(...ink);d.setFontSize(11);
+  rows.forEach(r=>{if(y>270){d.addPage();y=20}d.text(String(r.n).slice(0,42),14,y);d.text(r.p.toLocaleString('es-ES',{style:'currency',currency:'EUR'}),115,y,{align:'right'});d.text(FREQ_LBL[r.f],120,y);d.text(eur(r.y),196,y,{align:'right'});y+=7});
+  y+=6;if(y>220){d.addPage();y=20}
+  d.setFontSize(16);d.setTextColor(...ink);d.text('El plan: recorta a la mitad tus 3 mayores fugas',14,y);y+=9;
+  let save=0;
+  rows.slice(0,3).forEach((r,i)=>{const a=r.y/2;save+=a;d.setFontSize(11.5);d.setTextColor(...purple);d.text((i+1)+'. '+r.n,14,y);d.setTextColor(...ink);d.text('ahorras '+eur(a)+' al año ('+eur(a/12)+'/mes)',196,y,{align:'right'});y+=7});
+  y+=6;if(y>220){d.addPage();y=20}
+  d.setFontSize(16);d.text('Si ese ahorro lo apartas cada mes...',14,y);y+=10;
+  [[5,'5 años'],[10,'10 años'],[20,'20 años']].forEach(([n,l])=>{
+    d.setFillColor(239,228,247);d.roundedRect(14,y-6,182,14,2,2,'F');d.setFontSize(12);d.setTextColor(...ink);
+    d.text(l+':  '+eur(save*n)+' guardado',18,y+2.5);d.setTextColor(...purple);d.text('invertido al 5%: '+eur(future(save,n,true)),192,y+2.5,{align:'right'});y+=18});
+  y+=2;d.setFontSize(13);d.setTextColor(...ink);d.text('3 trucos para cumplirlo',14,y);y+=8;d.setFontSize(10.5);
+  ['Programa una transferencia automática a una cuenta de ahorro el día que cobras: '+eur(save/12)+' al mes.','Revisa tus suscripciones una vez al mes y da de baja las que no hayas usado en 30 días.','Antes de un capricho, espera 24 horas. Si sigues queriéndolo al día siguiente, cómpralo.'].forEach(t=>{const L=d.splitTextToSize('•  '+t,180);d.text(L,14,y);y+=L.length*5+3});
+  d.setFontSize(9);d.setTextColor(...mut);d.text(d.splitTextToSize('Cálculo orientativo, no es asesoramiento financiero. La rentabilidad del 5% es un ejemplo y no está garantizada. Creado por Gonzalo Leon · gonza0297.github.io/microapps',182),14,285);
+  d.save('Plan de ahorro Fuga de Euros.pdf');msg.textContent='Plan descargado.';
+}
+renderPlan();
 </script>
 
 </body>

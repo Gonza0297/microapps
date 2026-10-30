@@ -67,9 +67,12 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <div class="aisles" id="aisles"></div>
   </section>
 
+  <section id="pro"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon</footer>
 </div>
 
+<script src="../pro.js"></script>
 <script>
 // Cantidades por persona. Pasillos: Fruta y verdura, Carne y pescado, Lácteos y huevos, Despensa, Panadería, Congelados
 const R={
@@ -92,12 +95,31 @@ const R={
 };
 const DAYS=["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
 const AISLES=["Fruta y verdura","Carne y pescado","Lácteos y huevos","Panadería","Despensa","Congelados"];
+const RPRO={
+ "Paella de marisco":[["Arroz bomba",90,"g","Despensa"],["Gambas",80,"g","Carne y pescado"],["Mejillones",100,"g","Carne y pescado"],["Pimiento",0.5,"ud","Fruta y verdura"],["Tomate",0.5,"ud","Fruta y verdura"],["Caldo de pescado",250,"ml","Despensa"]],
+ "Curry de garbanzos":[["Garbanzos cocidos",200,"g","Despensa"],["Leche de coco",100,"ml","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Curry en polvo",5,"g","Despensa"],["Arroz",70,"g","Despensa"]],
+ "Moussaka":[["Berenjena",1,"ud","Fruta y verdura"],["Carne picada",120,"g","Carne y pescado"],["Tomate triturado",80,"g","Despensa"],["Leche",100,"ml","Lácteos y huevos"],["Queso rallado",20,"g","Lácteos y huevos"]],
+ "Fajitas de pollo":[["Tortillas de trigo",3,"ud","Panadería"],["Pechuga de pollo",130,"g","Carne y pescado"],["Pimiento",1,"ud","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Nata agria",30,"g","Lácteos y huevos"]],
+ "Lasaña de verduras":[["Placas de lasaña",4,"ud","Despensa"],["Calabacín",0.5,"ud","Fruta y verdura"],["Espinacas",60,"g","Fruta y verdura"],["Tomate triturado",100,"g","Despensa"],["Mozzarella",60,"g","Lácteos y huevos"]],
+ "Poke bowl de salmón":[["Arroz",80,"g","Despensa"],["Salmón",120,"g","Carne y pescado"],["Aguacate",0.5,"ud","Fruta y verdura"],["Pepino",0.5,"ud","Fruta y verdura"],["Salsa de soja",15,"ml","Despensa"]],
+ "Albóndigas en salsa":[["Carne picada",150,"g","Carne y pescado"],["Pan rallado",20,"g","Despensa"],["Huevos",0.5,"ud","Lácteos y huevos"],["Tomate triturado",100,"g","Despensa"],["Patatas",150,"g","Fruta y verdura"]],
+ "Risotto de champiñones":[["Arroz arborio",90,"g","Despensa"],["Champiñones",120,"g","Fruta y verdura"],["Cebolla",0.5,"ud","Fruta y verdura"],["Parmesano",20,"g","Lácteos y huevos"],["Caldo de verduras",300,"ml","Despensa"]],
+ "Gazpacho con tostas":[["Tomate",3,"ud","Fruta y verdura"],["Pepino",0.5,"ud","Fruta y verdura"],["Pimiento",0.5,"ud","Fruta y verdura"],["Pan",60,"g","Panadería"]],
+ "Quiche de jamón y queso":[["Masa quebrada",0.25,"ud","Panadería"],["Huevos",1.5,"ud","Lácteos y huevos"],["Nata para cocinar",60,"ml","Lácteos y huevos"],["Jamón cocido",50,"g","Carne y pescado"],["Queso rallado",30,"g","Lácteos y huevos"]],
+ "Bacalao con tomate":[["Bacalao",180,"g","Carne y pescado"],["Tomate triturado",120,"g","Despensa"],["Cebolla",0.5,"ud","Fruta y verdura"],["Patatas",150,"g","Fruta y verdura"]],
+ "Burrito vegetal":[["Tortillas de trigo",2,"ud","Panadería"],["Alubias negras",120,"g","Despensa"],["Maíz dulce",50,"g","Despensa"],["Arroz",50,"g","Despensa"],["Aguacate",0.5,"ud","Fruta y verdura"]],
+ "Solomillo con champiñones":[["Solomillo de cerdo",180,"g","Carne y pescado"],["Champiñones",100,"g","Fruta y verdura"],["Nata para cocinar",50,"ml","Lácteos y huevos"],["Patatas",150,"g","Fruta y verdura"]],
+ "Ramen casero":[["Fideos ramen",90,"g","Despensa"],["Caldo de pollo",400,"ml","Despensa"],["Huevos",1,"ud","Lácteos y huevos"],["Cebolleta",0.5,"ud","Fruta y verdura"],["Pechuga de pollo",100,"g","Carne y pescado"]]
+};
+const FREE=Object.keys(R);
+if(window.PRO)Object.assign(R,RPRO);
 const names=Object.keys(R);
 let plan,checked={};
 try{plan=JSON.parse(localStorage.getItem('menu-plan')||'null');checked=JSON.parse(localStorage.getItem('menu-check')||'{}')}catch(e){}
 if(!Array.isArray(plan)||plan.length!==14)plan=["Espaguetis a la boloñesa","Crema de calabaza","Pollo al horno con patatas","Tortilla de patatas","Lentejas con verduras","Ensalada César","Salmón con arroz","Tostadas con aguacate y huevo","Garbanzos con espinacas","Pizza casera","Tacos de carne","",  "Wok de pollo y fideos",""];
+plan=plan.map(x=>x&&R[x]?x:'');
 function save(){try{localStorage.setItem('menu-plan',JSON.stringify(plan));localStorage.setItem('menu-check',JSON.stringify(checked))}catch(e){}}
-const opts=sel=>'<option value="">— Nada —</option>'+names.map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
+const opts=sel=>'<option value="">— Nada —</option>'+`<optgroup label="Recetas">`+FREE.map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('')+'</optgroup>'+`<optgroup label="${window.PRO?'Recetas Pro':'Recetas Pro (bloqueadas)'}">`+Object.keys(RPRO).map(n=>`<option ${n===sel?'selected':''} ${window.PRO?'':'disabled'}>${n}</option>`).join('')+'</optgroup>';
 function renderWeek(){
   document.getElementById('week').innerHTML=DAYS.map((d,i)=>`<div class="day"><h3>${d}</h3>
    <label class="slot">Comida<select id="s${i*2}" data-k="${i*2}">${opts(plan[i*2])}</select></label>
@@ -132,6 +154,8 @@ document.getElementById('copy').onclick=async e=>{
   try{await navigator.clipboard.writeText(txt);e.target.textContent='Copiada'}catch(err){e.target.textContent='No se pudo copiar'}
   setTimeout(()=>e.target.textContent='Copiar lista',2000)};
 renderWeek();renderList();
+
+document.getElementById('pro').innerHTML=window.PRO?'':window.proBanner('Desbloquea <b>14 recetas más</b>: paella, curry, poke bowl, lasaña, ramen… y "Sorpréndeme" las incluirá en tu menú.');
 </script>
 
 </body>

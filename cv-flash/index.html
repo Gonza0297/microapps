@@ -9,6 +9,7 @@
 <title>CV Flash</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<script src="../pro.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -200,25 +201,10 @@ function fit(){
 }
 addEventListener('resize',fit);
 
-// ===== COBRO =====
-// 1) Crea un "Payment Link" en Stripe (o Lemon Squeezy) de 3,99 € y pega su enlace aquí.
-// 2) En Stripe, en "Después del pago", redirige a: https://gonza0297.github.io/microapps/cv-flash/?gracias=cvflash-pro
-const PAGO_URL="";            // <- pega aquí tu enlace de pago
-const CODIGO_PRO="cvflash-pro";
-let PRO=false;
-try{
-  const q=new URLSearchParams(location.search).get('gracias');
-  if(q===CODIGO_PRO){localStorage.setItem('cvflash-pro','1');history.replaceState(null,'',location.pathname)}
-  PRO=localStorage.getItem('cvflash-pro')==='1';
-}catch(e){}
+// ===== COBRO: Pack Pro compartido (ver ../pro.js) =====
+const PRO=!!window.PRO;
 const proBox=document.getElementById('pro');
-function renderPro(){
-  if(PRO){proBox.innerHTML='<b>Versión Pro activada.</b> Tus PDF salen sin marca de agua.';return}
-  proBox.innerHTML=PAGO_URL
-    ?`La descarga gratis lleva una marca de agua. <a class="buy" href="${PAGO_URL}">Quitar marca de agua · 3,99 €</a>`
-    :'La descarga gratis lleva una marca de agua. (Versión Pro próximamente.)';
-}
-renderPro();
+proBox.innerHTML=PRO?'<b>Pack Pro activado.</b> Tus PDF salen sin marca de agua.':window.proBanner('La descarga gratis lleva marca de agua. Con Pro, tu CV sale limpio.');
 document.getElementById('dl').onclick=async()=>{
   const msg=document.getElementById('msg'),btn=document.getElementById('dl');
   if(!window.html2canvas||!window.jspdf){msg.textContent='No se pudo cargar el generador de PDF. Recarga la página.';return}
