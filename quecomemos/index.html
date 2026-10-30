@@ -69,10 +69,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 
   <section id="pro"></section>
 
+  <section id="amz"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
 </div>
 
 <script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
 <script>
 // Cantidades por persona. Pasillos: Fruta y verdura, Carne y pescado, Lácteos y huevos, Despensa, Panadería, Congelados
 const R={
@@ -156,6 +159,16 @@ document.getElementById('copy').onclick=async e=>{
 renderWeek();renderList();
 
 document.getElementById('pro').innerHTML=window.PRO?'':window.proBanner('Desbloquea <b>14 recetas más</b>: paella, curry, poke bowl, lasaña, ramen… y "Sorpréndeme" las incluirá en tu menú.');
+
+// ===== Amazon: cocina y compra =====
+window.renderAmazon&&renderAmazon('amz','Para cocinar tu menú de la semana',[
+  {name:'Táperes de cristal',desc:'Cocina el domingo y guarda las comidas de toda la semana.',q:'tapers cristal hermeticos set',hot:true},
+  {name:'Freidora de aire',desc:'Cocina rápido, con poco aceite y gastando menos luz que el horno.',q:'freidora de aire'},
+  {name:'Báscula de cocina digital',desc:'Para seguir las cantidades de las recetas al gramo.',q:'bascula cocina digital'},
+  {name:'Bolsas de compra reutilizables',desc:'Plegables, caben en el bolsillo y aguantan peso.',q:'bolsas compra reutilizables plegables'},
+  {name:'Set de cuchillos de cocina',desc:'Cortar bien hace que cocinar sea el doble de rápido.',q:'set cuchillos cocina'},
+  {name:'Libro de recetas fáciles',desc:'Más ideas para tu menú semanal.',q:'libro recetas faciles rapidas'}
+]);
 </script>
 
 </body>

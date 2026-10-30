@@ -10,6 +10,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
 <script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -138,6 +139,8 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     </div>
   </div>
 
+  <section id="amz"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
 </div>
 
@@ -225,6 +228,16 @@ document.getElementById('dl').onclick=async()=>{
   }finally{sc.style.transform=prev;fit();btn.disabled=false}
 };
 draw();
+
+// ===== Amazon: búsqueda de empleo =====
+window.renderAmazon&&renderAmazon('amz','Para conseguir ese trabajo',[
+  {name:'Aro de luz para videollamadas',desc:'Sal bien iluminado en las entrevistas online.',q:'aro de luz videollamada',hot:true},
+  {name:'Auriculares con micrófono',desc:'Que te oigan claro en la entrevista por Teams o Zoom.',q:'auriculares con microfono videollamadas'},
+  {name:'Libros sobre entrevistas de trabajo',desc:'Las preguntas típicas y cómo responderlas.',q:'libro entrevista de trabajo'},
+  {name:'Carpeta portadocumentos',desc:'Lleva tu CV impreso sin arrugas a la entrevista.',q:'carpeta portadocumentos a4'},
+  {name:'Papel premium para imprimir el CV',desc:'Un CV en buen papel causa mejor impresión.',q:'papel a4 120 g'},
+  {name:'Soporte para portátil',desc:'La cámara a la altura de los ojos en las entrevistas online.',q:'soporte portatil ajustable'}
+]);
 </script>
 
 </body>

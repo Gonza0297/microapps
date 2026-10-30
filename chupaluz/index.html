@@ -89,10 +89,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 
   <section class="report" id="report"></section>
 
+  <section id="amz"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a> · Estimación orientativa: el consumo real depende del modelo y del uso.</footer>
 </div>
 
 <script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const PRESETS=[
@@ -212,6 +215,22 @@ function makePdf(){
   d.save('Informe Chupaluz.pdf');msg.textContent='Informe descargado.';
 }
 renderReport();
+
+// ===== Amazon: productos para ahorrar luz =====
+function renderAmz(){
+  const names=items.map(i=>i.n.toLowerCase()).join(' ');
+  const has=r=>r.test(names);
+  window.renderAmazon&&renderAmazon('amz','Productos que te ayudan a pagar menos luz',[
+    {name:'Bombillas LED E27',desc:'Gastan hasta un 85% menos que las antiguas y duran años.',q:'bombillas led e27 pack',hot:has(/bombilla antigua/)},
+    {name:'Enchufe con medidor de consumo',desc:'Mide lo que gasta de verdad cada aparato, en euros.',q:'enchufe inteligente medidor consumo',hot:true},
+    {name:'Regleta con interruptores',desc:'Corta el consumo en espera de la tele, el ordenador y la consola.',q:'regleta interruptor individual',hot:has(/televisor|ordenador|consola|router/)},
+    {name:'Temporizador de enchufe',desc:'Calienta el termo solo en las horas más baratas.',q:'temporizador enchufe programable',hot:has(/termo|cargador de coche/)},
+    {name:'Termostato programable',desc:'Programa la calefacción para no calentar la casa vacía.',q:'termostato programable wifi',hot:has(/radiador|calefac/)},
+    {name:'Tendedero plegable',desc:'La forma más barata de secar la ropa: gratis.',q:'tendedero plegable',hot:has(/secadora/)}
+  ]);
+}
+const _summary=summary;summary=function(){_summary();renderAmz()};
+renderAmz();
 </script>
 
 </body>

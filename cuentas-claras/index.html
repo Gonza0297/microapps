@@ -110,10 +110,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
     <div id="expenses"></div>
   </section>
 
+  <section id="amz"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a></footer>
 </div>
 
 <script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
 <script>
 const EXAMPLE={name:"Viaje a Lisboa (ejemplo)",people:["Ana","Luis","Marta","Gonzalo"],exp:[
  {d:"Alquiler apartamento (ejemplo)",a:480,p:"Ana",s:["Ana","Luis","Marta","Gonzalo"]},
@@ -188,6 +191,16 @@ document.getElementById('exportBtn').onclick=async e=>{
   setTimeout(()=>btn.textContent='Copiar resumen',2000);
 };
 renderGroups();
+
+// ===== Amazon: viajes y piso compartido =====
+window.renderAmazon&&renderAmazon('amz','Para tu próximo viaje en grupo',[
+  {name:'Mochila de cabina 40x20x25',desc:'Entra gratis como equipaje de mano en las low cost.',q:'mochila cabina 40x20x25'},
+  {name:'Báscula de equipaje',desc:'Pesa la maleta en casa y evita pagar sobrepeso.',q:'bascula equipaje digital'},
+  {name:'Adaptador de viaje universal',desc:'Un solo enchufe para cargar todo en cualquier país.',q:'adaptador viaje universal usb'},
+  {name:'Neceser transparente para avión',desc:'Pasa el control de seguridad sin sacar nada.',q:'neceser transparente avion'},
+  {name:'Juegos de cartas para grupos',desc:'Para las noches del viaje o del piso.',q:'juego de cartas para grupos amigos'},
+  {name:'Organizadores de maleta',desc:'Cabe el doble de ropa y todo ordenado.',q:'organizadores maleta cubos'}
+]);
 </script>
 
 </body>

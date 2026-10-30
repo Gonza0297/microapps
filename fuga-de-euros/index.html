@@ -76,10 +76,13 @@ footer{color:var(--muted);font-size:13px;text-align:center}
 
   <section class="plan" id="plan"></section>
 
+  <section id="amz"></section>
+
   <footer><a href="../" style="color:inherit">← Más apps gratis</a> · Creado por Gonzalo Leon · Contacto: <a href="mailto:appsutiles8@gmail.com" style="color:inherit">appsutiles8@gmail.com</a> · Cálculo orientativo, no es asesoramiento financiero.</footer>
 </div>
 
 <script src="../pro.js"></script>
+<script src="../afiliados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const FREQ={dia:365,"laborable":250,semana:52,mes:12,"año":1};
@@ -163,6 +166,22 @@ function makePlan(){
   d.save('Plan de ahorro Fuga de Euros.pdf');msg.textContent='Plan descargado.';
 }
 renderPlan();
+
+// ===== Amazon: productos para ahorrar =====
+function renderAmz(){
+  const names=habits.map(h=>String(h.n).toLowerCase()).join(' ');
+  const has=r=>r.test(names);
+  window.renderAmazon&&renderAmazon('amz','Para tapar tu fuga',[
+    {name:'Termo de café para llevar',desc:'Lleva el café de casa: ahorras el de la cafetería cada día.',q:'termo cafe para llevar',hot:has(/caf/)},
+    {name:'Cafetera de cápsulas o espresso',desc:'Un café en casa cuesta unos céntimos.',q:'cafetera espresso',hot:has(/caf/)},
+    {name:'Táperes para llevar comida',desc:'Llevar comida de casa al trabajo ahorra cientos de euros al año.',q:'tapers cristal hermeticos',hot:has(/comida|domicilio|men/)},
+    {name:'Hucha con contador digital',desc:'Ve cómo crece lo que dejas de gastar.',q:'hucha contador digital'},
+    {name:'Agenda de presupuesto',desc:'Apunta tus gastos del mes y controla tu dinero.',q:'agenda presupuesto finanzas personales'},
+    {name:'Libros de finanzas personales',desc:'Aprende a ahorrar e invertir desde cero.',q:'libro finanzas personales ahorro'}
+  ]);
+}
+const _calc=calc;calc=function(){_calc();renderAmz()};
+renderAmz();
 </script>
 
 </body>
